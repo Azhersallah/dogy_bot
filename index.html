@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dogy Bot</title>
+    <title>Mobile UI Web App</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -49,8 +49,8 @@
         }
 
         .circle {
-            width: 200px;
-            height: 200px;
+            width: 250px;
+            height: 250px;
             border-radius: 50%;
             overflow: hidden;
             background-color: #ffd700;
@@ -58,12 +58,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 50px; 
-            margin-bottom: 20px; 
             position: relative; 
             transition: transform 0.3s ease; 
         }
-
 
         .circle.hold-click {
             transform: scale(0.85); 
@@ -108,14 +105,12 @@
             }
         }
 
-
         .slider-container {
             width: 80%;
             height: 10px;
             background-color: gray;
             border-radius: 5px;
             position: relative;
-            margin-top: 10px; 
         }
 
         .slider-fill {
@@ -130,7 +125,6 @@
             text-align: left;
             color: rgb(255, 255, 255);
             font-weight: 600;
-            margin-top: 70px; 
         }
 
         footer {
@@ -169,20 +163,26 @@
             }
 
             .desktop-warning {
-                display: block;
-                color: white;
+                width: 100%;
+                height: 40vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: rgb(0, 0, 0);
                 font-size: 20px;
                 text-align: center;
                 padding-top: 50vh;
             }
         }
-        .btn{
-            position: absolute;
-            bottom: 25%;
+        .btn {
             transform: scale(0.9);
-            right: 6%;
+            width: 95%;
+            flex-direction: column;
+            display: flex;
+            justify-content: center;
+            align-items: end;
         }
-        .btn button{
+        .btn button {
             width: 90px;
             background-color: #ffd700;
             border-radius: 100px;
@@ -192,19 +192,27 @@
             border: none;
             filter: drop-shadow(0 0 15px rgba(255, 217, 0, 0.445));
         }
-        .btn button img{
+        .btn button img {
             width: 25%;
         }
-        .btn button span{
-            
+        .btn button span {
             margin: 0px 3px 3px 3px;
+            
         }
-        .btn p{
+        .btn p {
             color: white;
         }
-        .slider-container{
+        .slider-container {
             overflow: hidden;
         }
+        .slider_bootere {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-direction: column;
+        }
+
     </style>
 </head>
 <body>
@@ -223,24 +231,57 @@
         </div>
     </div>
 
+
+    <style>
+        .ss{
+            height: 70vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .boostslider{
+            width: 100%;
+            display: flex;
+            justify-content:center ;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+
+    <div class="container ss">
     <h2 id="points">0</h2>
     <div id="circle" class="circle">
         <img src="dogyCoin.png" alt="Tiger Coin" class="img-fluid">
     </div>
 
-    <div class="btn">
-        <button>
-             <img src="https://img.icons8.com/?size=100&id=XAhj3VVb2SH6&format=png&color=000000" alt="">
-                <span>Boost</span>
-            </button>
-            <p class="times_of_boost">3/3</p>
+
+    <div class="boostslider">
+
+        <div class="btn" >
+            <div class="flex justify-content-center align-items-center">
+                <button>
+                    <img src="https://img.icons8.com/?size=100&id=XAhj3VVb2SH6&format=png&color=000000" alt="">
+                    <span>Boost</span>
+                </button>
+                <p class="times_of_boost">3/3</p>
+            </div>
+        </div>
+        
+        <div class="slider-text" id="slider-text">1000/1000</div>
+        
+        <div class="slider-container">
+            <div class="slider-fill" id="slider-fill"></div>
+        </div>
+    </div>
     </div>
 
-    <div class="slider-text " id="slider-text">1000/1000</div>
+</div>
 
-    <div class="slider-container">
-        <div class="slider-fill" id="slider-fill"></div>
-    </div>
+
+
+
 
     <footer class="fixed-bottom">
         <nav class="navbar navbar-expand navbar-light">
@@ -274,7 +315,8 @@
             let currentClicks = maxClicks; 
             const sliderFill = $("#slider-fill");
             const sliderText = $("#slider-text");
-            let isFilling = false; 
+            let canClick = true; // Variable to manage clicks
+
             function updateSlider() {
                 const fillWidth = (currentClicks / maxClicks) * 100; 
                 sliderFill.css("width", fillWidth + "%");
@@ -295,17 +337,25 @@
             fillSlider(); 
 
             $("#circle").on("mousedown touchstart", function(event) {
-                if (currentClicks > 0) {
+                if (currentClicks > 0 && canClick) {
+                    canClick = false; // Prevent further clicks
                     points++; 
                     $("#points").text(points); 
                     currentClicks--; 
                     updateSlider(); 
 
                     const pointFloat = $("<span class='point-float'>+1</span>");
+                    
+                    // Calculate position relative to the circle
+                    const offset = $(this).offset();
+                    const x = event.pageX - offset.left;
+                    const y = event.pageY - offset.top;
+
                     pointFloat.css({
-                        left: event.pageX - $(this).offset().left,
-                        top: event.pageY - $(this).offset().top
+                        left: x + 'px',
+                        top: y + 'px',
                     });
+                    
                     $(this).append(pointFloat);
 
                     pointFloat.animate({top: '-60px', opacity: 0}, 1000, function() {
@@ -313,6 +363,11 @@
                     });
 
                     $(this).addClass('hold-click');
+                    
+                    // Allow clicking again after a short delay
+                    setTimeout(() => {
+                        canClick = true;
+                    }, 50); // Adjust the timeout duration as needed
                 }
             });
 
