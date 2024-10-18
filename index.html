@@ -54,7 +54,6 @@
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                const email = `${user.id}@gmail.com`; // Generate email
                 const telegramId = user.id;
 
                 // Display user information
@@ -62,14 +61,15 @@
                     <div class="auth-info">
                         <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
                         <p>Username: ${user.username}</p>
-                        <p>User ID: ${user.id}</p>
-                        <p>Email: ${email}</p>
+                        <p>User ID: ${telegramId}</p>
                     </div>
                 `;
 
-                // Send user data to Firestore and Realtime Database
-                sendUserDataToFirestore(email, user.username, telegramId);
-                sendUserDataToDatabase(email, user.username, telegramId);
+                // Send username and user ID to Firestore
+                sendUserDataToFirestore(user.username, telegramId);
+                
+                // Send other user data to Realtime Database
+                sendUserDataToDatabase(user.username, telegramId);
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
@@ -77,23 +77,16 @@
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function sendUserDataToFirestore(email, username, telegramId) {
+        function sendUserDataToFirestore(username, telegramId) {
             const userData = {
                 username: username,
                 telegramId: telegramId,
-                user_level: 1,
-                points: 0,
-                booster: 3,
-                slider: 1000,
-                booster_is_on: false,
-                booster_start: "",
-                booster_end: ""
             };
 
             // Set user data in Firestore
-            setDoc(doc(db, "user-info", email.replace('.', ',')), userData)
+            setDoc(doc(db, "user-info", telegramId.toString()), userData)
                 .then(() => {
-                    console.log('User data saved to Firestore:', userData);
+                    console.log('Username and user ID saved to Firestore:', userData);
                     showSuccessMessage('User data sent to Firestore successfully!');
                 })
                 .catch((error) => {
@@ -101,7 +94,7 @@
                 });
         }
 
-        function sendUserDataToDatabase(email, username, telegramId) {
+        function sendUserDataToDatabase(username, telegramId) {
             const userData = {
                 username: username,
                 telegramId: telegramId,
@@ -115,7 +108,7 @@
             };
 
             // Set user data in Realtime Database
-            set(ref(database, `user-info/${email}`), userData)
+            set(ref(database, `user-info/${telegramId}`), userData)
                 .then(() => {
                     console.log('User data saved to Realtime Database:', userData);
                     showSuccessMessage('User data sent to Realtime Database successfully!');
