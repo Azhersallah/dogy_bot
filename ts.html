@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Web App</title>
+    <style>
+        /* Basic styling for the Telegram authentication display */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .auth-info {
+            margin-top: 20px;
+        }
+        .login-status {
+            font-size: 1.2em;
+            color: green;
+        }
+        .error-status {
+            font-size: 1.2em;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Telegram Web App Authentication</h1>
+    <div id="status" class="login-status">Loading...</div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Initialize the Telegram Web App
+        const tg = window.Telegram.WebApp;
+        
+        // Get the initData from Telegram
+        const initData = tg.initData;
+
+        if (initData) {
+            // Extract user data from initDataUnsafe (non-validated version)
+            const user = tg.initDataUnsafe.user;
+
+            if (user) {
+                // Display user information
+                document.getElementById('status').innerHTML = `
+                    <div class="auth-info">
+                        <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
+                        <p>Username: ${user.username}</p>
+                        <p>User ID: ${user.id}</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
+            }
+        } else {
+            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
+        }
+    </script>
+</body>
+</html>
