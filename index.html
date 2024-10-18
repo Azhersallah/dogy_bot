@@ -7,6 +7,7 @@
     <style>
         /* Basic styling for the display */
         body {
+            background-color:red;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -25,7 +26,7 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -65,43 +66,51 @@
                     </div>
                 `;
 
-                // Check if user already exists
-                fetchSignInMethodsForEmail(auth, email)
-                    .then((methods) => {
-                        if (methods.length > 0) {
-                            // User exists, log them in
-                            signInWithEmailAndPassword(auth, email, password)
-                                .then((userCredential) => {
-                                    const user = userCredential.user;
-                                    console.log('User logged in:', user);
-                                    showSuccessMessage('User logged in successfully!');
-                                })
-                                .catch((error) => {
-                                    const errorCode = error.code;
-                                    const errorMessage = error.message;
-                                    console.error('Error logging in:', errorCode, errorMessage);
-                                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
-                                });
-                        } else {
-                            // User does not exist, create a new one
-                            createUserWithEmailAndPassword(auth, email, password)
-                                .then((userCredential) => {
-                                    const user = userCredential.user;
-                                    console.log('User registered:', user);
-                                    showSuccessMessage('User registered successfully!');
-                                })
-                                .catch((error) => {
-                                    const errorCode = error.code;
-                                    const errorMessage = error.message;
-                                    console.error('Error registering:', errorCode, errorMessage);
-                                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
-                                });
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error checking sign-in methods:', error);
-                        document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
-                    });
+                // Check if user is already authenticated
+                onAuthStateChanged(auth, (currentUser) => {
+                    if (currentUser) {
+                        // User is already signed in
+                        showSuccessMessage('User is already logged in!');
+                    } else {
+                        // Check if user already exists
+                        fetchSignInMethodsForEmail(auth, email)
+                            .then((methods) => {
+                                if (methods.length > 0) {
+                                    // User exists, log them in
+                                    signInWithEmailAndPassword(auth, email, password)
+                                        .then((userCredential) => {
+                                            const user = userCredential.user;
+                                            console.log('User logged in:', user);
+                                            showSuccessMessage('User logged in successfully!');
+                                        })
+                                        .catch((error) => {
+                                            const errorCode = error.code;
+                                            const errorMessage = error.message;
+                                            console.error('Error logging in:', errorCode, errorMessage);
+                                            document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
+                                        });
+                                } else {
+                                    // User does not exist, create a new one
+                                    createUserWithEmailAndPassword(auth, email, password)
+                                        .then((userCredential) => {
+                                            const user = userCredential.user;
+                                            console.log('User registered:', user);
+                                            showSuccessMessage('User registered successfully!');
+                                        })
+                                        .catch((error) => {
+                                            const errorCode = error.code;
+                                            const errorMessage = error.message;
+                                            console.error('Error registering:', errorCode, errorMessage);
+                                            document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
+                                        });
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error checking sign-in methods:', error);
+                                document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+                            });
+                    }
+                });
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
