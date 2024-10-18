@@ -1,12 +1,11 @@
 // Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 // Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
     authDomain: "ttaskk-a50e4.firebaseapp.com",
-    databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
     projectId: "ttaskk-a50e4",
     storageBucket: "ttaskk-a50e4.appspot.com",
     messagingSenderId: "213200371465",
@@ -15,55 +14,57 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const db = getFirestore(app);
 
 // Initialize the Telegram Web App
 const tg = window.Telegram.WebApp;
 
-// Function to send user data to the Realtime Database
-function sendUserDataToDatabase(userData) {
-    // Set user data in Realtime Database
-    set(ref(database, `user-info/${userData.telegramId}`), userData)
+// Get the initData from Telegram
+const initData = tg.initData;
+
+if (initData) {
+    const user = tg.initDataUnsafe.user;
+
+    if (user) {
+        const telegramId = user.id;
+        const username = user.username || "No Username"; // Handle cases where username might be undefined
+
+        // Display user information in the HTML
+        document.getElementById('username').innerText = username;
+        document.getElementById('telegramId').innerText = telegramId;
+
+        // Prepare user data from HTML elements
+        const userData = {
+            username: username,
+            telegramId: telegramId,
+            user_level: parseInt(document.getElementById('user_level').innerText),
+            points: parseInt(document.getElementById('points').innerText),
+            booster: parseInt(document.getElementById('booster').innerText),
+            slider: parseInt(document.getElementById('slider').innerText),
+            booster_is_on: document.getElementById('booster_is_on').innerText === 'true',
+            booster_start: document.getElementById('booster_start').innerText,
+            booster_end: document.getElementById('booster_end').innerText
+        };
+
+        // Send user data to Firestore
+        sendUserDataToFirestore(userData);
+    } else {
+        document.getElementById('status').innerText = 'Failed to get user data';
+    }
+} else {
+    document.getElementById('status').innerText = 'No init data found';
+}
+
+function sendUserDataToFirestore(userData) {
+    const userDocRef = doc(db, "user-info", userData.telegramId.toString());
+
+    setDoc(userDocRef, userData)
         .then(() => {
-            console.log('User data saved to Realtime Database:', userData);
-            document.getElementById('status').innerText = "Data sent successfully!";
+            console.log('User data saved to Firestore:', userData);
+            document.getElementById('status').innerText = 'User data sent to Firestore successfully!';
         })
         .catch((error) => {
-            console.error('Error saving user data to Realtime Database:', error);
-            document.getElementById('status').innerText = `Error: ${error.message}`;
+            console.error('Error saving user data to Firestore:', error);
+            document.getElementById('status').innerText = 'Error: ' + error.message;
         });
 }
-
-// Function to initialize and run when the script is loaded
-function init() {
-    const initData = tg.initData;
-
-    if (initData) {
-        const user = tg.initDataUnsafe.user;
-
-        if (user) {
-            // Create user data object from the h1 elements
-            const userData = {
-                username: document.getElementById('username').innerText,
-                telegramId: user.id,  // Use the Telegram user ID
-                user_level: parseInt(document.getElementById('user_level').innerText),
-                points: parseInt(document.getElementById('points').innerText),
-                booster: parseInt(document.getElementById('booster').innerText),
-                slider: parseInt(document.getElementById('slider').innerText),
-                booster_is_on: document.getElementById('booster_is_on').innerText === 'true',
-                booster_start: document.getElementById('booster_start').innerText,
-                booster_end: document.getElementById('booster_end').innerText
-            };
-
-            // Automatically send user data to Firebase
-            sendUserDataToDatabase(userData);
-        } else {
-            console.error('Failed to get user data');
-        }
-    } else {
-        console.error('No init data found');
-    }
-}
-
-// Run the initialization function
-init();
