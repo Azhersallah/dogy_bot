@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Web App Authentication with Firebase</title>
     <style>
-        /* Basic styling for the display */
         body {
-            color:white;
-            background-color:brown;
+            background-color:tomato;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -57,8 +55,8 @@
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                const email = `${user.id}@gmail.com`; // Construct email from user ID
-                const password = `${user.id}`; // Use user ID as password
+                const email = `${user.id}@gmail.com`;
+                const password = `${user.id}`;
 
                 // Display user information
                 document.getElementById('status').innerHTML = `
@@ -78,8 +76,8 @@
                         sendUserDataToDatabase(currentUser, user.username, user.id);
                         showSuccessMessage('User is already logged in!');
                     } else {
-                        // User is not logged in, try to log them in or register
-                        handleUserAuthentication(email, password, user.username, user.id);
+                        // User is not logged in, try to register first
+                        handleUserRegistration(email, password, user.username, user.id);
                     }
                 });
             } else {
@@ -89,54 +87,48 @@
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function handleUserAuthentication(email, password, username, telegramId) {
-            // Sign out the current user
-            signOut(auth).then(() => {
-                // Check if user already exists
-                fetchSignInMethodsForEmail(auth, email)
-                    .then((methods) => {
-                        if (methods.length > 0) {
-                            // User exists, log them in
-                            signInWithEmailAndPassword(auth, email, password)
-                                .then((userCredential) => {
-                                    const user = userCredential.user;
-                                    console.log('User logged in:', user);
-                                    sendUserDataToDatabase(user, username, telegramId);
-                                    showSuccessMessage('User logged in successfully!');
-                                })
-                                .catch((error) => {
-                                    const errorMessage = error.message;
-                                    console.error('Error logging in:', errorMessage);
-                                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
-                                });
-                        } else {
-                            // User does not exist, create a new one
-                            createUserWithEmailAndPassword(auth, email, password)
-                                .then((userCredential) => {
-                                    const user = userCredential.user;
-                                    console.log('User registered:', user);
-                                    sendUserDataToDatabase(user, username, telegramId);
-                                    showSuccessMessage('User registered successfully!');
-                                })
-                                .catch((error) => {
-                                    const errorMessage = error.message;
-                                    console.error('Error registering:', errorMessage);
-                                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
-                                });
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error checking sign-in methods:', error);
-                        document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
-                    });
-            }).catch((error) => {
-                console.error('Error signing out:', error);
-                document.getElementById('status').innerHTML = `<div class="error-status">Error: Unable to sign out.</div>`;
-            });
+        function handleUserRegistration(email, password, username, telegramId) {
+            // Check if user already exists
+            fetchSignInMethodsForEmail(auth, email)
+                .then((methods) => {
+                    if (methods.length > 0) {
+                        // User exists, log them in
+                        signInWithEmailAndPassword(auth, email, password)
+                            .then((userCredential) => {
+                                const user = userCredential.user;
+                                console.log('User logged in:', user);
+                                sendUserDataToDatabase(user, username, telegramId);
+                                showSuccessMessage('User logged in successfully!');
+                            })
+                            .catch((error) => {
+                                const errorMessage = error.message;
+                                console.error('Error logging in:', errorMessage);
+                                document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
+                            });
+                    } else {
+                        // User does not exist, create a new one
+                        createUserWithEmailAndPassword(auth, email, password)
+                            .then((userCredential) => {
+                                const user = userCredential.user;
+                                console.log('User registered:', user);
+                                sendUserDataToDatabase(user, username, telegramId);
+                                showSuccessMessage('User registered successfully!');
+                            })
+                            .catch((error) => {
+                                const errorMessage = error.message;
+                                console.error('Error registering:', errorMessage);
+                                document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error checking sign-in methods:', error);
+                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+                });
         }
 
         function sendUserDataToDatabase(user, username, telegramId) {
-            const email = user.email; // Use the email as UID
+            const email = user.email.replace('.', ','); // Use the email as UID, replace dot to avoid issues in database path
 
             const userData = {
                 username: username,
@@ -151,7 +143,7 @@
             };
 
             // Set user data in Realtime Database
-            set(ref(database, `user-info/${email.replace('.', ',')}`), userData)
+            set(ref(database, `user-info/${email}`), userData)
                 .then(() => {
                     console.log('User data saved to Realtime Database:', userData);
                     showSuccessMessage('User data sent to Realtime Database successfully!');
