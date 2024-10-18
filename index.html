@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
+            background-color: white; /* Set background color to white */
         }
         .auth-info {
             margin-top: 20px;
@@ -56,6 +57,9 @@
             const user = tg.initDataUnsafe.user;
 
             if (user) {
+                const email = `${user.id}@gmail.com`; // User email
+                const password = `${user.id}`; // User password
+
                 // Check if the user is already authenticated
                 auth.onAuthStateChanged(async (firebaseUser) => {
                     if (firebaseUser) {
@@ -69,15 +73,12 @@
                     } else {
                         // Create a new user or sign in
                         try {
-                            // Create a unique email using Telegram username or user ID
-                            const email = `${user.username || user.id}@telegram.com`;
-                            const password = "temporary_password"; // In a real app, handle this differently
-
-                            // Create the user in Firebase
-                            const newUser = await auth.createUserWithEmailAndPassword(email, password);
+                            // Sign in with email and password
+                            await auth.signInWithEmailAndPassword(email, password);
                             
-                            // Update user profile with Telegram info
-                            await newUser.user.updateProfile({
+                            // If sign-in is successful, set user display name (optional)
+                            const currentUser = auth.currentUser;
+                            await currentUser.updateProfile({
                                 displayName: `${user.first_name} ${user.last_name || ''}`
                             });
 
