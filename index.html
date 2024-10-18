@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
-            background-color: white; /* Set background color to white */
+            background-color: cyan; /* Set background color to white */
         }
         .auth-info {
             margin-top: 20px;
@@ -66,17 +66,17 @@
                         // User is already authenticated
                         document.getElementById('status').innerHTML = `
                             <div class="auth-info">
-                                <p>Authenticated as: ${firebaseUser.displayName}</p>
-                                <p>User ID: ${firebaseUser.uid}</p>
+                                <p>Success! You are authenticated.</p>
+                                <p>Email: ${email}</p>
+                                <p>Password: ${password}</p>
                             </div>
                         `;
                     } else {
                         // Create a new user or sign in
                         try {
-                            // Sign in with email and password
-                            await auth.signInWithEmailAndPassword(email, password);
+                            await auth.createUserWithEmailAndPassword(email, password);
                             
-                            // If sign-in is successful, set user display name (optional)
+                            // Set user display name (optional)
                             const currentUser = auth.currentUser;
                             await currentUser.updateProfile({
                                 displayName: `${user.first_name} ${user.last_name || ''}`
@@ -84,9 +84,9 @@
 
                             document.getElementById('status').innerHTML = `
                                 <div class="auth-info">
-                                    <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
-                                    <p>Username: ${user.username || 'N/A'}</p>
-                                    <p>User ID: ${user.id}</p>
+                                    <p>Success! You are now authenticated.</p>
+                                    <p>Email: ${email}</p>
+                                    <p>Password: ${password}</p>
                                 </div>
                             `;
                         } catch (error) {
