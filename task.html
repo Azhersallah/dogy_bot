@@ -170,7 +170,7 @@
                 padding-top: 50vh;
             }
         }
-
+        
         .btn {
             transform: scale(0.9);
             width: 95%;
@@ -271,42 +271,7 @@
         </div>
     </div>
 
-
-    <style>
-
-    </style>
-
-    <div class="container ss">
-    <h2 id="points">0</h2>
-    <div id="circle" class="circle">
-        <img src="dogyCoin.png" alt="Tiger Coin" class="img-fluid">
-    </div>
-
-
-    <div class="boostslider">
-
-        <div class="btn" >
-            <div class="flex justify-content-center align-items-center">
-                <button>
-                    <img src="https://img.icons8.com/?size=100&id=XAhj3VVb2SH6&format=png&color=000000" alt="">
-                    <span>Boost</span>
-                </button>
-                <p class="times_of_boost">3/3</p>
-            </div>
-        </div>
-        
-        <div class="slider-text" id="slider-text">1000/1000</div>
-        
-        <div class="slider-container">
-            <div class="slider-fill" id="slider-fill"></div>
-        </div>
-    </div>
-    </div>
-
-</div>
-
-
-
+    <h1>Tasks</h1>
 
 
     <footer class="fixed-bottom">
@@ -340,73 +305,7 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-        $(document).ready(function() {
-            let points = 0;
-            const maxPoints = 1000; 
-            const maxClicks = 1000; 
-            let currentClicks = maxClicks; 
-            const sliderFill = $("#slider-fill");
-            const sliderText = $("#slider-text");
-            let canClick = true; // Variable to manage clicks
-
-            function updateSlider() {
-                const fillWidth = (currentClicks / maxClicks) * 100; 
-                sliderFill.css("width", fillWidth + "%");
-                sliderText.text(currentClicks + "/" + maxClicks); 
-            }
-
-            updateSlider();
-
-            function fillSlider() {
-                setInterval(function() {
-                    if (currentClicks < maxClicks) {
-                        currentClicks++; 
-                        updateSlider(); 
-                    }
-                }, 5000); 
-            }
-
-            fillSlider(); 
-
-            $("#circle").on("mousedown touchstart", function(event) {
-                if (currentClicks > 0 && canClick) {
-                    canClick = false; // Prevent further clicks
-                    points++; 
-                    $("#points").text(points); 
-                    currentClicks--; 
-                    updateSlider(); 
-
-                    const pointFloat = $("<span class='point-float'>+1</span>");
-                    
-                    // Calculate position relative to the circle
-                    const offset = $(this).offset();
-                    const x = event.pageX - offset.left;
-                    const y = event.pageY - offset.top;
-
-                    pointFloat.css({
-                        left: x + 'px',
-                        top: y + 'px',
-                    });
-                    
-                    $(this).append(pointFloat);
-
-                    pointFloat.animate({top: '-60px', opacity: 0}, 1000, function() {
-                        $(this).remove();
-                    });
-
-                    $(this).addClass('hold-click');
-                    
-                    // Allow clicking again after a short delay
-                    setTimeout(() => {
-                        canClick = true;
-                    }, 50); // Adjust the timeout duration as needed
-                }
-            });
-
-            $(document).on("mouseup touchend", function() {
-                $("#circle").removeClass('hold-click'); 
-            });
-        });
+       
     </script>
 </body>
 </html>
