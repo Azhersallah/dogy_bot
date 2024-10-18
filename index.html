@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App Authentication</title>
+    <title>Telegram Web App Authentication with Firebase</title>
     <style>
+        /* Basic styling for the display */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
-            background-color: red; /* Set background color to white */
         }
         .auth-info {
             margin-top: 20px;
@@ -23,17 +23,11 @@
             color: red;
         }
     </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js"></script>
-</head>
-<body>
-    <h1>Telegram Web App Authentication</h1>
-    <div id="status" class="login-status">Loading...</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        // Firebase configuration
+        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
             authDomain: "ttaskk-a50e4.firebaseapp.com",
@@ -44,9 +38,9 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
         // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
         
@@ -54,50 +48,54 @@
         const initData = tg.initData;
 
         if (initData) {
+            // Extract user data from initDataUnsafe (non-validated version)
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                const email = `${user.id}@gmail.com`; // User email
-                const password = `${user.id}`; // User password
+                const email = `${user.id}@gmail.com`;
+                const password = `${user.id}`;
 
-                // Check if the user is already authenticated
-                auth.onAuthStateChanged(async (firebaseUser) => {
-                    if (firebaseUser) {
-                        // User is already authenticated
-                        document.getElementById('status').innerHTML = `
-                            <div class="auth-info">
-                                <p>Success! You are authenticated.</p>
-                                <p>Email: ${email}</p>
-                            </div>
-                        `;
-                    } else {
-                        // Create a new user or sign in
-                        try {
-                            await auth.createUserWithEmailAndPassword(email, password);
-                            
-                            // Set user display name (optional)
-                            const currentUser = auth.currentUser;
-                            await currentUser.updateProfile({
-                                displayName: `${user.first_name} ${user.last_name || ''}`
-                            });
+                // Display user information
+                document.getElementById('status').innerHTML = `
+                    <div class="auth-info">
+                        <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
+                        <p>Username: ${user.username}</p>
+                        <p>User ID: ${user.id}</p>
+                        <p>Email: ${email}</p>
+                    </div>
+                `;
 
-                            document.getElementById('status').innerHTML = `
-                                <div class="auth-info">
-                                    <p>Success! You are now authenticated.</p>
-                                    <p>Email: ${email}</p>
-                                </div>
-                            `;
-                        } catch (error) {
-                            document.getElementById('status').innerHTML = `<div class="error-status">Authentication failed: ${error.message}</div>`;
-                        }
-                    }
-                });
+                // Create a new user in Firebase
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        console.log('User registered:', user);
+                        showSuccessMessage('User registered successfully!');
+                    })
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        console.error('Error registering:', errorCode, errorMessage);
+                        document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
+                    });
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
+
+        function showSuccessMessage(message) {
+            const successMessage = document.createElement('div');
+            successMessage.textContent = message;
+            successMessage.style.color = 'green';
+            document.body.appendChild(successMessage);
+        }
     </script>
+</head>
+<body>
+    <h1>Telegram Web App Authentication</h1>
+    <div id="status" class="login-status">Loading...</div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
