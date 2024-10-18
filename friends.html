@@ -256,23 +256,23 @@
         .active{
             background-color: rgb(15, 15, 15);
         }
+
+        #qrCode {
+            display: none; /* Hidden by default */
+            width: 200px; /* Adjust size as needed */
+            height: auto; /* Keep aspect ratio */
+        }
+        #message {
+            text-align: center;
+        }
+        .lap_text{
+            font-size: small;
+        }
         </style>
 </head>
 <body>
 
-    <div class="desktop-warning" style="display: none;">
-        This app is only available on mobile devices.
-    </div>
 
-    <div class="header">
-        <div class="user-info">
-            <span id="user-name">Azher Sallah</span> - <span id="user-level">Level 10</span>
-        </div>
-        <div class="wallet-connect" id="wallet-connect">
-            <img src="https://img.icons8.com/?size=100&id=7991&format=png&color=ffd700" alt="Wallet Icon">
-            <span>Wallet Connect</span>
-        </div>
-    </div>
 
     <h1>Friends</h1>
 
@@ -306,6 +306,7 @@
         </nav>
     </footer>
 
+    <script src="mob_script.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
        
