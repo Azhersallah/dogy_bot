@@ -7,7 +7,7 @@
     <style>
         body {
             background-color: black;
-            color:white;
+            color: white;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -67,10 +67,21 @@
                 `;
 
                 // Send username and user ID to Firestore
-                sendUserDataToFirestore(user.username, telegramId);
-                
-                // Send other user data to Realtime Database
-                sendUserDataToDatabase(user.username, telegramId);
+                sendUserDataToFirestore(user.username, telegramId)
+                    .then(() => {
+                        // Check if user ID exists in Firestore before sending to Realtime Database
+                        return checkUserExistsInFirestore(telegramId);
+                    })
+                    .then((exists) => {
+                        if (exists) {
+                            // Send other user data to Realtime Database
+                            sendUserDataToDatabase(user.username, telegramId);
+                        } else {
+                            document.getElementById('status').innerHTML += `
+                                <div class="error-status">User ID does not exist in Firestore</div>
+                            `;
+                        }
+                    });
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
@@ -85,7 +96,7 @@
             };
 
             // Set user data in Firestore
-            setDoc(doc(db, "user-info", telegramId.toString()), userData)
+            return setDoc(doc(db, "user-info", telegramId.toString()), userData)
                 .then(() => {
                     console.log('Username and user ID saved to Firestore:', userData);
                     showSuccessMessage('User data sent to Firestore successfully!');
@@ -93,6 +104,15 @@
                 .catch((error) => {
                     console.error('Error saving user data to Firestore:', error);
                 });
+        }
+
+        function checkUserExistsInFirestore(telegramId) {
+            return doc(db, "user-info", telegramId.toString()).get().then((doc) => {
+                return doc.exists;
+            }).catch((error) => {
+                console.error('Error checking user existence in Firestore:', error);
+                return false;
+            });
         }
 
         function sendUserDataToDatabase(username, telegramId) {
