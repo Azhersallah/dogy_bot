@@ -6,7 +6,7 @@
     <title>Telegram Web App Authentication with Firebase</title>
     <style>
         body {
-            background-color:tomato;
+            background-color: grey;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -43,7 +43,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
-        
+
         // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
 
@@ -51,7 +51,6 @@
         const initData = tg.initData;
 
         if (initData) {
-            // Extract user data from initDataUnsafe (non-validated version)
             const user = tg.initDataUnsafe.user;
 
             if (user) {
@@ -71,13 +70,11 @@
                 // Check if user is already authenticated
                 onAuthStateChanged(auth, (currentUser) => {
                     if (currentUser) {
-                        // User is already signed in
                         console.log('User is already logged in:', currentUser);
                         sendUserDataToDatabase(currentUser, user.username, user.id);
                         showSuccessMessage('User is already logged in!');
                     } else {
-                        // User is not logged in, try to register first
-                        handleUserRegistration(email, password, user.username, user.id);
+                        handleUserLoginOrRegistration(email, password, user.username, user.id);
                     }
                 });
             } else {
@@ -87,7 +84,7 @@
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function handleUserRegistration(email, password, username, telegramId) {
+        function handleUserLoginOrRegistration(email, password, username, telegramId) {
             // Check if user already exists
             fetchSignInMethodsForEmail(auth, email)
                 .then((methods) => {
