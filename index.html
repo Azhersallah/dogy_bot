@@ -42,7 +42,6 @@
             appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
         };
 
-
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -60,6 +59,7 @@
                 // Check if the user is already authenticated
                 auth.onAuthStateChanged(async (firebaseUser) => {
                     if (firebaseUser) {
+                        // User is already authenticated
                         document.getElementById('status').innerHTML = `
                             <div class="auth-info">
                                 <p>Authenticated as: ${firebaseUser.displayName}</p>
@@ -69,14 +69,15 @@
                     } else {
                         // Create a new user or sign in
                         try {
-                            const credential = firebase.auth.EmailAuthProvider.credential(
-                                `${user.username || user.id}@telegram.com`, // Email as a unique identifier
-                                "temporary_password" // A temporary password (or a real one if using other auth methods)
-                            );
-                            await auth.signInWithCredential(credential);
+                            // Create a unique email using Telegram username or user ID
+                            const email = `${user.username || user.id}@telegram.com`;
+                            const password = "temporary_password"; // In a real app, handle this differently
+
+                            // Create the user in Firebase
+                            const newUser = await auth.createUserWithEmailAndPassword(email, password);
                             
-                            // Set user display name (optional)
-                            await firebaseUser.updateProfile({
+                            // Update user profile with Telegram info
+                            await newUser.user.updateProfile({
                                 displayName: `${user.first_name} ${user.last_name || ''}`
                             });
 
