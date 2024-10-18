@@ -7,7 +7,6 @@
     <style>
         /* Basic styling for the display */
         body {
-            background-color:tomato;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -50,8 +49,6 @@
         // Get the initData from Telegram
         const initData = tg.initData;
 
-        let currentUserData = null;
-
         if (initData) {
             // Extract user data from initDataUnsafe (non-validated version)
             const user = tg.initDataUnsafe.user;
@@ -74,7 +71,8 @@
                 onAuthStateChanged(auth, (currentUser) => {
                     if (currentUser) {
                         // User is already signed in
-                        currentUserData = currentUser;
+                        console.log('User is already logged in:', currentUser);
+                        sendUserDataToFirestore(currentUser, user.username, user.id);
                         showSuccessMessage('User is already logged in!');
                     } else {
                         // Check if user already exists
@@ -84,8 +82,9 @@
                                     // User exists, log them in
                                     signInWithEmailAndPassword(auth, email, password)
                                         .then((userCredential) => {
-                                            currentUserData = userCredential.user;
-                                            console.log('User logged in:', currentUserData);
+                                            const user = userCredential.user;
+                                            console.log('User logged in:', user);
+                                            sendUserDataToFirestore(user, user.username, user.id);
                                             showSuccessMessage('User logged in successfully!');
                                         })
                                         .catch((error) => {
@@ -97,8 +96,9 @@
                                     // User does not exist, create a new one
                                     createUserWithEmailAndPassword(auth, email, password)
                                         .then((userCredential) => {
-                                            currentUserData = userCredential.user;
-                                            console.log('User registered:', currentUserData);
+                                            const user = userCredential.user;
+                                            console.log('User registered:', user);
+                                            sendUserDataToFirestore(user, user.username, user.id);
                                             showSuccessMessage('User registered successfully!');
                                         })
                                         .catch((error) => {
@@ -121,15 +121,8 @@
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function sendUserDataToFirestore() {
-            if (!currentUserData) {
-                console.error('No user is logged in. Cannot send data to Firestore.');
-                return;
-            }
-
-            const username = tg.initDataUnsafe.user.username || "Unknown";
-            const telegramId = tg.initDataUnsafe.user.id;
-            const uid = currentUserData.email; // Use the email as UID
+        function sendUserDataToFirestore(user, username, telegramId) {
+            const uid = user.email; // Use the email as UID
 
             const userData = {
                 username: username,
@@ -155,17 +148,11 @@
             successMessage.style.color = 'green';
             document.body.appendChild(successMessage);
         }
-
-        // Call this function to send user data when needed
-        function onSendUserData() {
-            sendUserDataToFirestore();
-        }
     </script>
 </head>
 <body>
     <h1>Telegram Web App Authentication</h1>
     <div id="status" class="login-status">Loading...</div>
-    <button onclick="onSendUserData()">Send User Data to Firestore</button>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
