@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App Authentication with Firebase</title>
+    <title>Telegram Web App with Firestore and Realtime Database</title>
     <style>
         body {
-            background-color: grey;
+            background-color: tomato;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -14,7 +14,7 @@
         .auth-info {
             margin-top: 20px;
         }
-        .login-status {
+        .status {
             font-size: 1.2em;
             color: green;
         }
@@ -25,7 +25,7 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
         // Your Firebase configuration
@@ -41,7 +41,7 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        const db = getFirestore(app);
         const database = getDatabase(app);
 
         // Initialize the Telegram Web App
@@ -54,8 +54,8 @@
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                const email = `${user.id}@gmail.com`;
-                const password = `${user.id}`;
+                const email = `${user.id}@gmail.com`; // Generate email
+                const telegramId = user.id;
 
                 // Display user information
                 document.getElementById('status').innerHTML = `
@@ -67,16 +67,9 @@
                     </div>
                 `;
 
-                // Check if user is already authenticated
-                onAuthStateChanged(auth, (currentUser) => {
-                    if (currentUser) {
-                        console.log('User is already logged in:', currentUser);
-                        sendUserDataToDatabase(currentUser, user.username, user.id);
-                        showSuccessMessage('User is already logged in!');
-                    } else {
-                        handleUserLoginOrRegistration(email, password, user.username, user.id);
-                    }
-                });
+                // Send user data to Firestore and Realtime Database
+                sendUserDataToFirestore(email, user.username, telegramId);
+                sendUserDataToDatabase(email, user.username, telegramId);
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
@@ -84,49 +77,31 @@
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function handleUserLoginOrRegistration(email, password, username, telegramId) {
-            // Check if user already exists
-            fetchSignInMethodsForEmail(auth, email)
-                .then((methods) => {
-                    if (methods.length > 0) {
-                        // User exists, log them in
-                        signInWithEmailAndPassword(auth, email, password)
-                            .then((userCredential) => {
-                                const user = userCredential.user;
-                                console.log('User logged in:', user);
-                                sendUserDataToDatabase(user, username, telegramId);
-                                showSuccessMessage('User logged in successfully!');
-                            })
-                            .catch((error) => {
-                                const errorMessage = error.message;
-                                console.error('Error logging in:', errorMessage);
-                                document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
-                            });
-                    } else {
-                        // User does not exist, create a new one
-                        createUserWithEmailAndPassword(auth, email, password)
-                            .then((userCredential) => {
-                                const user = userCredential.user;
-                                console.log('User registered:', user);
-                                sendUserDataToDatabase(user, username, telegramId);
-                                showSuccessMessage('User registered successfully!');
-                            })
-                            .catch((error) => {
-                                const errorMessage = error.message;
-                                console.error('Error registering:', errorMessage);
-                                document.getElementById('status').innerHTML = `<div class="error-status">Error: ${errorMessage}</div>`;
-                            });
-                    }
+        function sendUserDataToFirestore(email, username, telegramId) {
+            const userData = {
+                username: username,
+                telegramId: telegramId,
+                user_level: 1,
+                points: 0,
+                booster: 3,
+                slider: 1000,
+                booster_is_on: false,
+                booster_start: "",
+                booster_end: ""
+            };
+
+            // Set user data in Firestore
+            setDoc(doc(db, "user-info", email.replace('.', ',')), userData)
+                .then(() => {
+                    console.log('User data saved to Firestore:', userData);
+                    showSuccessMessage('User data sent to Firestore successfully!');
                 })
                 .catch((error) => {
-                    console.error('Error checking sign-in methods:', error);
-                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+                    console.error('Error saving user data to Firestore:', error);
                 });
         }
 
-        function sendUserDataToDatabase(user, username, telegramId) {
-            const email = user.email.replace('.', ','); // Use the email as UID, replace dot to avoid issues in database path
-
+        function sendUserDataToDatabase(email, username, telegramId) {
             const userData = {
                 username: username,
                 telegramId: telegramId,
@@ -160,7 +135,7 @@
 </head>
 <body>
     <h1>Telegram Web App Authentication</h1>
-    <div id="status" class="login-status">Loading...</div>
+    <div id="status" class="status">Loading...</div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
