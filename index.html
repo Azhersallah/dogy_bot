@@ -7,7 +7,7 @@
     <script>
         function isTelegramMobile() {
             // Check for the Telegram mobile app environment
-            return /Telegram/i.test(navigator.userAgent) && window.Telegram && window.Telegram.WebApp;
+            return window.Telegram
         }
 
         function restrictAccess() {
