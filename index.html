@@ -32,7 +32,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
             authDomain: "ttaskk-a50e4.firebaseapp.com",
-            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com", // Add your Realtime Database URL here
+            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
             projectId: "ttaskk-a50e4",
             storageBucket: "ttaskk-a50e4.appspot.com",
             messagingSenderId: "213200371465",
@@ -46,7 +46,7 @@
         
         // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
-        
+
         // Get the initData from Telegram
         const initData = tg.initData;
 
@@ -130,13 +130,11 @@
                 telegramId: telegramId,
                 user_level: 1,
                 points: 0,
-                booster:3,
-                slider:1000,
-                booster_is_on:false,
-                booster_start:"",
-                booster_end:"",
-                
-                
+                booster: 3,
+                slider: 1000,
+                booster_is_on: false,
+                booster_start: "",
+                booster_end: ""
             };
 
             // Set user data in Realtime Database
