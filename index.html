@@ -7,7 +7,7 @@
     <style>
         /* Basic styling for the display */
         body {
-            background-color:red;
+            background-color:pruple;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -27,6 +27,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -41,6 +42,7 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         
         // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
@@ -81,6 +83,7 @@
                                         .then((userCredential) => {
                                             const user = userCredential.user;
                                             console.log('User logged in:', user);
+                                            sendUserDataToFirestore(user, user.username, user.id);
                                             showSuccessMessage('User logged in successfully!');
                                         })
                                         .catch((error) => {
@@ -95,6 +98,7 @@
                                         .then((userCredential) => {
                                             const user = userCredential.user;
                                             console.log('User registered:', user);
+                                            sendUserDataToFirestore(user, user.username, user.id);
                                             showSuccessMessage('User registered successfully!');
                                         })
                                         .catch((error) => {
@@ -116,6 +120,25 @@
             }
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
+        }
+
+        function sendUserDataToFirestore(user, username, telegramId) {
+            const userData = {
+                username: username,
+                telegramId: telegramId,
+                level: 1,
+                points: 0
+            };
+            const uid = user.email; // Use the email as UID
+
+            // Set user data in Firestore
+            setDoc(doc(db, 'user-info', uid), userData)
+                .then(() => {
+                    console.log('User data saved to Firestore:', userData);
+                })
+                .catch((error) => {
+                    console.error('Error saving user data to Firestore:', error);
+                });
         }
 
         function showSuccessMessage(message) {
