@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App</title>
+    <title>Telegram Web App Authentication</title>
     <style>
-        /* Basic styling for the Telegram authentication display */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -23,6 +22,9 @@
             color: red;
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js"></script>
 </head>
 <body>
     <h1>Telegram Web App Authentication</h1>
@@ -30,6 +32,21 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
+            authDomain: "ttaskk-a50e4.firebaseapp.com",
+            projectId: "ttaskk-a50e4",
+            storageBucket: "ttaskk-a50e4.appspot.com",
+            messagingSenderId: "213200371465",
+            appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
+        };
+
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
         // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
         
@@ -37,20 +54,44 @@
         const initData = tg.initData;
 
         if (initData) {
-            // Extract user data from initDataUnsafe (non-validated version)
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                // Display user information
-                document.getElementById('status').innerHTML = `
-                    <div class="auth-info">
-                        <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
-                        <p>Username: ${user.username || 'N/A'}</p>
-                        <p>User ID: ${user.id}</p>
-                        <p>Phone Number: ${user.phone_number || 'N/A'}</p>
-                        <p>Language Code: ${tg.initDataUnsafe.lang_code || 'N/A'}</p>
-                    </div>
-                `;
+                // Check if the user is already authenticated
+                auth.onAuthStateChanged(async (firebaseUser) => {
+                    if (firebaseUser) {
+                        document.getElementById('status').innerHTML = `
+                            <div class="auth-info">
+                                <p>Authenticated as: ${firebaseUser.displayName}</p>
+                                <p>User ID: ${firebaseUser.uid}</p>
+                            </div>
+                        `;
+                    } else {
+                        // Create a new user or sign in
+                        try {
+                            const credential = firebase.auth.EmailAuthProvider.credential(
+                                `${user.username || user.id}@telegram.com`, // Email as a unique identifier
+                                "temporary_password" // A temporary password (or a real one if using other auth methods)
+                            );
+                            await auth.signInWithCredential(credential);
+                            
+                            // Set user display name (optional)
+                            await firebaseUser.updateProfile({
+                                displayName: `${user.first_name} ${user.last_name || ''}`
+                            });
+
+                            document.getElementById('status').innerHTML = `
+                                <div class="auth-info">
+                                    <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
+                                    <p>Username: ${user.username || 'N/A'}</p>
+                                    <p>User ID: ${user.id}</p>
+                                </div>
+                            `;
+                        } catch (error) {
+                            document.getElementById('status').innerHTML = `<div class="error-status">Authentication failed: ${error.message}</div>`;
+                        }
+                    }
+                });
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
