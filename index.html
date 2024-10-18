@@ -45,8 +45,10 @@
                 document.getElementById('status').innerHTML = `
                     <div class="auth-info">
                         <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
-                        <p>Username: ${user.username}</p>
+                        <p>Username: ${user.username || 'N/A'}</p>
                         <p>User ID: ${user.id}</p>
+                        <p>Phone Number: ${user.phone_number || 'N/A'}</p>
+                        <p>Language Code: ${tg.initDataUnsafe.lang_code || 'N/A'}</p>
                     </div>
                 `;
             } else {
