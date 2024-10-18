@@ -79,7 +79,7 @@
 
             getDoc(userDocRef).then((docSnapshot) => {
                 if (docSnapshot.exists()) {
-                    // User exists in Firestore, send data to Realtime Database
+                    // User exists in Firestore, proceed to send data to Realtime Database
                     sendUserDataToDatabase(username, telegramId);
                 } else {
                     // User not found, create new user in Firestore
@@ -132,6 +132,7 @@
                 })
                 .catch((error) => {
                     console.error('Error saving user data to Realtime Database:', error);
+                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
                 });
         }
 
