@@ -53,8 +53,8 @@ function checkUserInFirestore(telegramId, username) {
 
     getDoc(userDocRef).then((docSnapshot) => {
         if (docSnapshot.exists()) {
-            // User exists in Firestore, proceed to send data to Realtime Database
-            sendUserDataToDatabase(username, telegramId);
+            // User exists in Firestore, fetch existing data
+            displayUserData(telegramId);
         } else {
             // User not found, create new user in Firestore
             createUserInFirestore(telegramId, username);
@@ -76,8 +76,8 @@ function createUserInFirestore(telegramId, username) {
     setDoc(doc(db, "user-info", telegramId.toString()), userData)
         .then(() => {
             console.log('New user created in Firestore:', userData);
-            // Send data to Realtime Database after creating the user
-            sendUserDataToDatabase(username, telegramId);
+            // Automatically send data to Realtime Database after creating the user
+            sendUserDataToDatabase(telegramId);
         })
         .catch((error) => {
             console.error('Error creating user in Firestore:', error);
@@ -85,17 +85,17 @@ function createUserInFirestore(telegramId, username) {
         });
 }
 
-function sendUserDataToDatabase(username, telegramId) {
+function sendUserDataToDatabase(telegramId) {
     const userData = {
-        username: username,
+        username: document.getElementById('username').innerText,
         telegramId: telegramId,
-        user_level: 1,
-        points: 0,
-        booster: 3,
-        slider: 1000,
-        booster_is_on: false,
-        booster_start: "",
-        booster_end: ""
+        user_level: parseInt(document.getElementById('userLevel').innerText) || 1,
+        points: parseInt(document.getElementById('points').innerText) || 0,
+        booster: parseInt(document.getElementById('booster').innerText) || 3,
+        slider: parseInt(document.getElementById('slider').innerText) || 1000,
+        booster_is_on: document.getElementById('boosterIsOn').innerText === 'true',
+        booster_start: document.getElementById('boosterStart').innerText || "",
+        booster_end: document.getElementById('boosterEnd').innerText || ""
     };
 
     // Set user data in Realtime Database
@@ -122,6 +122,8 @@ function displayUserData(telegramId) {
                 <h3>User Data:</h3>
                 <pre>${JSON.stringify(data, null, 2)}</pre>
             `;
+            // Automatically send updated data to Realtime Database
+            sendUserDataToDatabase(telegramId);
         } else {
             console.log('No data available');
         }
@@ -129,23 +131,6 @@ function displayUserData(telegramId) {
         console.error('Error getting user data:', error);
     });
 }
-
-// Button to send updated data to Realtime Database
-document.getElementById('sendDataBtn').addEventListener('click', () => {
-    const telegramId = tg.initDataUnsafe.user.id;
-    const newPoints = prompt("Enter new points value:", "0");
-    
-    const userRef = ref(database, `user-info/${telegramId}`);
-    
-    set(userRef, { points: newPoints })
-        .then(() => {
-            showSuccessMessage('User points updated successfully!');
-            displayUserData(telegramId);
-        })
-        .catch((error) => {
-            console.error('Error updating user points:', error);
-        });
-});
 
 function showSuccessMessage(message) {
     const successMessage = document.createElement('div');
