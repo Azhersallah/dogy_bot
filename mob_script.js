@@ -1,4 +1,13 @@
 
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault(); // Disable right-click context menu
+});
+
+document.addEventListener('selectstart', function(event) {
+    event.preventDefault(); // Disable text selection
+});
+
+
 function isLaptop() {
     return !/Mobi|Android/i.test(navigator.userAgent);
 }
