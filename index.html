@@ -3,150 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App with Firestore and Realtime Database</title>
-    <style>
-        body {
-            background-color: tomato;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
+    <title>Telegram Mobile Bot Web App</title>
+    <script>
+        function isTelegramMobile() {
+            // Check for the Telegram mobile app environment
+            return /Telegram/i.test(navigator.userAgent) && window.Telegram && window.Telegram.WebApp;
         }
-        .auth-info {
-            margin-top: 20px;
-        }
-        .status {
-            font-size: 1.2em;
-            color: green;
-        }
-        .error-status {
-            font-size: 1.2em;
-            color: red;
-        }
-    </style>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
-            authDomain: "ttaskk-a50e4.firebaseapp.com",
-            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
-            projectId: "ttaskk-a50e4",
-            storageBucket: "ttaskk-a50e4.appspot.com",
-            messagingSenderId: "213200371465",
-            appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const database = getDatabase(app);
-
-        // Initialize the Telegram Web App
-        const tg = window.Telegram.WebApp;
-
-        // Get the initData from Telegram
-        const initData = tg.initData;
-
-        if (initData) {
-            const user = tg.initDataUnsafe.user;
-
-            if (user) {
-                const telegramId = user.id;
-
-                // Display user information
-                document.getElementById('status').innerHTML = `
-                    <div class="auth-info">
-                        <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
-                        <p>Username: ${user.username}</p>
-                        <p>User ID: ${telegramId}</p>
-                    </div>
-                `;
-
-                // Check if user exists in Firestore
-                checkUserInFirestore(telegramId, user.username);
-            } else {
-                document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
+        function restrictAccess() {
+            if (!isTelegramMobile()) {
+                document.body.innerHTML = '<h1>Access Denied</h1><p>This site is only accessible through the Telegram mobile app.</p>';
+                // Optionally redirect to another page
+                // window.location.href = "https://example.com"; // Redirect to another page
             }
-        } else {
-            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function checkUserInFirestore(telegramId, username) {
-            const userDocRef = doc(db, "user-info", telegramId.toString());
-
-            getDoc(userDocRef).then((docSnapshot) => {
-                if (docSnapshot.exists()) {
-                    // User exists in Firestore, proceed to send data to Realtime Database
-                    sendUserDataToDatabase(username, telegramId);
-                } else {
-                    // User not found, create new user in Firestore
-                    createUserInFirestore(telegramId, username);
-                }
-            }).catch((error) => {
-                console.error('Error fetching user from Firestore:', error);
-                document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
-            });
-        }
-
-        function createUserInFirestore(telegramId, username) {
-            const userData = {
-                username: username,
-                telegramId: telegramId,
-                createdAt: new Date().toISOString()
-            };
-
-            // Set new user data in Firestore
-            setDoc(doc(db, "user-info", telegramId.toString()), userData)
-                .then(() => {
-                    console.log('New user created in Firestore:', userData);
-                    // Send data to Realtime Database after creating the user
-                    sendUserDataToDatabase(username, telegramId);
-                })
-                .catch((error) => {
-                    console.error('Error creating user in Firestore:', error);
-                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
-                });
-        }
-
-        function sendUserDataToDatabase(username, telegramId) {
-            const userData = {
-                username: username,
-                telegramId: telegramId,
-                user_level: 1,
-                points: 0,
-                booster: 3,
-                slider: 1000,
-                booster_is_on: false,
-                booster_start: "",
-                booster_end: ""
-            };
-
-            // Set user data in Realtime Database
-            set(ref(database, `user-info/${telegramId}`), userData)
-                .then(() => {
-                    console.log('User data saved to Realtime Database:', userData);
-                    showSuccessMessage('User data sent to Realtime Database successfully!');
-                })
-                .catch((error) => {
-                    console.error('Error saving user data to Realtime Database:', error);
-                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
-                });
-        }
-
-        function showSuccessMessage(message) {
-            const successMessage = document.createElement('div');
-            successMessage.textContent = message;
-            successMessage.style.color = 'green';
-            document.body.appendChild(successMessage);
-        }
+        document.addEventListener('DOMContentLoaded', restrictAccess);
     </script>
 </head>
 <body>
-    <h1>Telegram Web App Authentication</h1>
-    <div id="status" class="status">Loading...</div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <h1>Welcome to the Telegram Mobile Bot Web App</h1>
+    <p>This content is only visible in the Telegram mobile app.</p>
 </body>
 </html>
