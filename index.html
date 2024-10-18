@@ -6,8 +6,7 @@
     <title>Telegram Web App with Firestore and Realtime Database</title>
     <style>
         body {
-            background-color: black;
-            color: white;
+            background-color: tomato;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -26,7 +25,7 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
         // Your Firebase configuration
@@ -66,21 +65,8 @@
                     </div>
                 `;
 
-                // Check if the user exists in Firestore for authentication
-                checkUserExistsInFirestore(telegramId)
-                    .then((exists) => {
-                        if (exists) {
-                            // Send other user data to Realtime Database
-                            sendUserDataToDatabase(user.username, telegramId);
-                        } else {
-                            // If user doesn't exist, create new user in Firestore
-                            sendUserDataToFirestore(user.username, telegramId)
-                                .then(() => {
-                                    // After saving to Firestore, send data to Realtime Database
-                                    sendUserDataToDatabase(user.username, telegramId);
-                                });
-                        }
-                    });
+                // Check if user exists in Firestore
+                checkUserInFirestore(telegramId, user.username);
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
@@ -88,32 +74,20 @@
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function sendUserDataToFirestore(username, telegramId) {
-            const userData = {
-                username: username,
-                telegramId: telegramId,
-            };
+        function checkUserInFirestore(telegramId, username) {
+            const userDocRef = doc(db, "user-info", telegramId.toString());
 
-            // Set user data in Firestore
-            return setDoc(doc(db, "user-info", telegramId.toString()), userData)
-                .then(() => {
-                    console.log('Username and user ID saved to Firestore:', userData);
-                    showSuccessMessage('User data sent to Firestore successfully!');
-                })
-                .catch((error) => {
-                    console.error('Error saving user data to Firestore:', error);
-                });
-        }
-
-        function checkUserExistsInFirestore(telegramId) {
-            return getDoc(doc(db, "user-info", telegramId.toString()))
-                .then((doc) => {
-                    return doc.exists();
-                })
-                .catch((error) => {
-                    console.error('Error checking user existence in Firestore:', error);
-                    return false;
-                });
+            getDoc(userDocRef).then((docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    // User exists in Firestore, send data to Realtime Database
+                    sendUserDataToDatabase(username, telegramId);
+                } else {
+                    document.getElementById('status').innerHTML = `<div class="error-status">User not found in Firestore</div>`;
+                }
+            }).catch((error) => {
+                console.error('Error fetching user from Firestore:', error);
+                document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+            });
         }
 
         function sendUserDataToDatabase(username, telegramId) {
