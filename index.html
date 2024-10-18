@@ -6,7 +6,7 @@
     <title>Telegram Web App with Firestore and Realtime Database</title>
     <style>
         body {
-            background-color: grey;
+            background-color: tomato;
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 50px;
@@ -29,7 +29,6 @@
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
         // Your Firebase configuration
-        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
             authDomain: "ttaskk-a50e4.firebaseapp.com",
@@ -39,7 +38,6 @@
             messagingSenderId: "213200371465",
             appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
         };
-
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -68,7 +66,7 @@
                 `;
 
                 // Check if user exists in Firestore
-                checkUserInFirestore(telegramId);
+                checkUserInFirestore(telegramId, user.username);
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
@@ -76,16 +74,16 @@
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
         }
 
-        function checkUserInFirestore(telegramId) {
+        function checkUserInFirestore(telegramId, username) {
             const userDocRef = doc(db, "user-info", telegramId.toString());
 
             getDoc(userDocRef).then((docSnapshot) => {
                 if (docSnapshot.exists()) {
                     // User exists in Firestore, proceed to send data to Realtime Database
-                    sendUserDataToDatabase(telegramId);
+                    sendUserDataToDatabase(username, telegramId);
                 } else {
-                    // User not found in Firestore
-                    document.getElementById('status').innerHTML = `<div class="error-status">User not found in Firestore</div>`;
+                    // User not found, create new user in Firestore
+                    createUserInFirestore(telegramId, username);
                 }
             }).catch((error) => {
                 console.error('Error fetching user from Firestore:', error);
@@ -93,24 +91,56 @@
             });
         }
 
-        function sendUserDataToDatabase(telegramId) {
+        function createUserInFirestore(telegramId, username) {
             const userData = {
+                username: username,
                 telegramId: telegramId,
-                username: "example_user",  // You can modify this as needed
-                points: 0,
                 createdAt: new Date().toISOString()
+            };
+
+            // Set new user data in Firestore
+            setDoc(doc(db, "user-info", telegramId.toString()), userData)
+                .then(() => {
+                    console.log('New user created in Firestore:', userData);
+                    // Send data to Realtime Database after creating the user
+                    sendUserDataToDatabase(username, telegramId);
+                })
+                .catch((error) => {
+                    console.error('Error creating user in Firestore:', error);
+                    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+                });
+        }
+
+        function sendUserDataToDatabase(username, telegramId) {
+            const userData = {
+                username: username,
+                telegramId: telegramId,
+                user_level: 1,
+                points: 0,
+                booster: 3,
+                slider: 1000,
+                booster_is_on: false,
+                booster_start: "",
+                booster_end: ""
             };
 
             // Set user data in Realtime Database
             set(ref(database, `user-info/${telegramId}`), userData)
                 .then(() => {
                     console.log('User data saved to Realtime Database:', userData);
-                    document.getElementById('status').innerHTML = `<div class="status">User data sent to Realtime Database successfully!</div>`;
+                    showSuccessMessage('User data sent to Realtime Database successfully!');
                 })
                 .catch((error) => {
                     console.error('Error saving user data to Realtime Database:', error);
                     document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
                 });
+        }
+
+        function showSuccessMessage(message) {
+            const successMessage = document.createElement('div');
+            successMessage.textContent = message;
+            successMessage.style.color = 'green';
+            document.body.appendChild(successMessage);
         }
     </script>
 </head>
