@@ -88,13 +88,13 @@ function sendUserDataToDatabase(telegramId, username) {
     const userData = {
         username: username,
         telegramId: telegramId,
-        user_level: 1,
-        points: 0,
-        booster: 3,
-        slider: 1000,
-        booster_is_on: false,
-        booster_start: "",
-        booster_end: ""
+        user_level: parseInt(document.getElementById('userLevel').innerText) || 1,
+        points: parseInt(document.getElementById('points').innerText) || 0,
+        booster: parseInt(document.getElementById('booster').innerText) || 3,
+        slider: parseInt(document.getElementById('slider').innerText) || 1000,
+        booster_is_on: document.getElementById('boosterIsOn').innerText === 'true',
+        booster_start: document.getElementById('boosterStart').innerText || "",
+        booster_end: document.getElementById('boosterEnd').innerText || ""
     };
 
     set(ref(database, `user-info/${telegramId}`), userData)
@@ -147,7 +147,9 @@ function handleError(action, error) {
     document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
 }
 
-// Function to get data from Firebase (call this function when needed)
-export function getDataFromFirebase() {
-    listenForLiveUpdates(telegramId);
+// Function to get and send data from Firebase
+export function getAndSendData() {
+    if (telegramId) {
+        sendUserDataToDatabase(telegramId, username);
+    }
 }
