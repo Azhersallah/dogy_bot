@@ -54,7 +54,7 @@ function checkUserInFirestore(telegramId, username) {
     getDoc(userDocRef).then((docSnapshot) => {
         if (docSnapshot.exists()) {
             // User exists in Firestore, fetch existing data
-            displayUserData(telegramId);
+            listenForLiveUpdates(telegramId);
         } else {
             // User not found, create new user in Firestore
             createUserInFirestore(telegramId, username);
@@ -115,6 +115,7 @@ function sendUserDataToDatabase(telegramId) {
 function listenForLiveUpdates(telegramId) {
     const userRef = ref(database, `user-info/${telegramId}`);
     
+    // Listen for value changes
     onValue(userRef, (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
