@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -103,7 +103,8 @@ function sendUserDataToDatabase(telegramId) {
         .then(() => {
             console.log('User data saved to Realtime Database:', userData);
             showSuccessMessage('User data sent to Realtime Database successfully!');
-            displayUserData(telegramId);
+            // Start listening for live updates
+            listenForLiveUpdates(telegramId);
         })
         .catch((error) => {
             console.error('Error saving user data to Realtime Database:', error);
@@ -111,24 +112,26 @@ function sendUserDataToDatabase(telegramId) {
         });
 }
 
-function displayUserData(telegramId) {
+function listenForLiveUpdates(telegramId) {
     const userRef = ref(database, `user-info/${telegramId}`);
     
-    get(userRef).then((snapshot) => {
+    onValue(userRef, (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
-            const userDataDiv = document.getElementById('user-data');
-            userDataDiv.innerHTML = `
-                <h3>User Data:</h3>
-                <pre>${JSON.stringify(data, null, 2)}</pre>
-            `;
-            // Automatically send updated data to Realtime Database
-            sendUserDataToDatabase(telegramId);
+            // Update the HTML with live data
+            document.getElementById('username').innerText = data.username;
+            document.getElementById('userLevel').innerText = data.user_level || 1;
+            document.getElementById('points').innerText = data.points || 0;
+            document.getElementById('booster').innerText = data.booster || 3;
+            document.getElementById('slider').innerText = data.slider || 1000;
+            document.getElementById('boosterIsOn').innerText = data.booster_is_on ? 'true' : 'false';
+            document.getElementById('boosterStart').innerText = data.booster_start || "";
+            document.getElementById('boosterEnd').innerText = data.booster_end || "";
         } else {
             console.log('No data available');
         }
-    }).catch((error) => {
-        console.error('Error getting user data:', error);
+    }, (error) => {
+        console.error('Error listening for updates:', error);
     });
 }
 
