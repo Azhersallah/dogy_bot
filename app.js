@@ -24,23 +24,26 @@ const tg = window.Telegram.WebApp;
 // Get the initData from Telegram
 const initData = tg.initData;
 
+let telegramId, username;
+
 if (initData) {
     const user = tg.initDataUnsafe.user;
 
     if (user) {
-        const telegramId = user.id;
+        telegramId = user.id;
+        username = user.username || "Unknown User";
 
         // Display user information
         document.getElementById('status').innerHTML = `
             <div class="auth-info">
                 <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
-                <p>Username: ${user.username}</p>
+                <p>Username: ${username}</p>
                 <p>User ID: ${telegramId}</p>
             </div>
         `;
 
         // Check if user exists in Firestore
-        checkUserInFirestore(telegramId, user.username);
+        checkUserInFirestore(telegramId, username);
     } else {
         document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
     }
@@ -74,24 +77,24 @@ function createUserInFirestore(telegramId, username) {
     setDoc(doc(db, "user-info", telegramId.toString()), userData)
         .then(() => {
             console.log('New user created in Firestore:', userData);
-            sendUserDataToDatabase(telegramId);
+            sendUserDataToDatabase(telegramId, username);
         })
         .catch((error) => {
             handleError('creating user in Firestore', error);
         });
 }
 
-function sendUserDataToDatabase(telegramId) {
+function sendUserDataToDatabase(telegramId, username) {
     const userData = {
-        username: document.getElementById('username').innerText,
+        username: username,
         telegramId: telegramId,
-        user_level: parseInt(document.getElementById('userLevel').innerText) || 1,
-        points: parseInt(document.getElementById('points').innerText) || 0,
-        booster: parseInt(document.getElementById('booster').innerText) || 3,
-        slider: parseInt(document.getElementById('slider').innerText) || 1000,
-        booster_is_on: document.getElementById('boosterIsOn').innerText === 'true',
-        booster_start: document.getElementById('boosterStart').innerText || "",
-        booster_end: document.getElementById('boosterEnd').innerText || ""
+        user_level: 1,
+        points: 0,
+        booster: 3,
+        slider: 1000,
+        booster_is_on: false,
+        booster_start: "",
+        booster_end: ""
     };
 
     set(ref(database, `user-info/${telegramId}`), userData)
@@ -113,7 +116,8 @@ function listenForLiveUpdates(telegramId) {
             const data = snapshot.val();
             updateUserData(data);
         } else {
-            console.log('No data available');
+            console.log('No data available, resending user data...');
+            sendUserDataToDatabase(telegramId, username); // Resend data if not available
         }
     }, (error) => {
         handleError('listening for updates', error);
@@ -143,12 +147,7 @@ function handleError(action, error) {
     document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
 }
 
-// Function to send data to Firebase (call this function when needed)
-export function sendDataToFirebase(telegramId) {
-    sendUserDataToDatabase(telegramId);
-}
-
 // Function to get data from Firebase (call this function when needed)
-export function getDataFromFirebase(telegramId) {
+export function getDataFromFirebase() {
     listenForLiveUpdates(telegramId);
 }
