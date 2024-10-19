@@ -39,6 +39,8 @@ if (initData) {
                 <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
                 <p>Username: ${username}</p>
                 <p>User ID: ${telegramId}</p>
+                <p>User ID: ${initData}</p>
+
             </div>
         `;
 
