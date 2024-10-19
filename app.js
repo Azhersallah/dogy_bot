@@ -60,8 +60,7 @@ function checkUserInFirestore(telegramId, username) {
             createUserInFirestore(telegramId, username);
         }
     }).catch((error) => {
-        console.error('Error fetching user from Firestore:', error);
-        document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+        handleError('fetching user from Firestore', error);
     });
 }
 
@@ -72,16 +71,13 @@ function createUserInFirestore(telegramId, username) {
         createdAt: new Date().toISOString()
     };
 
-    // Set new user data in Firestore
     setDoc(doc(db, "user-info", telegramId.toString()), userData)
         .then(() => {
             console.log('New user created in Firestore:', userData);
-            // Automatically send data to Realtime Database after creating the user
             sendUserDataToDatabase(telegramId);
         })
         .catch((error) => {
-            console.error('Error creating user in Firestore:', error);
-            document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+            handleError('creating user in Firestore', error);
         });
 }
 
@@ -98,42 +94,41 @@ function sendUserDataToDatabase(telegramId) {
         booster_end: document.getElementById('boosterEnd').innerText || ""
     };
 
-    // Set user data in Realtime Database
     set(ref(database, `user-info/${telegramId}`), userData)
         .then(() => {
             console.log('User data saved to Realtime Database:', userData);
             showSuccessMessage('User data sent to Realtime Database successfully!');
-            // Start listening for live updates
             listenForLiveUpdates(telegramId);
         })
         .catch((error) => {
-            console.error('Error saving user data to Realtime Database:', error);
-            document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+            handleError('saving user data to Realtime Database', error);
         });
 }
 
 function listenForLiveUpdates(telegramId) {
     const userRef = ref(database, `user-info/${telegramId}`);
     
-    // Listen for value changes
     onValue(userRef, (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
-            // Update the HTML with live data
-            document.getElementById('username').innerText = data.username;
-            document.getElementById('userLevel').innerText = data.user_level || 1;
-            document.getElementById('points').innerText = data.points || 0;
-            document.getElementById('booster').innerText = data.booster || 3;
-            document.getElementById('slider').innerText = data.slider || 1000;
-            document.getElementById('boosterIsOn').innerText = data.booster_is_on ? 'true' : 'false';
-            document.getElementById('boosterStart').innerText = data.booster_start || "";
-            document.getElementById('boosterEnd').innerText = data.booster_end || "";
+            updateUserData(data);
         } else {
             console.log('No data available');
         }
     }, (error) => {
-        console.error('Error listening for updates:', error);
+        handleError('listening for updates', error);
     });
+}
+
+function updateUserData(data) {
+    document.getElementById('username').innerText = data.username;
+    document.getElementById('userLevel').innerText = data.user_level || 1;
+    document.getElementById('points').innerText = data.points || 0;
+    document.getElementById('booster').innerText = data.booster || 3;
+    document.getElementById('slider').innerText = data.slider || 1000;
+    document.getElementById('boosterIsOn').innerText = data.booster_is_on ? 'true' : 'false';
+    document.getElementById('boosterStart').innerText = data.booster_start || "";
+    document.getElementById('boosterEnd').innerText = data.booster_end || "";
 }
 
 function showSuccessMessage(message) {
@@ -141,4 +136,19 @@ function showSuccessMessage(message) {
     successMessage.textContent = message;
     successMessage.style.color = 'green';
     document.body.appendChild(successMessage);
+}
+
+function handleError(action, error) {
+    console.error(`Error ${action}:`, error);
+    document.getElementById('status').innerHTML = `<div class="error-status">Error: ${error.message}</div>`;
+}
+
+// Function to send data to Firebase (call this function when needed)
+export function sendDataToFirebase(telegramId) {
+    sendUserDataToDatabase(telegramId);
+}
+
+// Function to get data from Firebase (call this function when needed)
+export function getDataFromFirebase(telegramId) {
+    listenForLiveUpdates(telegramId);
 }
