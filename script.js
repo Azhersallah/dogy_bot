@@ -54,7 +54,7 @@ function loadDayOrNight() {
 
 function sendCatchingData() {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 1);
+    now.setMinutes(now.getMinutes() + 5);
     const catchingTime = now.toISOString();
 
     db.ref('users/' + userId).set({
