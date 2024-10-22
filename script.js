@@ -13,7 +13,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId = 32043; // Set your user ID here
+const tg = window.Telegram.WebApp;
+const userId = tg.initDataUnsafe.user.id; // Use Telegram ID as userId
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
