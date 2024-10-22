@@ -10,40 +10,46 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        window.addEventListener('load', function() {
-            const tg = window.Telegram.WebApp;
+    window.addEventListener('load', function() {
+    const tg = window.Telegram.WebApp;
 
-            const usernameElement = document.getElementById('username');
-            const userIdElement = tg.initDataUnsafe.user.id; // Telegram user ID
+    // Example of getting user data
+    const usernameElement = document.getElementById('username');
+    const userIdElement = document.getElementById('userid');
 
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                usernameElement.innerText = tg.initDataUnsafe.user.username || "N/A";
-            } else {
-                usernameElement.innerText = "User data not available";
-            }
-        });
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        usernameElement.innerText = tg.initDataUnsafe.user.username || "N/A";
+        userIdElement.innerText = tg.initDataUnsafe.user.id || "N/A";
+    } else {
+        usernameElement.innerText = "User data not available";
+        userIdElement.innerText = "User data not available";
+    }
+});
     </script>
  
-    <style>
-        body {
-            user-select: none; /* For most modern browsers */
-            -webkit-user-select: none; /* For Safari */
-            -moz-user-select: none; /* For Firefox */
-            -ms-user-select: none; /* For Internet Explorer/Edge */
-        }
+ <style>
+body {
+    user-select: none; /* For most modern browsers */
+    -webkit-user-select: none; /* For Safari */
+    -moz-user-select: none; /* For Firefox */
+    -ms-user-select: none; /* For Internet Explorer/Edge */
+}
 
-        .userinfo {
-            position: absolute;
-            top: 0;
-            background-color: #34A87C;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 8vh;
-            color: white;
-        }
-    </style>
+.userinfo{
+    position: absolute;
+    top: 0;
+    background-color: #34A87C;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 8vh;
+    color: white;
+}
+.userid{
+    display: none;
+}
+        </style>
 </head>
 <body>
 
@@ -52,13 +58,16 @@
     </div>
 
     <div class="userinfo">
+        <span class="userid"></div>
         <div class="username">
             <p>Fox: <span id="username">Loading...</span></p>
+        </span>
         </div>
         <div class="userlevel">
             <span>Level: 1</span>
         </div>
     </div>
+
 
     <div class="legs">
         <img src="SVG/legs.svg">
@@ -102,24 +111,32 @@
         <h4>Claim</h4>
     </button>
 
+
     <footer class="fixed-bottom">
-        <a href="index.html" class="nav-item active">
-            <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
-            <span>Home</span>
-        </a>
-        <a href="task.html" class="nav-item">
-            <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
-            <span>Task</span>
-        </a>
-        <a href="leaderboard.html" class="nav-item">
-            <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
-            <span>Leaderboard</span>
-        </a>
-        <a href="friends.html" class="nav-item">
-            <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
-            <span>Friends</span>
-        </a>
+                <a href="index.html" class="nav-item active">
+                    <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
+                    <span>Home</span>
+                </a>
+
+                <a href="task.html" class="nav-item">
+                    <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
+                   <span>Task</span>
+                </a>
+
+                <a href="leaderboard.html" class="nav-item">
+                    <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
+                    <span>Leaderboard</span>
+                </a>
+
+                <a href="friends.html" class="nav-item">
+                    <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
+                    <span>Friends</span>
+                </a>
+
     </footer>
+
+
+
 
     <script>
         document.addEventListener('contextmenu', function(event) {
@@ -129,9 +146,11 @@
         document.addEventListener('selectstart', function(event) {
             event.preventDefault(); // Disable text selection
         });
+
     </script>
+
 
     <script src="script.js"></script>
 
+
 </body>
-</html>
