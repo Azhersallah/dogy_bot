@@ -3,33 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Document</title>
+    <title>Telegram Web App with Firebase</title>
     <link rel="stylesheet" href="fox_style.css">
     <link rel="stylesheet" href="bottom_nav.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
- 
- <style>
-body {
-    user-select: none; /* For most modern browsers */
-    -webkit-user-select: none; /* For Safari */
-    -moz-user-select: none; /* For Firefox */
-    -ms-user-select: none; /* For Internet Explorer/Edge */
-}
 
-.userinfo{
-    position: absolute;
-    top: 0;
-    background-color: #34A87C;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 8vh;
-    color: white;
-}
-        </style>
+    <style>
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .userinfo {
+            position: absolute;
+            top: 0;
+            background-color: #34A87C;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 8vh;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
@@ -39,13 +38,12 @@ body {
 
     <div class="userinfo">
         <div class="username">
-            <span>Fox: Azher</span>
+            <span id="usernameDisplay">Fox: Azher</span>
         </div>
         <div class="userlevel">
             <span>Level: 1</span>
         </div>
     </div>
-
 
     <div class="legs">
         <img src="SVG/legs.svg">
@@ -89,46 +87,200 @@ body {
         <h4>Claim</h4>
     </button>
 
-
     <footer class="fixed-bottom">
-                <a href="index.html" class="nav-item active">
-                    <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
-                    <span>Home</span>
-                </a>
-
-                <a href="task.html" class="nav-item">
-                    <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
-                   <span>Task</span>
-                </a>
-
-                <a href="leaderboard.html" class="nav-item">
-                    <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
-                    <span>Leaderboard</span>
-                </a>
-
-                <a href="friends.html" class="nav-item">
-                    <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
-                    <span>Friends</span>
-                </a>
-
+        <a href="index.html" class="nav-item active">
+            <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
+            <span>Home</span>
+        </a>
+        <a href="task.html" class="nav-item">
+            <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
+            <span>Task</span>
+        </a>
+        <a href="leaderboard.html" class="nav-item">
+            <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
+            <span>Leaderboard</span>
+        </a>
+        <a href="friends.html" class="nav-item">
+            <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
+            <span>Friends</span>
+        </a>
     </footer>
-
-
-
 
     <script>
         document.addEventListener('contextmenu', function(event) {
-            event.preventDefault(); // Disable right-click context menu
+            event.preventDefault();
         });
 
         document.addEventListener('selectstart', function(event) {
-            event.preventDefault(); // Disable text selection
+            event.preventDefault();
         });
 
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
+            authDomain: "ttaskk-a50e4.firebaseapp.com",
+            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
+            projectId: "ttaskk-a50e4",
+            storageBucket: "ttaskk-a50e4.appspot.com",
+            messagingSenderId: "213200371465",
+            appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const tg = window.Telegram.WebApp;
+        const userId = tg.initDataUnsafe.user.id; // Use Telegram user ID
+        const username = tg.initDataUnsafe.user.username || "Anonymous"; // Get Telegram username
+        const catchButton = document.getElementById('catchButton');
+        const buttonText = document.getElementById('buttonText');
+        const claimButton = document.getElementById('claimButton');
+        const pointsDisplay = document.getElementById('points');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const eyes = document.querySelectorAll('.the-fox .eyes');
+        const nose = document.querySelectorAll('.nose');
+        const toggleCheckbox = document.getElementById('toggle');
+        let currentPoints = 0;
+
+        document.getElementById('usernameDisplay').textContent = `Fox: ${username}`; // Display username
+
+        function updatePointsDisplay(points) {
+            pointsDisplay.textContent = points;
+        }
+
+        function loadPoints() {
+            const userPointsRef = db.ref('users/' + userId + '/points');
+            userPointsRef.once('value').then((snapshot) => {
+                currentPoints = snapshot.val() || 0;
+                updatePointsDisplay(currentPoints);
+                
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 1000);
+            });
+        }
+
+        function updateDayOrNight(isChecked) {
+            db.ref('users/' + userId + '/dayOrNight').set(isChecked);
+        }
+
+        function loadDayOrNight() {
+            const dayOrNightRef = db.ref('users/' + userId + '/dayOrNight');
+            dayOrNightRef.once('value').then((snapshot) => {
+                const isChecked = snapshot.val() || false;
+                toggleCheckbox.checked = isChecked;
+            });
+        }
+
+        function sendCatchingData() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + 2); // Set catching time to 2 minutes from now
+            const catchingTime = now.toISOString();
+
+            db.ref('users/' + userId).set({
+                userId: userId,
+                username: username,
+                catchTime: catchingTime,
+                catching: true,
+                points: currentPoints
+            });
+
+            catchButton.disabled = true;
+        }
+
+        function startCountdown(targetTime) {
+            const countdownInterval = setInterval(() => {
+                const currentTime = new Date();
+                const remainingTime = new Date(targetTime) - currentTime;
+
+                if (remainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    buttonText.textContent = 'Catching is complete';
+                    claimButton.style.display = 'flex';
+                    catchButton.style.display = 'none';
+                    catchButton.disabled = false;
+
+                    db.ref('users/' + userId).update({ catching: false });
+                    eyes.forEach(eye => eye.classList.remove('blink'));
+                    nose.forEach(nose => nose.classList.remove('nosesearch'));
+                } else {
+                    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+                    buttonText.textContent = `Catching... ${minutes}m ${seconds}s`;
+                }
+            }, 1000);
+        }
+
+        function listenForUpdates() {
+            db.ref('users/' + userId).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const targetTime = data.catchTime;
+                    const isCatching = data.catching;
+
+                    if (isCatching) {
+                        startCountdown(targetTime);
+                        catchButton.disabled = true;
+                        eyes.forEach(eye => eye.classList.add('blink'));
+                        nose.forEach(nose => nose.classList.add('nosesearch'));
+                    }
+
+                    if (new Date() >= new Date(targetTime)) {
+                        buttonText.textContent = 'Catching is complete';
+                        claimButton.style.display = 'flex';
+                        catchButton.style.display = 'none';
+                    }
+
+                    if (data.points !== undefined) {
+                        currentPoints = data.points;
+                        updatePointsDisplay(currentPoints);
+                    }
+                }
+            });
+        }
+
+        function addPointsToUser(points) {
+            currentPoints += points;
+            const userPointsRef = db.ref('users/' + userId + '/points');
+            userPointsRef.set(currentPoints);
+            updatePointsDisplay(currentPoints);
+        }
+
+        function claimPoints() {
+            addPointsToUser(100);
+            buttonText.textContent = 'Start Catching';
+            claimButton.style.display = 'none';
+            catchButton.style.display = 'flex';
+        }
+
+        toggleCheckbox.addEventListener('change', () => {
+            const isChecked = toggleCheckbox.checked;
+            updateDayOrNight(isChecked);
+        });
+
+        catchButton.addEventListener('click', () => {
+            buttonText.textContent = `Catching...`;
+            sendCatchingData();
+            listenForUpdates();
+        });
+
+        claimButton.addEventListener('click', claimPoints);
+
+        loadPoints();
+        listenForUpdates();
+        loadDayOrNight();
+
+        db.ref('users/' + userId).once('value').then((snapshot) => {
+            const data = snapshot.val();
+            if (data && data.catching) {
+                startCountdown(data.catchTime);
+                catchButton.disabled = true;
+                eyes.forEach(eye => eye.classList.add('blink'));
+                nose.forEach(nose => nose.classList.add('nosesearch'));
+            }
+        });
     </script>
 
-
-    <script src="script.js"></script>
-
-
 </body>
+</html>
