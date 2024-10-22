@@ -13,8 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId = 3;
-const username = document.getElementById('username');
+const userId = 32043; // Set your user ID here
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
@@ -55,12 +54,11 @@ function loadDayOrNight() {
 
 function sendCatchingData() {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 5);
+    now.setMinutes(now.getMinutes() + 1);
     const catchingTime = now.toISOString();
 
     db.ref('users/' + userId).set({
         userId: userId,
-        username: username,
         catchTime: catchingTime,
         catching: true,
         points: currentPoints,
