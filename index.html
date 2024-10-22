@@ -10,10 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-
-let userId; // Declare userId outside the event listener
-
-window.addEventListener('load', function() {
+    window.addEventListener('load', function() {
     const tg = window.Telegram.WebApp;
 
     // Example of getting user data
@@ -22,15 +19,12 @@ window.addEventListener('load', function() {
 
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         usernameElement.innerText = tg.initDataUnsafe.user.username || "N/A";
-        userId = tg.initDataUnsafe.user.id; // Set userId to the actual ID
-        userIdElement.innerText = userId || "N/A";
+        userIdElement.innerText = tg.initDataUnsafe.user.id || "N/A";
     } else {
         usernameElement.innerText = "User data not available";
         userIdElement.innerText = "User data not available";
     }
 });
-
-
     </script>
  
  <style>
@@ -53,7 +47,7 @@ body {
     color: white;
 }
 #userid{
-    display: none;
+    display: block;
 }
         </style>
 </head>
