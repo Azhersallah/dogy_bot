@@ -13,81 +13,76 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId = 32043; // Set your user ID here
+const userId = document.getElementById('userid');
+const username = document.getElementById('username');
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
 const pointsDisplay = document.getElementById('points');
 const loadingScreen = document.getElementById('loadingScreen');
-const eyes = document.querySelectorAll('.the-fox .eyes'); // Select eyes elements
-const nose = document.querySelectorAll('.nose'); // Select nose elements
-const toggleCheckbox = document.getElementById('toggle'); // Select the checkbox
-let currentPoints = 0; // Hold current points globally
+const eyes = document.querySelectorAll('.the-fox .eyes');
+const nose = document.querySelectorAll('.nose');
+const toggleCheckbox = document.getElementById('toggle');
+let currentPoints = 0;
 
 function updatePointsDisplay(points) {
-    pointsDisplay.textContent = points; // Update points on the page
+    pointsDisplay.textContent = points;
 }
 
 function loadPoints() {
     const userPointsRef = db.ref('users/' + userId + '/points');
     userPointsRef.once('value').then((snapshot) => {
-        currentPoints = snapshot.val() || 0; // Load points or default to 0
-        updatePointsDisplay(currentPoints); // Update the display with the current points
+        currentPoints = snapshot.val() || 0;
+        updatePointsDisplay(currentPoints);
         
-        // Delay hiding the loading screen by 2 seconds (2000 milliseconds)
         setTimeout(() => {
-            loadingScreen.style.display = 'none'; // Hide loading screen after 2 seconds
+            loadingScreen.style.display = 'none';
         }, 1000);
     });
 }
 
-// Function to update the checkbox state in Firebase
 function updateDayOrNight(isChecked) {
     db.ref('users/' + userId + '/dayOrNight').set(isChecked);
 }
 
-// Function to load the checkbox state from Firebase
 function loadDayOrNight() {
     const dayOrNightRef = db.ref('users/' + userId + '/dayOrNight');
     dayOrNightRef.once('value').then((snapshot) => {
-        const isChecked = snapshot.val() || false; // Default to false if not set
-        toggleCheckbox.checked = isChecked; // Set the checkbox state
+        const isChecked = snapshot.val() || false;
+        toggleCheckbox.checked = isChecked;
     });
 }
 
 function sendCatchingData() {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 5); // Add 2 minutes to current time
+    now.setMinutes(now.getMinutes() + 5);
     const catchingTime = now.toISOString();
 
-    // Send data to Firebase Realtime Database
     db.ref('users/' + userId).set({
         userId: userId,
-        catchTime: catchingTime, // Store the future catching time
+        username: username,
+        catchTime: catchingTime,
         catching: true,
-        points: currentPoints // Store the current points in the database
+        points: currentPoints,
+        claimed: false // Set claimed to false initially
     });
 
-    // Disable the catching button during countdown
     catchButton.disabled = true;
 }
 
 function startCountdown(targetTime) {
     const countdownInterval = setInterval(() => {
         const currentTime = new Date();
-        const remainingTime = new Date(targetTime) - currentTime; // Remaining time in milliseconds
+        const remainingTime = new Date(targetTime) - currentTime;
 
         if (remainingTime <= 0) {
             clearInterval(countdownInterval);
             buttonText.textContent = 'Catching is complete';
-            claimButton.style.display = 'flex'; // Show Claim button
-            catchButton.style.display = 'none'; // Hide Start Catching button
-            catchButton.disabled = false; // Re-enable button after countdown is done
+            claimButton.style.display = 'flex';
+            catchButton.style.display = 'none';
+            catchButton.disabled = false;
 
-            // Mark catching as done in Firebase
             db.ref('users/' + userId).update({ catching: false });
-
-            // Remove blinking effect when catching is done
             eyes.forEach(eye => eye.classList.remove('blink'));
             nose.forEach(nose => nose.classList.remove('nosesearch'));
         } else {
@@ -104,25 +99,21 @@ function listenForUpdates() {
         if (data) {
             const targetTime = data.catchTime;
             const isCatching = data.catching;
+            const hasClaimed = data.claimed; // Check claimed state
 
-            // Check if catching is active
             if (isCatching) {
                 startCountdown(targetTime);
-                catchButton.disabled = true; // Keep the button disabled if catching is active
-
-                // Add blinking effect while catching is active
+                catchButton.disabled = true;
                 eyes.forEach(eye => eye.classList.add('blink'));
                 nose.forEach(nose => nose.classList.add('nosesearch'));
             }
 
-            // Check if catching is complete and show claim button
-            if (new Date() >= new Date(targetTime)) {
+            if (new Date() >= new Date(targetTime) && !hasClaimed) {
                 buttonText.textContent = 'Catching is complete';
-                claimButton.style.display = 'flex'; // Show Claim button
-                catchButton.style.display = 'none'; // Hide Start Catching button
+                claimButton.style.display = 'flex';
+                catchButton.style.display = 'none';
             }
 
-            // Update the points display
             if (data.points !== undefined) {
                 currentPoints = data.points;
                 updatePointsDisplay(currentPoints);
@@ -131,55 +122,46 @@ function listenForUpdates() {
     });
 }
 
-// Function to add 100 points to the user when claim button is clicked
 function addPointsToUser(points) {
-    currentPoints += points; // Increment the global points variable
+    currentPoints += points;
     const userPointsRef = db.ref('users/' + userId + '/points');
-    userPointsRef.set(currentPoints); // Update points in the database
-    updatePointsDisplay(currentPoints); // Update the display on the page
+    userPointsRef.set(currentPoints);
+    updatePointsDisplay(currentPoints);
 }
 
 function claimPoints() {
-    // Add 100 points to the user
     addPointsToUser(100);
     
-    // Reset the button text and states
+    // Update the claimed status in Firebase
+    db.ref('users/' + userId).update({ claimed: true });
+
     buttonText.textContent = 'Start Catching';
-    claimButton.style.display = 'none'; // Hide Claim button again
-    catchButton.style.display = 'flex'; // Show Start Catching button again
+    claimButton.style.display = 'none';
+    catchButton.style.display = 'flex';
 }
 
-// Event listener for the toggle checkbox
 toggleCheckbox.addEventListener('change', () => {
-    const isChecked = toggleCheckbox.checked; // Get the checkbox state
-    updateDayOrNight(isChecked); // Update the database with the checkbox state
+    const isChecked = toggleCheckbox.checked;
+    updateDayOrNight(isChecked);
 });
 
-// Event listener for the catch button
 catchButton.addEventListener('click', () => {
     buttonText.textContent = `Catching...`;
-
-    // Send catching data (date + 2 minutes) immediately when clicked
     sendCatchingData();
-
-    // Listen for updates after sending data to Firebase
     listenForUpdates();
 });
 
-// Event listener for the claim button
 claimButton.addEventListener('click', claimPoints);
 
-// Automatically load points and start listening for updates when the page loads
 loadPoints();
 listenForUpdates();
-loadDayOrNight(); // Load checkbox state from Firebase
+loadDayOrNight();
 
-// Immediately check if catching is active when the page loads
 db.ref('users/' + userId).once('value').then((snapshot) => {
     const data = snapshot.val();
     if (data && data.catching) {
-        startCountdown(data.catchTime); // Start countdown if catching is active
-        catchButton.disabled = true; // Disable catch button during active catching
+        startCountdown(data.catchTime);
+        catchButton.disabled = true;
         eyes.forEach(eye => eye.classList.add('blink'));
         nose.forEach(nose => nose.classList.add('nosesearch'));
     }
