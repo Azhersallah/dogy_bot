@@ -1,4 +1,7 @@
 // Firebase configuration
+
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
     authDomain: "ttaskk-a50e4.firebaseapp.com",
@@ -13,8 +16,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const tg = window.Telegram.WebApp;
-const userId = tg.initDataUnsafe.user.id; // Using Telegram ID directly
+const userId = userIdElement ; // Set your user ID here
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
@@ -58,7 +60,7 @@ function loadDayOrNight() {
 
 function sendCatchingData() {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 1); // Add 1 minute to current time
+    now.setMinutes(now.getMinutes() + 1); // Add 2 minutes to current time
     const catchingTime = now.toISOString();
 
     // Send data to Firebase Realtime Database
@@ -160,7 +162,7 @@ toggleCheckbox.addEventListener('change', () => {
 catchButton.addEventListener('click', () => {
     buttonText.textContent = `Catching...`;
 
-    // Send catching data (date + 1 minute) immediately when clicked
+    // Send catching data (date + 2 minutes) immediately when clicked
     sendCatchingData();
 
     // Listen for updates after sending data to Firebase
