@@ -1,7 +1,4 @@
 // Firebase configuration
-
-
-
 const firebaseConfig = {
     apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
     authDomain: "ttaskk-a50e4.firebaseapp.com",
@@ -16,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId = userIdElement ; // Set your user ID here
+const userId = 32043; // Set your user ID here
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
