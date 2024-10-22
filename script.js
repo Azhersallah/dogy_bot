@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId = 32043; // Set your user ID here
+const userId = Number(document.getElementById('userId'));
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
