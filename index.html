@@ -14,7 +14,7 @@
             const tg = window.Telegram.WebApp;
 
             const usernameElement = document.getElementById('username');
-            const userIdElement = tg.initDataUnsafe.user.id;
+            const userIdElement = tg.initDataUnsafe.user.id; // Telegram user ID
 
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 usernameElement.innerText = tg.initDataUnsafe.user.username || "N/A";
