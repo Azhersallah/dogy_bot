@@ -58,7 +58,7 @@ function loadDayOrNight() {
 
 function sendCatchingData() {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 5); // Add 1 minute to current time
+    now.setMinutes(now.getMinutes() + 1); // Add 1 minute to current time
     const catchingTime = now.toISOString();
 
     // Send data to Firebase Realtime Database
