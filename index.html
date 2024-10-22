@@ -8,7 +8,18 @@
     <link rel="stylesheet" href="bottom_nav.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+            const usernameElement = document.getElementById('username');
+            // const userIdElement = document.getElementById('userId');
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                usernameElement.innerText = tg.initDataUnsafe.user.username || "N/A";
+                // userIdElement.innerText = tg.initDataUnsafe.user.id || "N/A";
+            } else {
+                usernameElement.innerText = "User data not available";
+                // userIdElement.innerText = "User data not available";
+            }
+    </script>
  
  <style>
 body {
@@ -39,7 +50,8 @@ body {
 
     <div class="userinfo">
         <div class="username">
-            <span>Fox: Azher</span>
+            <p>Fox: <span id="username">Loading...</span></p>
+        </span>
         </div>
         <div class="userlevel">
             <span>Level: 1</span>
