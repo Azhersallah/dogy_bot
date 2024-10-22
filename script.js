@@ -16,7 +16,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId = userIdElement ; // Set your user ID here
+const userId = 32043; // Set your user ID here
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
@@ -60,7 +60,7 @@ function loadDayOrNight() {
 
 function sendCatchingData() {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 1); // Add 5 minutes to current time
+    now.setMinutes(now.getMinutes() + 1); // Add 2 minutes to current time
     const catchingTime = now.toISOString();
 
     // Send data to Firebase Realtime Database
