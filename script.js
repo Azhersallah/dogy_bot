@@ -88,7 +88,7 @@ function startCountdown(targetTime) {
             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
             buttonText.textContent = `Catching... ${minutes}m ${seconds}s`;
         }
-    }, 1000);
+    });
 }
 
 function listenForUpdates() {
