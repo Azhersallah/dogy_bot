@@ -10,20 +10,20 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-    window.addEventListener('load', function() {
-    const tg = window.Telegram.WebApp;
+       window.addEventListener('load', function() {
+        const tg = window.Telegram.WebApp;
 
-    // Example of getting user data
-    const usernameElement = document.getElementById('username');
-    const userIdElement = document.getElementById('userid');
+        // Example of getting user data
+        const usernameElement = document.getElementById('username');
+        const userIdElement = document.getElementById('userId');
 
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        usernameElement.innerText = tg.initDataUnsafe.user.username || "N/A";
-        userIdElement.innerText = tg.initDataUnsafe.user.id || "N/A";
-    } else {
-        usernameElement.innerText = "User data not available";
-        userIdElement.innerText = "User data not available";
-    }
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            usernameElement.innerText = tg.initDataUnsafe.user.username || "N/A";
+            userIdElement.innerText = tg.initDataUnsafe.user.id || "N/A";
+        } else {
+            usernameElement.innerText = "User data not available";
+            userIdElement.innerText = "User data not available";
+        }
 });
     </script>
  
@@ -46,9 +46,6 @@ body {
     height: 8vh;
     color: white;
 }
-#userid{
-    display: block;
-}
         </style>
 </head>
 <body>
@@ -58,7 +55,6 @@ body {
     </div>
 
     <div class="userinfo">
-        <span id="userid"></span>
         <div class="username">
             <p>Fox: <span id="username">Loading...</span></p>
         </span>
