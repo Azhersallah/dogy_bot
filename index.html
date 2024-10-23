@@ -29,7 +29,8 @@
             const usernameElement = document.getElementById('username');
             const userIdElement = document.getElementById('userId');
 
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            // Ensure tg is initialized
+            if (typeof tg !== 'undefined' && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 const user = tg.initDataUnsafe.user;
                 userIdElement.innerText = user.id || "N/A"; // User ID
                 usernameElement.innerText = user.username || "N/A";    
@@ -41,8 +42,6 @@
     </script>
 </body>
 </html>
-
-
 
 
 
