@@ -3,46 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram User Data</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Telegram Web App</title>
     <style>
+        /* Basic styling for the Telegram authentication display */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            padding: 50px;
         }
-        #userData {
-            margin: 20px;
-            font-size: 20px;
+        .auth-info {
+            margin-top: 20px;
+        }
+        .login-status {
+            font-size: 1.2em;
+            color: green;
+        }
+        .error-status {
+            font-size: 1.2em;
+            color: red;
         }
     </style>
 </head>
 <body>
-    <h1>Telegram User Information</h1>
-    <div id="userData">
-        <p>User ID: <span id="userId">Loading...</span></p>
-        <p>Username: <span id="username">Loading...</span></p>
-    </div>
+    <h1>Telegram Web App Authentication</h1>
+    <div id="status" class="login-status">Loading...</div>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        window.addEventListener('load', function() {
-            const usernameElement = document.getElementById('username');
-            const userIdElement = document.getElementById('userId');
+        // Initialize the Telegram Web App
+        const tg = window.Telegram.WebApp;
+        
+        // Get the initData from Telegram
+        const initData = tg.initData;
 
-            // Ensure tg is initialized
-            if (typeof tg !== 'undefined' && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                const user = tg.initDataUnsafe.user;
-                userIdElement.innerText = user.id || "N/A"; // User ID
-                usernameElement.innerText = user.username || "N/A";    
+        if (initData) {
+            // Extract user data from initDataUnsafe (non-validated version)
+            const user = tg.initDataUnsafe.user;
+
+            if (user) {
+                // Display user information
+                document.getElementById('status').innerHTML = `
+                    <div class="auth-info">
+                        <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
+                        <p>Username: ${user.username}</p>
+                        <p>User ID: ${user.id}</p>
+                    </div>
+                `;
             } else {
-                usernameElement.innerText = "User data not available";
-                userIdElement.innerText = "User data not available";
+                document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
-        });
+        } else {
+            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
+        }
     </script>
 </body>
 </html>
-
 
 
 
