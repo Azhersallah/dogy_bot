@@ -1,168 +1,138 @@
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
-    authDomain: "ttaskk-a50e4.firebaseapp.com",
-    databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
-    projectId: "ttaskk-a50e4",
-    storageBucket: "ttaskk-a50e4.appspot.com",
-    messagingSenderId: "213200371465",
-    appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram Web App</title>
+    <link rel="stylesheet" href="fox_style.css">
+    <link rel="stylesheet" href="bottom_nav.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+    <style>
+        body {
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
 
-const userId = document.getElementById('tg_id').innerText; // Get user ID from hidden span
-const username = document.getElementById('tg_user').innerText; // Get username from span
-const catchButton = document.getElementById('catchButton');
-const buttonText = document.getElementById('buttonText');
-const claimButton = document.getElementById('claimButton');
-const pointsDisplay = document.getElementById('points');
-const loadingScreen = document.getElementById('loadingScreen');
-const eyes = document.querySelectorAll('.the-fox .eyes');
-const nose = document.querySelectorAll('.nose');
-const toggleCheckbox = document.getElementById('toggle');
-let currentPoints = 0;
+        .userinfo {
+            position: absolute;
+            top: 0;
+            background-color: #34A87C;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 8vh;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingScreen">
+        <img src="SVG/Loading.svg" alt="">
+    </div>
 
-function updatePointsDisplay(points) {
-    pointsDisplay.textContent = points;
-}
+    <div class="userinfo">
+        <div class="username">
+            <p>Fox: <span id="username">Loading...</span></p>
+        </div>
+        <div class="userlevel">
+            <span>Level: 1</span>
+        </div>
+    </div>
 
-function loadPoints() {
-    const userPointsRef = db.ref('users/' + userId + '/points');
-    userPointsRef.once('value').then((snapshot) => {
-        currentPoints = snapshot.val() || 0;
-        updatePointsDisplay(currentPoints);
+    <div class="legs">
+        <img src="SVG/legs.svg">
+        <h1 id="points">0</h1>
+    </div>
+
+    <div class="the-container">
+        <input type="checkbox" id="toggle" />
+        <label for="toggle"></label>
         
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-        }, 1000);
-    });
-}
+        <div class="day-night-cont">
+            <span class="the-sun"></span>
+            <div class="the-moon"><span class="moon-inside"></span></div>
+        </div>
+        
+        <div class="switch">
+            <div class="button">
+                <div class="b-inside"></div>
+            </div>
+        </div>
+        
+        <div class="c-window">
+            <span class="the-sun"></span>
+            <span class="the-moon"></span>
+            
+            <div class="the-fox">
+                <div class="fox-face">
+                    <section class="eyes left"></section>
+                    <section class="eyes right"></section> 
+                    <span class="nose"></span>
+                    <div class="white-part"><span class="mouth"></span></div>
+                </div>  
+            </div>
+        </div>
+    </div>
 
-function updateDayOrNight(isChecked) {
-    db.ref('users/' + userId + '/dayOrNight').set(isChecked);
-}
+    <button class="button farming bs" id="catchButton">
+        <h4 id="buttonText">Start Catching</h4>
+    </button>
+    <button class="button claim bs" id="claimButton" style="display: none;">
+        <h4>Claim</h4>
+    </button>
 
-function loadDayOrNight() {
-    const dayOrNightRef = db.ref('users/' + userId + '/dayOrNight');
-    dayOrNightRef.once('value').then((snapshot) => {
-        const isChecked = snapshot.val() || false;
-        toggleCheckbox.checked = isChecked;
-    });
-}
+    <footer class="fixed-bottom">
+        <a href="index.html" class="nav-item active">
+            <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
+            <span>Home</span>
+        </a>
+        <a href="task.html" class="nav-item">
+            <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
+            <span>Task</span>
+        </a>
+        <a href="leaderboard.html" class="nav-item">
+            <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
+            <span>Leaderboard</span>
+        </a>
+        <a href="friends.html" class="nav-item">
+            <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
+            <span>Friends</span>
+        </a>
+    </footer>
 
-function sendCatchingData() {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 5);
-    const catchingTime = now.toISOString();
+    <script>
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault(); // Disable right-click context menu
+        });
 
-    db.ref('users/' + userId).set({
-        userId: userId,
-        username: username,
-        catchTime: catchingTime,
-        catching: true,
-        points: currentPoints,
-        claimed: false // Set claimed to false initially
-    });
+        document.addEventListener('selectstart', function(event) {
+            event.preventDefault(); // Disable text selection
+        });
+    </script>
 
-    catchButton.disabled = true;
-}
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        const initData = tg.initData;
 
-function startCountdown(targetTime) {
-    const countdownInterval = setInterval(() => {
-        const currentTime = new Date();
-        const remainingTime = new Date(targetTime) - currentTime;
+        if (initData) {
+            const user = tg.initDataUnsafe.user;
 
-        if (remainingTime <= 0) {
-            clearInterval(countdownInterval);
-            buttonText.textContent = 'Catching is complete';
-            claimButton.style.display = 'flex';
-            catchButton.style.display = 'none';
-            catchButton.disabled = false;
-
-            db.ref('users/' + userId).update({ catching: false });
-            eyes.forEach(eye => eye.classList.remove('blink'));
-            nose.forEach(nose => nose.classList.remove('nosesearch'));
+            // Set user info or N/A if not available
+            document.getElementById('username').innerText = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
+            document.getElementById('tg_user').innerText = user ? (user.username || 'N/A') : 'N/A';
+            document.getElementById('tg_id').innerText = user ? (user.id || 'N/A') : 'N/A';
         } else {
-            const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-            buttonText.textContent = `Catching... ${minutes}m ${seconds}s`;
+            document.getElementById('username').innerText = 'N/A';
+            document.getElementById('tg_user').innerText = 'N/A';
+            document.getElementById('tg_id').innerText = 'N/A';
         }
-    }, 1000); // Ensure to add a time interval for setInterval
-}
-
-function listenForUpdates() {
-    db.ref('users/' + userId).on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            const targetTime = data.catchTime;
-            const isCatching = data.catching;
-            const hasClaimed = data.claimed; // Check claimed state
-
-            if (isCatching) {
-                startCountdown(targetTime);
-                catchButton.disabled = true;
-                eyes.forEach(eye => eye.classList.add('blink'));
-                nose.forEach(nose => nose.classList.add('nosesearch'));
-            }
-
-            if (new Date() >= new Date(targetTime) && !hasClaimed) {
-                buttonText.textContent = 'Catching is complete';
-                claimButton.style.display = 'flex';
-                catchButton.style.display = 'none';
-            }
-
-            if (data.points !== undefined) {
-                currentPoints = data.points;
-                updatePointsDisplay(currentPoints);
-            }
-        }
-    });
-}
-
-function addPointsToUser(points) {
-    currentPoints += points;
-    const userPointsRef = db.ref('users/' + userId + '/points');
-    userPointsRef.set(currentPoints);
-    updatePointsDisplay(currentPoints);
-}
-
-function claimPoints() {
-    addPointsToUser(100);
-    
-    // Update the claimed status in Firebase
-    db.ref('users/' + userId).update({ claimed: true });
-
-    buttonText.textContent = 'Start Catching';
-    claimButton.style.display = 'none';
-    catchButton.style.display = 'flex';
-}
-
-toggleCheckbox.addEventListener('change', () => {
-    const isChecked = toggleCheckbox.checked;
-    updateDayOrNight(isChecked);
-});
-
-catchButton.addEventListener('click', () => {
-    buttonText.textContent = `Catching...`;
-    sendCatchingData();
-    listenForUpdates();
-});
-
-claimButton.addEventListener('click', claimPoints);
-
-loadPoints();
-listenForUpdates();
-loadDayOrNight();
-
-db.ref('users/' + userId).once('value').then((snapshot) => {
-    const data = snapshot.val();
-    if (data && data.catching) {
-        startCountdown(data.catchTime);
-        catchButton.disabled = true;
-        eyes.forEach(eye => eye.classList.add('blink'));
-        nose.forEach(nose => nose.classList.add('nosesearch'));
-    }
-});
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
