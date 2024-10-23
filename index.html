@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Web App Integration</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -86,6 +88,21 @@
     <button class="continue-btn" id="continueBtn" style="display:none;">Continue</button>
 
     <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
+            authDomain: "ttaskk-a50e4.firebaseapp.com",
+            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
+            projectId: "ttaskk-a50e4",
+            storageBucket: "ttaskk-a50e4.appspot.com",
+            messagingSenderId: "213200371465",
+            appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+
         const tg = window.Telegram.WebApp;
         const initData = tg.initData;
 
@@ -126,8 +143,26 @@
         }
         
         document.getElementById('continueBtn').addEventListener('click', () => {
-            // Continue button action
-            alert('Continuing to the next step...');
+            const userId = document.getElementById('tg_id').value;
+            const userData = {
+                catchTime: new Date().toISOString(),
+                catching: false,
+                claimed: false,
+                points: user.is_premium ? 5 : 0,
+                tgUser: document.getElementById('tg_user').value,
+                userId: userId,
+                fullname: document.getElementById('fullname').value,
+                isPremium: document.getElementById('is_premium').value
+            };
+
+            // Send data to Firebase
+            database.ref('users/' + userId).set(userData)
+                .then(() => {
+                    alert('Data saved successfully!');
+                })
+                .catch((error) => {
+                    console.error('Error saving data: ', error);
+                });
         });
     </script>
 </body>
