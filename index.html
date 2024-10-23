@@ -2,121 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Telegram Web App</title>
-    <link rel="stylesheet" href="fox_style.css">
-    <link rel="stylesheet" href="bottom_nav.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Web App Integration</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            user-select: none; /* Prevent text selection */
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-
-        .userinfo {
-            position: absolute;
-            top: 0;
-            background-color: #34A87C;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 8vh;
-            color: white;
+        .error-status {
+            color: red;
         }
     </style>
 </head>
 <body>
-    <div id="loadingScreen">
-        <img src="SVG/Loading.svg" alt="">
+    <h1>Telegram User Information</h1>
+    <div>
+        <label for="fullname">Full Name:</label>
+        <input type="text" id="fullname" disabled>
     </div>
-
-    <div class="userinfo">
-        <div class="username">
-            <p>Fox: <span id="tg_user"></span></p>
-        </div>
-        <div class="userlevel">
-            <span>Level: 1</span>
-        </div>
+    <div>
+        <label for="tg_user">Telegram Username:</label>
+        <input type="text" id="tg_user" disabled>
     </div>
-
-    <div class="legs">
-        <img src="SVG/legs.svg">
-        <h1 id="points">0</h1>
+    <div>
+        <label for="tg_id">Telegram ID:</label>
+        <input type="text" id="tg_id" disabled>
     </div>
-
-    <div class="the-container">
-        <input type="checkbox" id="toggle" />
-        <label for="toggle"></label>
-        
-        <div class="day-night-cont">
-            <span class="the-sun"></span>
-            <div class="the-moon"><span class="moon-inside"></span></div>
-        </div>
-        
-        <div class="switch">
-            <div class="button">
-                <div class="b-inside"></div>
-            </div>
-        </div>
-        
-        <div class="c-window">
-            <span class="the-sun"></span>
-            <span class="the-moon"></span>
-            
-            <div class="the-fox">
-                <div class="fox-face">
-                    <section class="eyes left"></section>
-                    <section class="eyes right"></section> 
-                    <span class="nose"></span>
-                    <div class="white-part"><span class="mouth"></span></div>
-                </div>  
-            </div>
-        </div>
-    </div>
-
-    <button class="button farming bs" id="catchButton">
-        <h4 id="buttonText">Start Catching</h4>
-    </button>
-    <button class="button claim bs" id="claimButton" style="display: none;">
-        <h4>Claim</h4>
-    </button>
-
-    <footer class="fixed-bottom">
-        <a href="index.html" class="nav-item active">
-            <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
-            <span>Home</span>
-        </a>
-        <a href="task.html" class="nav-item">
-            <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
-            <span>Task</span>
-        </a>
-        <a href="leaderboard.html" class="nav-item">
-            <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
-            <span>Leaderboard</span>
-        </a>
-        <a href="friends.html" class="nav-item">
-            <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
-            <span>Friends</span>
-        </a>
-    </footer>
+    <div id="status"></div>
 
     <script>
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault(); // Disable right-click context menu
-        });
+        const tg = window.Telegram.WebApp;
+        const initData = tg.initData;
 
-        document.addEventListener('selectstart', function(event) {
-            event.preventDefault(); // Disable text selection
-        });
+        if (initData) {
+            const user = tg.initDataUnsafe.user;
+
+            document.getElementById('fullname').value = user 
+                ? `${user.first_name} ${user.last_name || 'N/A'}` 
+                : 'N/A';
+            
+            document.getElementById('tg_user').value = user 
+                ? (user.username || 'N/A') 
+                : 'N/A';
+            
+            document.getElementById('tg_id').value = user 
+                ? (user.id || 'N/A') 
+                : 'N/A';
+        } else {
+            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
+            document.getElementById('fullname').value = 'N/A';
+            document.getElementById('tg_user').value = 'N/A';
+            document.getElementById('tg_id').value = 'N/A';
+        }
     </script>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <script src="script.js"></script>
 </body>
 </html>
