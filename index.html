@@ -29,11 +29,37 @@
         <label for="tg_id">Telegram ID:</label>
         <input type="text" id="tg_id" disabled>
     </div>
+    <div>
+        <label for="photo_url">Profile Photo URL:</label>
+        <input type="text" id="photo_url" disabled>
+    </div>
+    <div>
+        <label for="language_code">Language Code:</label>
+        <input type="text" id="language_code" disabled>
+    </div>
+    <div>
+        <label for="is_bot">Is Bot:</label>
+        <input type="text" id="is_bot" disabled>
+    </div>
+    <div>
+        <label for="is_premium">Is Premium:</label>
+        <input type="text" id="is_premium" disabled>
+    </div>
+    <div>
+        <label for="account_creation_year">Estimated Account Creation Year:</label>
+        <input type="text" id="account_creation_year" disabled>
+    </div>
     <div id="status"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
         const initData = tg.initData;
+
+        // Placeholder for the interaction date (in a real scenario, retrieve this from your backend)
+        const interactionDate = new Date('2022-01-01'); // Example date when the user first interacted
+
+        // Calculate the estimated account creation year
+        const creationYear = interactionDate.getFullYear();
 
         if (initData) {
             const user = tg.initDataUnsafe.user;
@@ -49,11 +75,35 @@
             document.getElementById('tg_id').value = user 
                 ? (user.id || 'N/A') 
                 : 'N/A';
+            
+            document.getElementById('photo_url').value = user 
+                ? (user.photo_url || 'N/A') 
+                : 'N/A';
+                
+            document.getElementById('language_code').value = user 
+                ? (user.language_code || 'N/A') 
+                : 'N/A';
+                
+            document.getElementById('is_bot').value = user 
+                ? (user.is_bot ? 'Yes' : 'No') 
+                : 'N/A';
+                
+            document.getElementById('is_premium').value = user 
+                ? (user.is_premium ? 'Yes' : 'No') 
+                : 'N/A';
+
+            // Set the estimated account creation year
+            document.getElementById('account_creation_year').value = creationYear || 'N/A';
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
             document.getElementById('fullname').value = 'N/A';
             document.getElementById('tg_user').value = 'N/A';
             document.getElementById('tg_id').value = 'N/A';
+            document.getElementById('photo_url').value = 'N/A';
+            document.getElementById('language_code').value = 'N/A';
+            document.getElementById('is_bot').value = 'N/A';
+            document.getElementById('is_premium').value = 'N/A';
+            document.getElementById('account_creation_year').value = 'N/A';
         }
     </script>
 </body>
