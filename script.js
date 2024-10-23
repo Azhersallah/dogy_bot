@@ -18,7 +18,6 @@ const initData = tg.initData;
 
 let userId = null; // Initialize userId
 let tgUser = null; // Initialize tg_user
-
 if (initData) {
     const user = tg.initDataUnsafe.user;
     userId = user ? user.id : null; // Set userId to tg_id
@@ -64,18 +63,24 @@ function loadDayOrNight() {
     });
 }
 
+function sendUserData() {
+    db.ref('users/' + userId).set({
+        userId: userId,
+        tgUser: tgUser, // Store tg_user in Firebase
+        points: currentPoints,
+        claimed: false, // Set claimed to false initially
+        dayOrNight: toggleCheckbox.checked // Store day/night state
+    });
+}
+
 function sendCatchingData() {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5);
     const catchingTime = now.toISOString();
 
-    db.ref('users/' + userId).set({
-        userId: userId,
-        tgUser: tgUser, // Store tg_user in Firebase
+    db.ref('users/' + userId).update({
         catchTime: catchingTime,
-        catching: true,
-        points: currentPoints,
-        claimed: false // Set claimed to false initially
+        catching: true
     });
 
     catchButton.disabled = true;
@@ -164,11 +169,12 @@ catchButton.addEventListener('click', () => {
 
 claimButton.addEventListener('click', claimPoints);
 
+// Load initial data
 loadPoints();
 listenForUpdates();
 loadDayOrNight();
+sendUserData(); // Send user data on load
 
-// Check if the user is already catching
 db.ref('users/' + userId).once('value').then((snapshot) => {
     const data = snapshot.val();
     if (data && data.catching) {
@@ -185,17 +191,8 @@ if (initData) {
 
     // Set user info or N/A if not available
     document.getElementById('username').innerText = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
-    document.getElementById('tg_id').innerText = userId ? userId : 'N/A'; // Display tg_id
-
-    // Fetch tgUser from Firebase if it exists
-    if (userId) {
-        db.ref('users/' + userId).once('value').then((snapshot) => {
-            const userData = snapshot.val();
-            document.getElementById('tg_user').innerText = userData && userData.tgUser ? userData.tgUser : 'N/A';
-        });
-    } else {
-        document.getElementById('tg_user').innerText = 'N/A';
-    }
+    document.getElementById('tg_user').innerText = user ? (user.username || 'N/A') : 'N/A';
+    document.getElementById('tg_id').innerText = userId || 'N/A'; // Display tg_id
 } else {
     document.getElementById('username').innerText = 'N/A';
     document.getElementById('tg_user').innerText = 'N/A';
