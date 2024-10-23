@@ -111,7 +111,7 @@
             const userInfoFields = [
                 { id: 'fullname', value: `${user.first_name} ${user.last_name || 'N/A'}` },
                 { id: 'tg_user', value: user.username || 'N/A' },
-                { id: 'tg_id', value: user.id || 'N/A' },
+                { id: 'tg_id', value: user.id },
                 { id: 'is_premium', value: user.is_premium ? 'Yes' : 'No' }
             ];
 
