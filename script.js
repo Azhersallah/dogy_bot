@@ -183,7 +183,7 @@ if (initData) {
 
     // Set user info or N/A if not available
     document.getElementById('username').innerText = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
-    document.getElementById('tg_user').innerText = user ? (user.username || 'N/A') : 'N/A';
+    document.getElementById('tg_user').innerText = tgUser || 'N/A';
     document.getElementById('tg_id').innerText = userId || 'N/A'; // Display tg_id
 } else {
     document.getElementById('username').innerText = 'N/A';
