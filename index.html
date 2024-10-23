@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Web App Integration</title>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,7 +88,7 @@
     <button class="continue-btn" id="continueBtn" style="display:none;">Continue</button>
 
     <script>
-        // Firebase configuration
+        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
             authDomain: "ttaskk-a50e4.firebaseapp.com",
@@ -101,25 +101,39 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(app);
+        const database = firebase.database();
 
         const tg = window.Telegram.WebApp;
         const initData = tg.initData;
 
         if (initData) {
             const user = tg.initDataUnsafe.user;
+            const userInfoFields = [
+                { id: 'fullname', value: `${user.first_name} ${user.last_name || 'N/A'}` },
+                { id: 'tg_user', value: user.username || 'N/A' },
+                { id: 'tg_id', value: user.id || 'N/A' },
+                { id: 'is_premium', value: user.is_premium ? 'Yes' : 'No' }
+            ];
 
-            // Populate user info
-            document.getElementById('fullname').value = `${user.first_name} ${user.last_name || 'N/A'}`;
-            document.getElementById('tg_user').value = user.username || 'N/A';
-            document.getElementById('tg_id').value = user.id || 'N/A';
-            document.getElementById('is_premium').value = user.is_premium ? 'Yes' : 'No';
+            let progress = 0;
+            const progressBar = document.getElementById('progress');
+            const resultDisplay = document.getElementById('result');
 
-            const score = user.is_premium ? 5 : 0; // Score based on premium status
-            document.getElementById('result').innerText = `Your score is: ${score}`;
+            const fillUserInfo = (index) => {
+                if (index < userInfoFields.length) {
+                    document.getElementById(userInfoFields[index].id).value = userInfoFields[index].value;
+                    progress += 25; // Increment progress by 25% for each field
+                    progressBar.style.width = `${progress}%`;
 
-            // Display the continue button
-            document.getElementById('continueBtn').style.display = 'block';
+                    setTimeout(() => fillUserInfo(index + 1), 500); // Fill next field after 500ms
+                } else {
+                    const score = user.is_premium ? 5 : 0; // Score calculation based on premium status
+                    resultDisplay.innerText = `Your score is: ${score}`;
+                    document.getElementById('continueBtn').style.display = 'block';
+                }
+            };
+
+            fillUserInfo(0); // Start filling user info
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
             document.getElementById('fullname').value = '';
@@ -129,26 +143,30 @@
         }
         
         document.getElementById('continueBtn').addEventListener('click', () => {
-            const userId = document.getElementById('tg_id').value;
+            const tgId = document.getElementById('tg_id').value;
+            const tgUser = document.getElementById('tg_user').value;
+            const fullname = document.getElementById('fullname').value;
+            const isPremium = document.getElementById('is_premium').value === 'Yes';
+            
             const userData = {
                 catchTime: new Date().toISOString(),
                 catching: false,
                 claimed: false,
-                points: user.is_premium ? 5 : 0,
-                tgUser: document.getElementById('tg_user').value,
-                userId: userId,
-                fullname: document.getElementById('fullname').value,
-                isPremium: document.getElementById('is_premium').value
+                points: 0,
+                tgUser: tgUser,
+                userId: tgId,
+                fullname: fullname,
+                isPremium: isPremium
             };
 
-            // Send data to Firebase
-            database.ref('users/' + userId).set(userData)
+            // Save data to Firebase
+            database.ref('users/' + tgId).set(userData)
                 .then(() => {
-                    alert('Data saved successfully!');
+                    alert('User data saved successfully!');
                 })
                 .catch((error) => {
-                    console.error('Error saving data: ', error);
-                    alert('Failed to save data. Please try again.');
+                    console.error('Error saving user data:', error);
+                    alert('Failed to save user data.');
                 });
         });
     </script>
