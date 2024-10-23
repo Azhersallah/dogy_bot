@@ -13,8 +13,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId =document.getElementById('tg_id');
-const username =document.getElementById('tg_user');
+const userId = document.getElementById('tg_id').innerText; // Get user ID from hidden span
+const username = document.getElementById('tg_user').innerText; // Get username from span
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
@@ -60,7 +60,7 @@ function sendCatchingData() {
 
     db.ref('users/' + userId).set({
         userId: userId,
-        username:username,
+        username: username,
         catchTime: catchingTime,
         catching: true,
         points: currentPoints,
@@ -90,7 +90,7 @@ function startCountdown(targetTime) {
             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
             buttonText.textContent = `Catching... ${minutes}m ${seconds}s`;
         }
-    });
+    }, 1000); // Ensure to add a time interval for setInterval
 }
 
 function listenForUpdates() {
