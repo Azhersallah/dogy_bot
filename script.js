@@ -33,6 +33,7 @@ const loadingScreen = document.getElementById('loadingScreen');
 const eyes = document.querySelectorAll('.the-fox .eyes');
 const nose = document.querySelectorAll('.nose');
 const toggleCheckbox = document.getElementById('toggle');
+const tgUserDisplay = document.getElementById('tg_user'); // Element to display tgUser
 let currentPoints = 0;
 
 function updatePointsDisplay(points) {
@@ -51,6 +52,18 @@ function loadPoints() {
     });
 }
 
+function loadTgUser() {
+    const userRef = db.ref('users/' + userId);
+    userRef.once('value').then((snapshot) => {
+        const data = snapshot.val();
+        if (data && data.tgUser) {
+            tgUserDisplay.textContent = data.tgUser; // Display tgUser
+        } else {
+            tgUserDisplay.textContent = tgUser || "Not available"; // Fallback if not in DB
+        }
+    });
+}
+
 function updateDayOrNight(isChecked) {
     db.ref('users/' + userId + '/dayOrNight').set(isChecked);
 }
@@ -63,24 +76,18 @@ function loadDayOrNight() {
     });
 }
 
-function sendUserData() {
-    db.ref('users/' + userId).set({
-        userId: userId,
-        tgUser: tgUser, // Store tg_user in Firebase
-        points: currentPoints,
-        claimed: false, // Set claimed to false initially
-        dayOrNight: toggleCheckbox.checked // Store day/night state
-    });
-}
-
 function sendCatchingData() {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5);
     const catchingTime = now.toISOString();
 
-    db.ref('users/' + userId).update({
+    db.ref('users/' + userId).set({
+        userId: userId,
+        tgUser: tgUser, // Store tg_user in Firebase
         catchTime: catchingTime,
-        catching: true
+        catching: true,
+        points: currentPoints,
+        claimed: false // Set claimed to false initially
     });
 
     catchButton.disabled = true;
@@ -169,11 +176,10 @@ catchButton.addEventListener('click', () => {
 
 claimButton.addEventListener('click', claimPoints);
 
-// Load initial data
 loadPoints();
+loadTgUser(); // Load tgUser and display it
 listenForUpdates();
 loadDayOrNight();
-sendUserData(); // Send user data on load
 
 db.ref('users/' + userId).once('value').then((snapshot) => {
     const data = snapshot.val();
@@ -184,17 +190,3 @@ db.ref('users/' + userId).once('value').then((snapshot) => {
         nose.forEach(nose => nose.classList.add('nosesearch'));
     }
 });
-
-// Display user information
-if (initData) {
-    const user = tg.initDataUnsafe.user;
-
-    // Set user info or N/A if not available
-    document.getElementById('username').innerText = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
-    document.getElementById('tg_user').innerText = user ? (user.username || 'N/A') : 'N/A';
-    document.getElementById('tg_id').innerText = userId || 'N/A'; // Display tg_id
-} else {
-    document.getElementById('username').innerText = 'N/A';
-    document.getElementById('tg_user').innerText = 'N/A';
-    document.getElementById('tg_id').innerText = 'N/A';
-}
