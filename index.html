@@ -28,18 +28,13 @@
             height: 8vh;
             color: white;
         }
-        #tg_id, #tg_user{
-            display:none;
-        }
     </style>
 </head>
 <body>
-    <span id="tg_id">aa</span>
-    <span id="tg_user">aa</span>
-<!--     <div id="loadingScreen">
+    <div id="loadingScreen">
         <img src="SVG/Loading.svg" alt="">
     </div>
- -->
+
     <div class="userinfo">
         <div class="username">
             <p>Fox: <span id="tg_user">Loading...</span></p>
@@ -121,21 +116,7 @@
     </script>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        const tg = window.Telegram.WebApp;
-        const initData = tg.initData;
 
-        if (initData) {
-            const user = tg.initDataUnsafe.user;
-
-            // Set user info or N/A if not available
-            document.getElementById('tg_user').innerText = user ? (user.username || 'N/A') : 'N/A';
-            document.getElementById('tg_id').innerText = user ? (user.id || 'N/A') : 'N/A';
-        } else {
-            document.getElementById('tg_user').innerText = 'N/A';
-            document.getElementById('tg_id').innerText = 'N/A';
-        }
-    </script>
     <script src="script.js"></script>
 </body>
 </html>
