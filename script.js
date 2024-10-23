@@ -13,7 +13,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const userId = "243254363";
+const userId =document.getElementById('tg_id');
+const username =document.getElementById('tg_user');
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
@@ -59,6 +60,7 @@ function sendCatchingData() {
 
     db.ref('users/' + userId).set({
         userId: userId,
+        username:username,
         catchTime: catchingTime,
         catching: true,
         points: currentPoints,
