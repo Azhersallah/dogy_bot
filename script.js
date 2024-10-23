@@ -18,7 +18,6 @@ const initData = tg.initData;
 
 let userId = null; // Initialize userId
 let tgUser = null; // Initialize tg_user
-
 if (initData) {
     const user = tg.initDataUnsafe.user;
     userId = user ? user.id : null; // Set userId to tg_id
@@ -168,7 +167,6 @@ loadPoints();
 listenForUpdates();
 loadDayOrNight();
 
-// Check if the user is already catching
 db.ref('users/' + userId).once('value').then((snapshot) => {
     const data = snapshot.val();
     if (data && data.catching) {
@@ -185,8 +183,8 @@ if (initData) {
 
     // Set user info or N/A if not available
     document.getElementById('username').innerText = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
-    document.getElementById('tg_user').innerText = tgUser ? tgUser : 'N/A'; // Ensure tgUser is shown correctly
-    document.getElementById('tg_id').innerText = userId ? userId : 'N/A'; // Display tg_id
+    document.getElementById('tg_user').innerText = user ? (user.username || 'N/A') : 'N/A';
+    document.getElementById('tg_id').innerText = userId || 'N/A'; // Display tg_id
 } else {
     document.getElementById('username').innerText = 'N/A';
     document.getElementById('tg_user').innerText = 'N/A';
