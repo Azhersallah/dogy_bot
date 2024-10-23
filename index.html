@@ -9,57 +9,88 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f3f4f6;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .info-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            margin: 5px 0;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress {
+            height: 20px;
+            background: #4caf50;
+            width: 0;
+            transition: width 1s;
+        }
+        .result {
+            font-size: 20px;
+            margin-top: 10px;
         }
         .error-status {
             color: red;
+        }
+        .continue-btn {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .continue-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
     <h1>Telegram User Information</h1>
-    <div>
+    <div class="info-container">
         <label for="fullname">Full Name:</label>
         <input type="text" id="fullname" disabled>
-    </div>
-    <div>
         <label for="tg_user">Telegram Username:</label>
         <input type="text" id="tg_user" disabled>
-    </div>
-    <div>
         <label for="tg_id">Telegram ID:</label>
         <input type="text" id="tg_id" disabled>
-    </div>
-    <div>
-        <label for="photo_url">Profile Photo URL:</label>
-        <input type="text" id="photo_url" disabled>
-    </div>
-    <div>
-        <label for="language_code">Language Code:</label>
-        <input type="text" id="language_code" disabled>
-    </div>
-    <div>
-        <label for="is_bot">Is Bot:</label>
-        <input type="text" id="is_bot" disabled>
-    </div>
-    <div>
         <label for="is_premium">Is Premium:</label>
         <input type="text" id="is_premium" disabled>
     </div>
-    <div>
-        <label for="account_creation_year">Estimated Account Creation Year:</label>
-        <input type="text" id="account_creation_year" disabled>
-    </div>
     <div id="status"></div>
+    
+    <div class="progress-container">
+        <div class="progress" id="progress"></div>
+    </div>
+    <div class="result" id="result"></div>
+    
+    <button class="continue-btn" id="continueBtn" style="display:none;">Continue</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         const initData = tg.initData;
-
-        // Placeholder for the interaction date (in a real scenario, retrieve this from your backend)
-        const interactionDate = new Date('2022-01-01'); // Example date when the user first interacted
-
-        // Calculate the estimated account creation year
-        const creationYear = interactionDate.getFullYear();
+        const interactionDate = new Date('2022-01-01'); // Example date
+        const currentYear = new Date().getFullYear();
+        const accountAge = currentYear - interactionDate.getFullYear(); // Calculate age based on interaction year
 
         if (initData) {
             const user = tg.initDataUnsafe.user;
@@ -75,36 +106,45 @@
             document.getElementById('tg_id').value = user 
                 ? (user.id || 'N/A') 
                 : 'N/A';
-            
-            document.getElementById('photo_url').value = user 
-                ? (user.photo_url || 'N/A') 
-                : 'N/A';
-                
-            document.getElementById('language_code').value = user 
-                ? (user.language_code || 'N/A') 
-                : 'N/A';
-                
-            document.getElementById('is_bot').value = user 
-                ? (user.is_bot ? 'Yes' : 'No') 
-                : 'N/A';
                 
             document.getElementById('is_premium').value = user 
                 ? (user.is_premium ? 'Yes' : 'No') 
                 : 'N/A';
 
-            // Set the estimated account creation year
-            document.getElementById('account_creation_year').value = creationYear || 'N/A';
+            // Calculate score
+            let score = 0;
+            if (user && user.is_premium) {
+                score += 5; // 5 points for premium
+            }
+            score += accountAge; // 1 point for each year
+
+            // Show loading and progress
+            let progress = 0;
+            const progressBar = document.getElementById('progress');
+            const resultDisplay = document.getElementById('result');
+
+            const interval = setInterval(() => {
+                if (progress < score * 20) { // Scale score to a percentage
+                    progress++;
+                    progressBar.style.width = `${progress}%`;
+                } else {
+                    clearInterval(interval);
+                    resultDisplay.innerText = `Your score is: ${score}`;
+                    document.getElementById('continueBtn').style.display = 'block';
+                }
+            }, 50);
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
-            document.getElementById('fullname').value = 'N/A';
-            document.getElementById('tg_user').value = 'N/A';
-            document.getElementById('tg_id').value = 'N/A';
-            document.getElementById('photo_url').value = 'N/A';
-            document.getElementById('language_code').value = 'N/A';
-            document.getElementById('is_bot').value = 'N/A';
-            document.getElementById('is_premium').value = 'N/A';
-            document.getElementById('account_creation_year').value = 'N/A';
+            document.getElementById('fullname').value = '';
+            document.getElementById('tg_user').value = '';
+            document.getElementById('tg_id').value = '';
+            document.getElementById('is_premium').value = '';
         }
+        
+        document.getElementById('continueBtn').addEventListener('click', () => {
+            // Continue button action
+            alert('Continuing to the next step...');
+        });
     </script>
 </body>
 </html>
