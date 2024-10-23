@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Web App</title>
     <style>
-        /* Basic styling for the Telegram authentication display */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -14,9 +13,11 @@
         .auth-info {
             margin-top: 20px;
         }
-        .login-status {
-            font-size: 1.2em;
-            color: green;
+        input {
+            padding: 10px;
+            margin: 5px;
+            font-size: 1em;
+            width: 300px;
         }
         .error-status {
             font-size: 1.2em;
@@ -28,42 +29,32 @@
     <h1>Telegram Web App Authentication</h1>
     <div id="status" class="login-status">Loading...</div>
 
+    <div class="auth-info">
+        <input type="text" id="fullName" placeholder="Full Name" readonly>
+        <input type="text" id="username" placeholder="Username" readonly>
+        <input type="text" id="userId" placeholder="User ID" readonly>
+    </div>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
-        
-        // Get the initData from Telegram
         const initData = tg.initData;
 
         if (initData) {
-            // Extract user data from initDataUnsafe (non-validated version)
             const user = tg.initDataUnsafe.user;
 
-            if (user) {
-                // Display user information
-                document.getElementById('status').innerHTML = `
-                    <div class="auth-info">
-                        <p>Authenticated as: ${user.first_name} ${user.last_name || ''}</p>
-                        <p>Username: ${user.username}</p>
-                        <p>User ID: ${user.id}</p>
-                    </div>
-                `;
-            } else {
-                document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
-            }
+            document.getElementById('fullName').value = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
+            document.getElementById('username').value = user ? (user.username || 'N/A') : 'N/A';
+            document.getElementById('userId').value = user ? (user.id || 'N/A') : 'N/A';
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
+            document.getElementById('fullName').value = 'N/A';
+            document.getElementById('username').value = 'N/A';
+            document.getElementById('userId').value = 'N/A';
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
