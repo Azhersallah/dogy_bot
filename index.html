@@ -2,6 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram User Data</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #userData {
+            margin: 20px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Telegram User Information</h1>
+    <div id="userData">
+        <p>User ID: <span id="userId">Loading...</span></p>
+        <p>Username: <span id="username">Loading...</span></p>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            const usernameElement = document.getElementById('username');
+            const userIdElement = document.getElementById('userId');
+
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                userIdElement.innerText = user.id || "N/A"; // User ID
+                usernameElement.innerText = user.username || "N/A";    
+            } else {
+                usernameElement.innerText = "User data not available";
+                userIdElement.innerText = "User data not available";
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Document</title>
     <link rel="stylesheet" href="fox_style.css">
@@ -150,3 +213,4 @@ body {
 
 
 </body>
+ -->
