@@ -108,32 +108,18 @@
 
         if (initData) {
             const user = tg.initDataUnsafe.user;
-            const userInfoFields = [
-                { id: 'fullname', value: `${user.first_name} ${user.last_name || 'N/A'}` },
-                { id: 'tg_user', value: user.username || 'N/A' },
-                { id: 'tg_id', value: user.id || 'N/A' },
-                { id: 'is_premium', value: user.is_premium ? 'Yes' : 'No' }
-            ];
 
-            let progress = 0;
-            const progressBar = document.getElementById('progress');
-            const resultDisplay = document.getElementById('result');
+            // Populate user info
+            document.getElementById('fullname').value = `${user.first_name} ${user.last_name || 'N/A'}`;
+            document.getElementById('tg_user').value = user.username || 'N/A';
+            document.getElementById('tg_id').value = user.id || 'N/A';
+            document.getElementById('is_premium').value = user.is_premium ? 'Yes' : 'No';
 
-            const fillUserInfo = (index) => {
-                if (index < userInfoFields.length) {
-                    document.getElementById(userInfoFields[index].id).value = userInfoFields[index].value;
-                    progress += 25; // Increment progress by 25% for each field
-                    progressBar.style.width = `${progress}%`;
+            const score = user.is_premium ? 5 : 0; // Score based on premium status
+            document.getElementById('result').innerText = `Your score is: ${score}`;
 
-                    setTimeout(() => fillUserInfo(index + 1), 500); // Fill next field after 500ms
-                } else {
-                    const score = user.is_premium ? 5 : 0; // Score calculation based on premium status
-                    resultDisplay.innerText = `Your score is: ${score}`;
-                    document.getElementById('continueBtn').style.display = 'block';
-                }
-            };
-
-            fillUserInfo(0); // Start filling user info
+            // Display the continue button
+            document.getElementById('continueBtn').style.display = 'block';
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
             document.getElementById('fullname').value = '';
