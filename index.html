@@ -2,99 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        .auth-info {
-            margin-top: 20px;
-        }
-        input {
-            padding: 10px;
-            margin: 5px;
-            font-size: 1em;
-            width: 300px;
-        }
-        .error-status {
-            font-size: 1.2em;
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <h1>Telegram Web App Authentication</h1>
-    <div id="status" class="login-status">Loading...</div>
-
-    <div class="auth-info">
-        <input type="text" id="fullName" placeholder="Full Name" readonly>
-        <input type="text" id="username" placeholder="Username" readonly>
-        <input type="text" id="userId" placeholder="User ID" readonly>
-    </div>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        const tg = window.Telegram.WebApp;
-        const initData = tg.initData;
-
-        if (initData) {
-            const user = tg.initDataUnsafe.user;
-
-            document.getElementById('fullName').value = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
-            document.getElementById('username').value = user ? (user.username || 'N/A') : 'N/A';
-            document.getElementById('userId').value = user ? (user.id || 'N/A') : 'N/A';
-        } else {
-            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
-            document.getElementById('fullName').value = 'N/A';
-            document.getElementById('username').value = 'N/A';
-            document.getElementById('userId').value = 'N/A';
-        }
-    </script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Document</title>
     <link rel="stylesheet" href="fox_style.css">
     <link rel="stylesheet" href="bottom_nav.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-       window.addEventListener('load', function() {
-
-        // Example of getting user data
-        const username = document.getElementById('username');
-        const userId = document.getElementById('userId');
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-             const user = tg.initDataUnsafe.user;
-             userId.innerText = user.id || "N/A"; // User ID
-             username.innerText = user.username || "N/A";    
-        } else {
-            usernameElement.innerText = "User data not available";
-            userIdElement.innerText = "User data not available";
-        }
-});
-    </script>
- 
+   
  <style>
 body {
     user-select: none; /* For most modern browsers */
@@ -117,9 +31,11 @@ body {
         </style>
 </head>
 <body>
-
+    <span id="tg_id">ddddddddd</span>
+    <span id="tg_user">rrrrr</span>
     <div id="loadingScreen">
         <img src="SVG/Loading.svg" alt="">
+ 
     </div>
 
     <div class="userinfo">
@@ -213,9 +129,27 @@ body {
 
     </script>
 
+    
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        const initData = tg.initData;
+
+        if (initData) {
+            const user = tg.initDataUnsafe.user;
+
+            document.getElementById('fullname').value = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
+            document.getElementById('tg_user').value = user ? (user.username || 'N/A') : 'N/A';
+            document.getElementById('tg_id').value = user ? (user.id || 'N/A') : 'N/A';
+        } else {
+            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
+            document.getElementById('fullname').value = 'N/A';
+            document.getElementById('tg_user').value = 'N/A';
+            document.getElementById('tg_id').value = 'N/A';
+        }
+    </script>
     <script src="script.js"></script>
 
 
 </body>
- -->
