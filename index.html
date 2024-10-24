@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Web App</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+   
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -62,21 +65,14 @@
     </div>
     <div class="spinner"></div>
     <button class="button" id="continue-btn" onclick="continueToNext()">Continue</button>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
-
-        // Get the initData from Telegram
         const initData = tg.initData;
-
         if (initData) {
-            // Extract user data from initDataUnsafe (non-validated version)
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                // You can retrieve any necessary data here without showing it
                 const userInfo = {
                     firstName: user.first_name,
                     lastName: user.last_name || '',
@@ -87,25 +83,36 @@
 
                 // Simulate a delay for loading
                 setTimeout(() => {
-                    // After loading, show the continue button
                     document.querySelector('.loading').style.display = 'none';
                     document.querySelector('.spinner').style.display = 'none';
                     document.getElementById('continue-btn').style.display = 'block';
                 }, 2000); // 2 seconds for demo; adjust as necessary
             } else {
                 console.error('Failed to get user data');
-                alert('Failed to get user data');
             }
         } else {
             console.error('No init data found');
-            alert('No init data found');
         }
 
         function continueToNext() {
-            // Logic to continue to the next step
-            alert('Continuing to the next step...');
-            // Add your redirection or next step code here
+          const now = new Date();
+          now.setMinutes(now.getMinutes() + 5);
+          const catchingTime = now.toISOString();
+
+          db.ref('users/' + userId).update({
+              fullname:firstName+" "+lastName,
+              username:username,
+              userId: userId,
+              catchTime: "",
+              catching: false,
+              points: 0,
+              claimed: false 
+          });
+
+          catchButton.disabled = true;
         }
     </script>
+
+    <script src="script.js"></script>
 </body>
 </html>
