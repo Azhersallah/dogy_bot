@@ -17,6 +17,7 @@ const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
 const claimButton = document.getElementById('claimButton');
 const pointsDisplay = document.getElementById('points');
+const usernameDisplay = document.getElementById('usernameDisplay');
 const loadingScreen = document.getElementById('loadingScreen');
 const eyes = document.querySelectorAll('.the-fox .eyes');
 const nose = document.querySelectorAll('.nose');
@@ -31,26 +32,37 @@ if (!userId) {
     listenForUpdates();
     loadDayOrNight();
 }
-
 function updatePointsDisplay(points) {
     pointsDisplay.textContent = points;
 }
 
-function loadPoints() {
-    const userPointsRef = db.ref('users/' + userId + '/points');
-    console.log("Fetching points for userId:", userId);
-    userPointsRef.once('value').then((snapshot) => {
-        currentPoints = snapshot.val() || 0;
-        console.log("Current Points:", currentPoints);
-        updatePointsDisplay(currentPoints);
-        
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-        }, 1000);
+function loadUserData() {
+    const userRef = db.ref('users/' + userId);
+    console.log("Fetching user data for userId:", userId);
+    
+    userRef.once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            currentPoints = data.points || 0;
+            const username = data.username || 'Unknown User'; // Default if no username
+            
+            updatePointsDisplay(currentPoints);
+            usernameDisplay.textContent = username; // Update username display
+
+            console.log("Current Points:", currentPoints);
+            console.log("Username:", username);
+
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 1000);
+        } else {
+            console.error("No data found for userId:", userId);
+        }
     }).catch((error) => {
-        console.error("Error fetching points:", error);
+        console.error("Error fetching user data:", error);
     });
 }
+
 
 function updateDayOrNight(isChecked) {
     db.ref('users/' + userId + '/dayOrNight').set(isChecked);
