@@ -3,172 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App Integration</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <title>Telegram Web App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f3f4f6;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .info-container {
-            margin-bottom: 20px;
             text-align: center;
+            padding: 50px;
+            background-color: #222222; /* Dark background */
+            color: white; /* White text for contrast */
         }
-        input {
-            padding: 10px;
-            margin: 5px 0;
-            width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .auth-info {
+            margin-top: 20px;
+            background-color: #333333; /* Slightly lighter background for user info */
+            border: 1px solid #444444; /* Darker border */
+            padding: 15px;
+            border-radius: 8px;
+            display: inline-block;
+            opacity: 0; /* Start hidden for animation */
+            transform: translateY(20px); /* Start off-screen */
+            transition: opacity 0.5s ease, transform 0.5s ease; /* Animation */
         }
-        .progress-container {
-            width: 100%;
-            background: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 20px 0;
+        .show {
+            opacity: 1; /* Show element */
+            transform: translateY(0); /* Move into place */
         }
-        .progress {
-            height: 20px;
-            background: #4caf50;
-            width: 0;
-            transition: width 0.5s;
-        }
-        .result {
-            font-size: 20px;
-            margin-top: 10px;
+        .login-status {
+            font-size: 1.2em;
+            color: #00FF00; /* Green color for status */
         }
         .error-status {
+            font-size: 1.2em;
             color: red;
         }
-        .continue-btn {
+        .button {
+            margin-top: 30px;
             padding: 10px 20px;
-            background-color: #4caf50;
-            color: white;
+            background-color: #007BFF; /* Button color */
+            color: white; /* White text */
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 20px;
+            width: 80%; /* Button width */
+            font-size: 1em;
+            transition: background-color 0.3s; /* Smooth transition */
         }
-        .continue-btn:hover {
-            background-color: #45a049;
+        .button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
         }
     </style>
 </head>
 <body>
-    <h1>Telegram User Information</h1>
-    <div class="info-container">
-        <label for="fullname">Full Name:</label>
-        <input type="text" id="fullname" disabled>
-        <label for="tg_user">Telegram Username:</label>
-        <input type="text" id="tg_user" disabled>
-        <label for="tg_id">Telegram ID:</label>
-        <input type="text" id="tg_id" disabled>
-        <label for="is_premium">Is Premium:</label>
-        <input type="text" id="is_premium" disabled>
-    </div>
-    <div id="status"></div>
-    
-    <div class="progress-container">
-        <div class="progress" id="progress"></div>
-    </div>
-    <div class="result" id="result"></div>
-    
-    <button class="continue-btn" id="continueBtn" style="display:none;">Continue</button>
+    <h1>Telegram Web App Authentication</h1>
+    <div id="status" class="login-status">Loading...</div>
 
+    <div id="user-info" class="auth-info"></div>
+
+    <button class="button" onclick="location.reload()">Reload</button>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
-            authDomain: "ttaskk-a50e4.firebaseapp.com",
-            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
-            projectId: "ttaskk-a50e4",
-            storageBucket: "ttaskk-a50e4.appspot.com",
-            messagingSenderId: "213200371465",
-            appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
+        // Initialize the Telegram Web App
         const tg = window.Telegram.WebApp;
+
+        // Get the initData from Telegram
         const initData = tg.initData;
 
         if (initData) {
+            // Extract user data from initDataUnsafe (non-validated version)
             const user = tg.initDataUnsafe.user;
-            const userInfoFields = [
-                { id: 'fullname', value: `${user.first_name} ${user.last_name || 'N/A'}` },
-                { id: 'tg_user', value: user.username || 'N/A' },
-                { id: 'tg_id', value: user.id },
-                { id: 'is_premium', value: user.is_premium ? 'Yes' : 'No' }
-            ];
 
-            let progress = 0;
-            const progressBar = document.getElementById('progress');
-            const resultDisplay = document.getElementById('result');
+            if (user) {
+                // Prepare user information from initDataUnsafe
+                const userInfo = `
+                    <p><strong>Authenticated as:</strong> ${user.first_name} ${user.last_name || ''}</p>
+                    <p><strong>Username:</strong> ${user.username || 'Not provided'}</p>
+                    <p><strong>User ID:</strong> ${user.id}</p>
+                    <p><strong>Phone Number:</strong> ${user.phone_number || 'Not provided'}</p>
+                    <p><strong>Photo URL:</strong> <img src="${user.photo_url || '#'}" alt="User Photo" style="width: 50px; height: 50px; border-radius: 50%;"></p>
+                    <p><strong>Language:</strong> ${user.language_code || 'Not provided'}</p>
+                `;
+                const userInfoDiv = document.getElementById('user-info');
 
-            const fillUserInfo = (index) => {
-                if (index < userInfoFields.length) {
-                    document.getElementById(userInfoFields[index].id).value = userInfoFields[index].value;
-                    progress += 25; // Increment progress by 25% for each field
-                    progressBar.style.width = `${progress}%`;
-
-                    setTimeout(() => fillUserInfo(index + 1), 500); // Fill next field after 500ms
-                } else {
-                    const score = user.is_premium ? 5 : 0; // Score calculation based on premium status
-                    resultDisplay.innerText = `Your score is: ${score}`;
-                    document.getElementById('continueBtn').style.display = 'block';
-                }
-            };
-
-            fillUserInfo(0); // Start filling user info
+                // Set user info and trigger animation
+                userInfoDiv.innerHTML = userInfo;
+                userInfoDiv.classList.add('show');
+            } else {
+                document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
+            }
         } else {
             document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
-            document.getElementById('fullname').value = '';
-            document.getElementById('tg_user').value = '';
-            document.getElementById('tg_id').value = '';
-            document.getElementById('is_premium').value = '';
         }
-        
-        document.getElementById('continueBtn').addEventListener('click', () => {
-            const tgId = document.getElementById('tg_id').value;
-            const tgUser = document.getElementById('tg_user').value;
-            const fullname = document.getElementById('fullname').value;
-            const isPremium = document.getElementById('is_premium').value === 'Yes';
-            
-            const userData = {
-                catchTime: new Date().toISOString(),
-                catching: false,
-                claimed: false,
-                points: 0,
-                tgUser: tgUser,
-                userId: tgId,
-                fullname: fullname,
-                isPremium: isPremium
-            };
-
-            // Save data to Firebase
-            database.ref('users/' + tgId).set(userData)
-                .then(() => {
-                    alert('User data saved successfully!');
-                })
-                .catch((error) => {
-                    console.error('Error saving user data:', error);
-                    alert('Failed to save user data.');
-                });
-        });
     </script>
 </body>
 </html>
