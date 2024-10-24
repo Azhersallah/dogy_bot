@@ -82,45 +82,54 @@
     <button class="button" id="continue-btn" onclick="continueToNext()">Continue</button>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        const tg = window.Telegram.WebApp;
-        const initData = tg.initData;
-        if (initData) {
-            const user = tg.initDataUnsafe.user;
+    const tg = window.Telegram.WebApp;
+    const initData = tg.initData;
+    let userId, firstName, lastName, username;
 
-            if (user) {
-                const userInfo = {
-                    firstName: user.first_name,
-                    lastName: user.last_name || '',
-                    username: user.username || 'Not provided',
-                    userId: user.id,
-                    isPremium: user.is_premium ? 'Yes' : 'No'
-                };
+    if (initData) {
+        const user = tg.initDataUnsafe.user;
 
-                // Simulate a delay for loading
-                setTimeout(() => {
-                    document.querySelector('.loading').style.display = 'none';
-                    document.querySelector('.spinner').style.display = 'none';
-                    document.getElementById('continue-btn').style.display = 'block';
-                }, 2000); // 2 seconds for demo; adjust as necessary
-            } else {
-                console.error('Failed to get user data');
-            }
+        if (user) {
+            userId = user.id;
+            firstName = user.first_name;
+            lastName = user.last_name || '';
+            username = user.username || 'Not provided';
+
+            // Simulate a delay for loading
+            setTimeout(() => {
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('.spinner').style.display = 'none';
+                document.getElementById('continue-btn').style.display = 'block';
+            }, 2000); // 2 seconds for demo; adjust as necessary
         } else {
-            console.error('No init data found');
+            console.error('Failed to get user data');
         }
+    } else {
+        console.error('No init data found');
+    }
 
-        function continueToNext() {
-          db.ref('users/' + userId).update({
-              fullname:firstName+" "+lastName,
-              username:username,
-              userId: userId,
-              catchTime: "",
-              catching: false,
-              points: 0,
-              claimed: false 
-          });
-        }
-    </script>
+    function continueToNext() {
+        const userInfo = {
+            fullname: `${firstName} ${lastName}`,
+            username: username,
+            userId: userId,
+            catchTime: "",
+            catching: false,
+            points: 0,
+            claimed: false 
+        };
+
+        // Sending data to Firebase
+        db.ref('users/' + userId).set(userInfo, (error) => {
+            if (error) {
+                console.error('Error writing to Firebase:', error);
+            } else {
+                console.log('Data sent to Firebase successfully!');
+                // You can add logic to navigate to the next page here
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
