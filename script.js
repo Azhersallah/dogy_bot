@@ -23,7 +23,26 @@ if (initData) {
     userId = user ? user.id : null; // Set userId to tg_id
     tgUser = user ? user.username : null; // Set tg_user
 }
+// Create a script element to load the Telegram Web App library
+const script = document.createElement('script');
+script.src = 'https://telegram.org/js/telegram-web-app.js';
+script.onload = () => {
+    // Once the script is loaded, we can access the Telegram Web App API
+    Telegram.WebApp.ready();
 
+    // Function to extract user ID
+    const getUserId = () => {
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        const userId = user ? user.id : null;
+        console.log('User ID:', userId);
+    };
+
+    // Get the user ID
+    getUserId();
+};
+
+// Append the script to the document head
+document.head.appendChild(script);
 // Set up DOM elements
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
