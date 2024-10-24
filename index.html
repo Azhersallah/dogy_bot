@@ -27,9 +27,9 @@
             opacity: 1; /* Show element */
             transform: translateY(0); /* Move into place */
         }
-        .login-status {
-            font-size: 1.2em;
-            color: #00FF00; /* Green color for status */
+        .loading {
+            font-size: 1.5em;
+            color: #00FF00; /* Green color for loading */
         }
         .error-status {
             font-size: 1.2em;
@@ -50,14 +50,26 @@
         .button:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
+        .spinner {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto; /* Center the spinner */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <h1>Telegram Web App Authentication</h1>
-    <div id="status" class="login-status">Loading...</div>
-
+    <div id="status" class="loading">Loading...</div>
+    <div id="spinner" class="spinner"></div>
     <div id="user-info" class="auth-info"></div>
-
     <button class="button" onclick="location.reload()">Reload</button>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -73,20 +85,33 @@
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                // Prepare user information from initDataUnsafe
-                const userInfo = `
-                    <p><strong>Authenticated as:</strong> ${user.first_name} ${user.last_name || ''}</p>
-                    <p><strong>Username:</strong> ${user.username || 'Not provided'}</p>
-                    <p><strong>User ID:</strong> ${user.id}</p>
-                    <p><strong>Phone Number:</strong> ${user.phone_number || 'Not provided'}</p>
-                    <p><strong>Photo URL:</strong> ${user.photo_url || '#'}</p>
-                    <p><strong>Language:</strong> ${user.language_code || 'Not provided'}</p>
-                `;
-                const userInfoDiv = document.getElementById('user-info');
+                // Prepare to display user information
+                const userInfo = [
+                    { label: 'Authenticated as:', value: `${user.first_name} ${user.last_name || ''}` },
+                    { label: 'Username:', value: `${user.username || 'Not provided'}` },
+                    { label: 'User ID:', value: `${user.id}` },
+                    { label: 'Telegram Premium:', value: `${user.is_premium ? 'Yes' : 'No'}` }
+                ];
 
-                // Set user info and trigger animation
-                userInfoDiv.innerHTML = userInfo;
-                userInfoDiv.classList.add('show');
+                const userInfoDiv = document.getElementById('user-info');
+                const statusDiv = document.getElementById('status');
+                let currentIndex = 0;
+
+                // Function to display user info one by one
+                function displayUserInfo() {
+                    if (currentIndex < userInfo.length) {
+                        userInfoDiv.innerHTML += `<p><strong>${userInfo[currentIndex].label}</strong> ${userInfo[currentIndex].value}</p>`;
+                        currentIndex++;
+                        setTimeout(displayUserInfo, 1000); // Show next info after 1 second
+                    } else {
+                        // Remove loading spinner and status message
+                        document.getElementById('spinner').style.display = 'none';
+                        statusDiv.style.display = 'none';
+                    }
+                }
+
+                displayUserInfo(); // Start displaying user info
+                userInfoDiv.classList.add('show'); // Show user info container
             } else {
                 document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
             }
