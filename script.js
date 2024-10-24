@@ -33,10 +33,8 @@ if (!userId) {
     listenForUpdates();
     loadDayOrNight();
 }
-
-function updateDisplay(points, uname) {
-    pointsDisplay.textContent = points;
-    usernameDisplay.textContent = uname; // Update username display with the passed uname parameter
+function updateDisplay(points) {
+    pointsDisplay.textContent = points; // Only update points display
 }
 
 function loadUserData() {
@@ -46,13 +44,11 @@ function loadUserData() {
     userRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
-            currentPoints = data.points || 0;
-            username_user = data.username || 'Unknown User'; // Default if no username
+            currentPoints = data.points || 0; // Get points directly from the snapshot
             
-            updateDisplay(currentPoints, username_user);
+            updateDisplay(currentPoints); // Update only points display
 
-            console.log("Current Points:", currentPoints);
-            console.log("Username:", username_user); // Fix here
+            console.log("Current Points:", currentPoints); // Log points only
 
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
