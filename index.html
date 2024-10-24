@@ -6,6 +6,21 @@
     <title>Telegram Web App</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
+            authDomain: "ttaskk-a50e4.firebaseapp.com",
+            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
+            projectId: "ttaskk-a50e4",
+            storageBucket: "ttaskk-a50e4.appspot.com",
+            messagingSenderId: "213200371465",
+            appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
    
     <style>
         body {
@@ -21,18 +36,18 @@
             align-items: center;
         }
         .loading {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: #222222;
-          color: white;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-size: 24px;
-          z-index: 9999;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #222222;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            z-index: 9999;
         }
         .button {
             display: none; /* Hide initially */
@@ -61,32 +76,42 @@
 </head>
 <body>
     <div class="loading">
-                <img src="SVG/Loading.svg" alt="">    
+        <img src="SVG/Loading.svg" alt="">    
     </div>
     <div class="spinner"></div>
     <button class="button" id="continue-btn" onclick="continueToNext()">Continue</button>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         const tg = window.Telegram.WebApp;
         const initData = tg.initData;
+        let userId, firstName, lastName, username;
+
         if (initData) {
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                const userInfo = {
-                    firstName: user.first_name,
-                    lastName: user.last_name || '',
-                    username: user.username || 'Not provided',
-                    userId: user.id,
-                    isPremium: user.is_premium ? 'Yes' : 'No'
-                };
+                userId = user.id;
+                firstName = user.first_name;
+                lastName = user.last_name || '';
+                username = user.username || 'Not provided';
 
-                // Simulate a delay for loading
-                setTimeout(() => {
-                    document.querySelector('.loading').style.display = 'none';
-                    document.querySelector('.spinner').style.display = 'none';
-                    document.getElementById('continue-btn').style.display = 'block';
-                }, 2000); // 2 seconds for demo; adjust as necessary
+                // Check if user ID exists in Firebase
+                db.ref('users/' + userId).once('value').then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // User exists, redirect to fox.html
+                        window.location.href = 'fox.html';
+                    } else {
+                        // User does not exist, show continue button
+                        setTimeout(() => {
+                            document.querySelector('.loading').style.display = 'none';
+                            document.querySelector('.spinner').style.display = 'none';
+                            document.getElementById('continue-btn').style.display = 'block';
+                        }, 2000); // 2 seconds for demo; adjust as necessary
+                    }
+                }).catch((error) => {
+                    console.error('Error checking user in Firebase:', error);
+                });
             } else {
                 console.error('Failed to get user data');
             }
@@ -95,21 +120,28 @@
         }
 
         function continueToNext() {
+            const userInfo = {
+                fullname: `${firstName} ${lastName}`,
+                username: username,
+                userId: userId,
+                catchTime: "",
+                catching: false,
+                points: 0,
+                claimed: false 
+            };
 
-
-          db.ref('users/' + userId).update({
-              fullname:firstName+" "+lastName,
-              username:username,
-              userId: userId,
-              catchTime: "",
-              catching: false,
-              points: 0,
-              claimed: false 
-          });
-
+            // Sending data to Firebase
+            db.ref('users/' + userId).set(userInfo, (error) => {
+                if (error) {
+                    console.error('Error writing to Firebase:', error);
+                } else {
+                    console.log('Data sent to Firebase successfully!');
+                    // Redirect to fox.html after saving
+                    window.location.href = 'fox.html';
+                }
+            });
         }
     </script>
 
-    <script src="script.js"></script>
 </body>
 </html>
