@@ -13,17 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const tg = window.Telegram.WebApp;
-const initData = tg.initData;
 
-let userId = null; // Initialize userId
-let tgUser = null; // Initialize tg_user
-if (initData) {
-    const user = tg.initDataUnsafe.user;
-    userId = user ? user.id : null; // Set userId to tg_id
-    tgUser = user ? user.username : null; // Set tg_user
-}
-// Create a script element to load the Telegram Web App library
 const script = document.createElement('script');
 script.src = 'https://telegram.org/js/telegram-web-app.js';
 script.onload = () => {
