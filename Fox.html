@@ -10,44 +10,38 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
    
- <style>
-body {
-    user-select: none; /* For most modern browsers */
-    -webkit-user-select: none; /* For Safari */
-    -moz-user-select: none; /* For Firefox */
-    -ms-user-select: none; /* For Internet Explorer/Edge */
-}
+    <style>
+        body {
+            user-select: none;
+        }
 
-.userinfo{
-    position: absolute;
-    top: 0;
-    background-color: #34A87C;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 8vh;
-    color: white;
-}
-        </style>
+        .userinfo {
+            position: absolute;
+            top: 0;
+            background-color: #34A87C;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 8vh;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
     <div id="loadingScreen">
         <img src="SVG/Loading.svg" alt="">
- 
     </div>
 
     <div class="userinfo">
         <div class="username">
             <p>Fox: <span id="username">Loading...</span></p>
-        </span>
         </div>
         <div class="userlevel">
             <span>Level: 1</span>
         </div>
     </div>
-
 
     <div class="legs">
         <img src="SVG/legs.svg">
@@ -72,7 +66,6 @@ body {
         <div class="c-window">
             <span class="the-sun"></span>
             <span class="the-moon"></span>
-            
             <div class="the-fox">
                 <div class="fox-face">
                     <section class="eyes left"></section>
@@ -91,56 +84,43 @@ body {
         <h4>Claim</h4>
     </button>
 
-
     <footer class="fixed-bottom">
-                <a href="index.html" class="nav-item active">
-                    <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
-                    <span>Home</span>
-                </a>
-
-                <a href="task.html" class="nav-item">
-                    <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
-                   <span>Task</span>
-                </a>
-
-                <a href="leaderboard.html" class="nav-item">
-                    <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
-                    <span>Leaderboard</span>
-                </a>
-
-                <a href="friends.html" class="nav-item">
-                    <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
-                    <span>Friends</span>
-                </a>
-
+        <a href="index.html" class="nav-item active">
+            <img src="https://img.icons8.com/material-outlined/24/34A87C/home--v1.png" alt="Home">
+            <span>Home</span>
+        </a>
+        <a href="task.html" class="nav-item">
+            <img src="https://img.icons8.com/material-outlined/24/34A87C/task.png" alt="Task">
+            <span>Task</span>
+        </a>
+        <a href="leaderboard.html" class="nav-item">
+            <img src="https://img.icons8.com/?size=100&id=9828&format=png&color=34A87C" alt="Leaderboard">
+            <span>Leaderboard</span>
+        </a>
+        <a href="friends.html" class="nav-item">
+            <img src="https://img.icons8.com/?size=100&id=22118&format=png&color=34A87C" alt="Friends">
+            <span>Friends</span>
+        </a>
     </footer>
-
-
-
 
     <script>
         document.addEventListener('contextmenu', function(event) {
-            event.preventDefault(); // Disable right-click context menu
+            event.preventDefault();
         });
 
         document.addEventListener('selectstart', function(event) {
-            event.preventDefault(); // Disable text selection
+            event.preventDefault();
         });
 
-    </script>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
         const tg = window.Telegram.WebApp;
         const initData = tg.initData;
+        let userId;
+
         if (initData) {
             const user = tg.initDataUnsafe.user;
-
             if (user) {
-                const userInfo = {
-                    userId: user.id,
-                };
-
+                userId = user.id;
+                console.log("User ID:", userId); // Debug log
             } else {
                 console.error('Failed to get user data');
             }
@@ -148,8 +128,8 @@ body {
             console.error('No init data found');
         }
     </script>
-    
+
     <script src="script.js"></script>
 
-
 </body>
+</html>
