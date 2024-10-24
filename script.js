@@ -23,7 +23,7 @@ const eyes = document.querySelectorAll('.the-fox .eyes');
 const nose = document.querySelectorAll('.nose');
 const toggleCheckbox = document.getElementById('toggle');
 let currentPoints = 0;
-let username_user ="";
+var username_user ="";
 
 // Check if userId is defined
 if (!userId) {
@@ -35,7 +35,7 @@ if (!userId) {
 }
 function updateDisplay(points,uname) {
     pointsDisplay.textContent = points;
-    usernameDisplay.textContent = username; // Update username display
+    usernameDisplay.textContent = username_user; // Update username display
 
 }
 
