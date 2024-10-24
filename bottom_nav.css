@@ -9,10 +9,9 @@ footer {
     bottom: 0;
     position: absolute;
     height: 80px;
-    width: 90%;
+    width: 100%;
     border-radius: 10px;
     overflow: hidden;
-    bottom: 15px;
 }
 
 footer a{
