@@ -23,20 +23,32 @@ const nose = document.querySelectorAll('.nose');
 const toggleCheckbox = document.getElementById('toggle');
 let currentPoints = 0;
 
+// Check if userId is defined
+if (!userId) {
+    console.error('User ID is not defined');
+} else {
+    loadPoints();
+    listenForUpdates();
+    loadDayOrNight();
+}
+
 function updatePointsDisplay(points) {
     pointsDisplay.textContent = points;
 }
 
-
 function loadPoints() {
     const userPointsRef = db.ref('users/' + userId + '/points');
+    console.log("Fetching points for userId:", userId);
     userPointsRef.once('value').then((snapshot) => {
         currentPoints = snapshot.val() || 0;
+        console.log("Current Points:", currentPoints);
         updatePointsDisplay(currentPoints);
         
         setTimeout(() => {
             loadingScreen.style.display = 'none';
         }, 1000);
+    }).catch((error) => {
+        console.error("Error fetching points:", error);
     });
 }
 
@@ -62,7 +74,7 @@ function sendCatchingData() {
         catchTime: catchingTime,
         catching: true,
         points: currentPoints,
-        claimed: false // Set claimed to false initially
+        claimed: false
     });
 
     catchButton.disabled = true;
@@ -97,7 +109,7 @@ function listenForUpdates() {
         if (data) {
             const targetTime = data.catchTime;
             const isCatching = data.catching;
-            const hasClaimed = data.claimed; // Check claimed state
+            const hasClaimed = data.claimed;
 
             if (isCatching) {
                 startCountdown(targetTime);
@@ -130,7 +142,6 @@ function addPointsToUser(points) {
 function claimPoints() {
     addPointsToUser(100);
     
-    // Update the claimed status in Firebase
     db.ref('users/' + userId).update({ claimed: true });
 
     buttonText.textContent = 'Start Catching';
@@ -151,10 +162,7 @@ catchButton.addEventListener('click', () => {
 
 claimButton.addEventListener('click', claimPoints);
 
-loadPoints();
-listenForUpdates();
-loadDayOrNight();
-
+// Initialize on user data load
 db.ref('users/' + userId).once('value').then((snapshot) => {
     const data = snapshot.val();
     if (data && data.catching) {
@@ -163,4 +171,6 @@ db.ref('users/' + userId).once('value').then((snapshot) => {
         eyes.forEach(eye => eye.classList.add('blink'));
         nose.forEach(nose => nose.classList.add('nosesearch'));
     }
+}).catch((error) => {
+    console.error("Error fetching user data:", error);
 });
