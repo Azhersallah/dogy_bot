@@ -33,31 +33,21 @@ if (!userId) {
     listenForUpdates();
     loadDayOrNight();
 }
-function updateDisplay(points) {
-    pointsDisplay.textContent = points; // Only update points display
+
+function updatePointsDisplay(points) {
+    pointsDisplay.textContent = points;
 }
 
-function loadUserData() {
-    const userRef = db.ref('users/' + userId);
-    console.log("Fetching user data for userId:", userId);
-    
-    userRef.once('value').then((snapshot) => {
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            currentPoints = data.points || 0; // Get points directly from the snapshot
-            
-            updateDisplay(currentPoints); // Update only points display
 
-            console.log("Current Points:", currentPoints); // Log points only
-
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 1000);
-        } else {
-            console.error("No data found for userId:", userId);
-        }
-    }).catch((error) => {
-        console.error("Error fetching user data:", error);
+function loadPoints() {
+    const userPointsRef = db.ref('users/' + userId + '/points');
+    userPointsRef.once('value').then((snapshot) => {
+        currentPoints = snapshot.val() || 0;
+        updatePointsDisplay(currentPoints);
+        
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 1000);
     });
 }
 
