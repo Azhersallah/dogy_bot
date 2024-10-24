@@ -23,6 +23,7 @@ const eyes = document.querySelectorAll('.the-fox .eyes');
 const nose = document.querySelectorAll('.nose');
 const toggleCheckbox = document.getElementById('toggle');
 let currentPoints = 0;
+let username_user ="";
 
 // Check if userId is defined
 if (!userId) {
@@ -32,8 +33,10 @@ if (!userId) {
     listenForUpdates();
     loadDayOrNight();
 }
-function updatePointsDisplay(points) {
+function updateDisplay(points,uname) {
     pointsDisplay.textContent = points;
+    usernameDisplay.textContent = username; // Update username display
+
 }
 
 function loadUserData() {
@@ -44,10 +47,9 @@ function loadUserData() {
         if (snapshot.exists()) {
             const data = snapshot.val();
             currentPoints = data.points || 0;
-            const username = data.username || 'Unknown User'; // Default if no username
+            username_user = data.username || 'Unknown User'; // Default if no username
             
-            updatePointsDisplay(currentPoints);
-            usernameDisplay.textContent = username; // Update username display
+            updateDisplay(currentPoints, username_user);
 
             console.log("Current Points:", currentPoints);
             console.log("Username:", username);
