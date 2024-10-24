@@ -6,6 +6,21 @@
     <title>Telegram Web App</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNGOAnTyQ-z91is5nku_vKQMIXMsjH3sg",
+            authDomain: "ttaskk-a50e4.firebaseapp.com",
+            databaseURL: "https://ttaskk-a50e4-default-rtdb.firebaseio.com",
+            projectId: "ttaskk-a50e4",
+            storageBucket: "ttaskk-a50e4.appspot.com",
+            messagingSenderId: "213200371465",
+            appId: "1:213200371465:web:2cee76953abdc5d8049dd8"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
    
     <style>
         body {
@@ -95,10 +110,6 @@
         }
 
         function continueToNext() {
-          const now = new Date();
-          now.setMinutes(now.getMinutes() + 5);
-          const catchingTime = now.toISOString();
-
           db.ref('users/' + userId).update({
               fullname:firstName+" "+lastName,
               username:username,
@@ -108,11 +119,8 @@
               points: 0,
               claimed: false 
           });
-
-          catchButton.disabled = true;
         }
     </script>
 
-    <script src="script.js"></script>
 </body>
 </html>
