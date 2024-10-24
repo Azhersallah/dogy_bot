@@ -23,43 +23,32 @@ const nose = document.querySelectorAll('.nose');
 const toggleCheckbox = document.getElementById('toggle');
 let currentPoints = 0;
 
-// Check if userId is defined
-if (!userId) {
-    console.error('User ID is not defined');
-} else {
-    loadPoints();
-    listenForUpdates();
-    loadDayOrNight();
-}
-
 function updatePointsDisplay(points) {
     pointsDisplay.textContent = points;
 }
+
 
 function loadPoints() {
     const userPointsRef = db.ref('users/' + userId + '/points');
     userPointsRef.once('value').then((snapshot) => {
         currentPoints = snapshot.val() || 0;
         updatePointsDisplay(currentPoints);
-    }).catch((error) => {
-        console.error("Error loading points:", error);
-    }).finally(() => {
-        loadingScreen.style.display = 'none';
+        
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 1000);
     });
 }
 
 function updateDayOrNight(isChecked) {
-    db.ref('users/' + userId + '/dayOrNight').set(isChecked).catch((error) => {
-        console.error("Error updating day or night:", error);
-    });
+    db.ref('users/' + userId + '/dayOrNight').set(isChecked);
 }
 
 function loadDayOrNight() {
     const dayOrNightRef = db.ref('users/' + userId + '/dayOrNight');
     dayOrNightRef.once('value').then((snapshot) => {
-        toggleCheckbox.checked = snapshot.val() || false;
-    }).catch((error) => {
-        console.error("Error loading day or night:", error);
+        const isChecked = snapshot.val() || false;
+        toggleCheckbox.checked = isChecked;
     });
 }
 
@@ -69,13 +58,9 @@ function sendCatchingData() {
     const catchingTime = now.toISOString();
 
     db.ref('users/' + userId).update({
-        userId: userId,
         catchTime: catchingTime,
         catching: true,
-        points: currentPoints,
-        claimed: false
-    }).catch((error) => {
-        console.error("Error sending catching data:", error);
+        claimed: false // Set claimed to false initially
     });
 
     catchButton.disabled = true;
@@ -83,15 +68,17 @@ function sendCatchingData() {
 
 function startCountdown(targetTime) {
     const countdownInterval = setInterval(() => {
-        const remainingTime = new Date(targetTime) - new Date();
+        const currentTime = new Date();
+        const remainingTime = new Date(targetTime) - currentTime;
+
         if (remainingTime <= 0) {
             clearInterval(countdownInterval);
             buttonText.textContent = 'Catching is complete';
             claimButton.style.display = 'flex';
             catchButton.style.display = 'none';
-            db.ref('users/' + userId).update({ catching: false }).catch((error) => {
-                console.error("Error updating catching status:", error);
-            });
+            catchButton.disabled = false;
+
+            db.ref('users/' + userId).update({ catching: false });
             eyes.forEach(eye => eye.classList.remove('blink'));
             nose.forEach(nose => nose.classList.remove('nosesearch'));
         } else {
@@ -99,7 +86,7 @@ function startCountdown(targetTime) {
             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
             buttonText.textContent = `Catching... ${minutes}m ${seconds}s`;
         }
-    }, 1000);
+    });
 }
 
 function listenForUpdates() {
@@ -108,7 +95,7 @@ function listenForUpdates() {
         if (data) {
             const targetTime = data.catchTime;
             const isCatching = data.catching;
-            const hasClaimed = data.claimed;
+            const hasClaimed = data.claimed; // Check claimed state
 
             if (isCatching) {
                 startCountdown(targetTime);
@@ -128,26 +115,21 @@ function listenForUpdates() {
                 updatePointsDisplay(currentPoints);
             }
         }
-    }, (error) => {
-        console.error("Error listening for updates:", error);
     });
 }
 
 function addPointsToUser(points) {
     currentPoints += points;
     const userPointsRef = db.ref('users/' + userId + '/points');
-    userPointsRef.set(currentPoints).catch((error) => {
-        console.error("Error adding points:", error);
-    });
+    userPointsRef.set(currentPoints);
     updatePointsDisplay(currentPoints);
 }
 
 function claimPoints() {
     addPointsToUser(100);
     
-    db.ref('users/' + userId).update({ claimed: true }).catch((error) => {
-        console.error("Error claiming points:", error);
-    });
+    // Update the claimed status in Firebase
+    db.ref('users/' + userId).update({ claimed: true });
 
     buttonText.textContent = 'Start Catching';
     claimButton.style.display = 'none';
@@ -162,17 +144,21 @@ toggleCheckbox.addEventListener('change', () => {
 catchButton.addEventListener('click', () => {
     buttonText.textContent = `Catching...`;
     sendCatchingData();
+    listenForUpdates();
 });
 
 claimButton.addEventListener('click', claimPoints);
 
-// Initialize on user data load
+loadPoints();
+listenForUpdates();
+loadDayOrNight();
+
 db.ref('users/' + userId).once('value').then((snapshot) => {
     const data = snapshot.val();
     if (data && data.catching) {
         startCountdown(data.catchTime);
         catchButton.disabled = true;
+        eyes.forEach(eye => eye.classList.add('blink'));
+        nose.forEach(nose => nose.classList.add('nosesearch'));
     }
-}).catch((error) => {
-    console.error("Error fetching user data:", error);
 });
