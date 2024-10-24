@@ -100,7 +100,7 @@
                 db.ref('users/' + userId).once('value').then((snapshot) => {
                     if (snapshot.exists()) {
                         // User exists, redirect to fox.html
-                        window.location.href = 'fox.html';
+                        window.location.href = 'Fox.html';
                     } else {
                         // User does not exist, show continue button
                         setTimeout(() => {
@@ -137,7 +137,7 @@
                 } else {
                     console.log('Data sent to Firebase successfully!');
                     // Redirect to fox.html after saving
-                    window.location.href = 'fox.html';
+                    window.location.href = 'Fox.html';
                 }
             });
         }
