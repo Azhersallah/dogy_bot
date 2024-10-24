@@ -79,7 +79,7 @@
                     <p><strong>Username:</strong> ${user.username || 'Not provided'}</p>
                     <p><strong>User ID:</strong> ${user.id}</p>
                     <p><strong>Phone Number:</strong> ${user.phone_number || 'Not provided'}</p>
-                    <p><strong>Photo URL:</strong> <img src="${user.photo_url || '#'}" alt="User Photo" style="width: 50px; height: 50px; border-radius: 50%;"></p>
+                    <p><strong>Photo URL:</strong> ${user.photo_url || '#'}</p>
                     <p><strong>Language:</strong> ${user.language_code || 'Not provided'}</p>
                 `;
                 const userInfoDiv = document.getElementById('user-info');
