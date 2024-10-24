@@ -131,25 +131,6 @@ body {
 
     
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        const tg = window.Telegram.WebApp;
-        const initData = tg.initData;
-
-        if (initData) {
-            const user = tg.initDataUnsafe.user;
-
-            document.getElementById('fullname').value = user ? `${user.first_name} ${user.last_name || 'N/A'}` : 'N/A';
-            document.getElementById('tg_user').value = user ? (user.username || 'N/A') : 'N/A';
-            document.getElementById('tg_id').value = user ? (user.id || 'N/A') : 'N/A';
-        } else {
-            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
-            document.getElementById('fullname').value = 'N/A';
-            document.getElementById('tg_user').value = 'N/A';
-            document.getElementById('tg_id').value = 'N/A';
-        }
-    </script>
-    <script src="script.js"></script>
 
 
 </body>
