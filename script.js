@@ -13,6 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+let userId; // Declare userId in a broader scope
 
 const script = document.createElement('script');
 script.src = 'https://telegram.org/js/telegram-web-app.js';
@@ -23,8 +24,25 @@ script.onload = () => {
     // Function to extract user ID
     const getUserId = () => {
         const user = Telegram.WebApp.initDataUnsafe.user;
-        const userId = user ? user.id : null;
+        userId = user ? user.id : null;
         console.log('User ID:', userId);
+        
+        // Now that userId is set, call the necessary functions
+        loadPoints();
+        loadTgUser();
+        listenForUpdates();
+        loadDayOrNight();
+
+        // Check if the user is currently catching
+        db.ref('users/' + userId).once('value').then((snapshot) => {
+            const data = snapshot.val();
+            if (data && data.catching) {
+                startCountdown(data.catchTime);
+                catchButton.disabled = true;
+                eyes.forEach(eye => eye.classList.add('blink'));
+                nose.forEach(nose => nose.classList.add('nosesearch'));
+            }
+        });
     };
 
     // Get the user ID
@@ -33,6 +51,7 @@ script.onload = () => {
 
 // Append the script to the document head
 document.head.appendChild(script);
+
 // Set up DOM elements
 const catchButton = document.getElementById('catchButton');
 const buttonText = document.getElementById('buttonText');
@@ -68,7 +87,7 @@ function loadTgUser() {
         if (data && data.tgUser) {
             tgUserDisplay.textContent = data.tgUser; // Display tgUser
         } else {
-            tgUserDisplay.textContent = tgUser || "Not available"; // Fallback if not in DB
+            tgUserDisplay.textContent = "Not available"; // Fallback if not in DB
         }
     });
 }
@@ -90,12 +109,9 @@ function sendCatchingData() {
     now.setMinutes(now.getMinutes() + 5);
     const catchingTime = now.toISOString();
 
-    db.ref('users/' + userId).set({
-        userId: userId,
-        tgUser: tgUser, // Store tg_user in Firebase
+    db.ref('users/' + userId).update({
         catchTime: catchingTime,
         catching: true,
-        points: currentPoints,
         claimed: false // Set claimed to false initially
     });
 
@@ -122,7 +138,7 @@ function startCountdown(targetTime) {
             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
             buttonText.textContent = `Catching... ${minutes}m ${seconds}s`;
         }
-    });
+    }, 1000);
 }
 
 function listenForUpdates() {
@@ -184,18 +200,3 @@ catchButton.addEventListener('click', () => {
 });
 
 claimButton.addEventListener('click', claimPoints);
-
-loadPoints();
-loadTgUser(); // Load tgUser and display it
-listenForUpdates();
-loadDayOrNight();
-
-db.ref('users/' + userId).once('value').then((snapshot) => {
-    const data = snapshot.val();
-    if (data && data.catching) {
-        startCountdown(data.catchTime);
-        catchButton.disabled = true;
-        eyes.forEach(eye => eye.classList.add('blink'));
-        nose.forEach(nose => nose.classList.add('nosesearch'));
-    }
-});
