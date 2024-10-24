@@ -23,7 +23,7 @@ const eyes = document.querySelectorAll('.the-fox .eyes');
 const nose = document.querySelectorAll('.nose');
 const toggleCheckbox = document.getElementById('toggle');
 let currentPoints = 0;
-var username_user ="";
+var username_user = "";
 
 // Check if userId is defined
 if (!userId) {
@@ -33,10 +33,10 @@ if (!userId) {
     listenForUpdates();
     loadDayOrNight();
 }
-function updateDisplay(points,uname) {
-    pointsDisplay.textContent = points;
-    usernameDisplay.textContent = username_user; // Update username display
 
+function updateDisplay(points, uname) {
+    pointsDisplay.textContent = points;
+    usernameDisplay.textContent = uname; // Update username display with the passed uname parameter
 }
 
 function loadUserData() {
@@ -52,7 +52,7 @@ function loadUserData() {
             updateDisplay(currentPoints, username_user);
 
             console.log("Current Points:", currentPoints);
-            console.log("Username:", username);
+            console.log("Username:", username_user); // Fix here
 
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
@@ -64,7 +64,6 @@ function loadUserData() {
         console.error("Error fetching user data:", error);
     });
 }
-
 
 function updateDayOrNight(isChecked) {
     db.ref('users/' + userId + '/dayOrNight').set(isChecked);
@@ -114,7 +113,7 @@ function startCountdown(targetTime) {
             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
             buttonText.textContent = `Catching... ${minutes}m ${seconds}s`;
         }
-    });
+    }, 1000); // Ensure this runs every second
 }
 
 function listenForUpdates() {
@@ -140,7 +139,7 @@ function listenForUpdates() {
 
             if (data.points !== undefined) {
                 currentPoints = data.points;
-                updatePointsDisplay(currentPoints);
+                updateDisplay(currentPoints, username_user); // Update points display with username
             }
         }
     });
@@ -150,7 +149,7 @@ function addPointsToUser(points) {
     currentPoints += points;
     const userPointsRef = db.ref('users/' + userId + '/points');
     userPointsRef.set(currentPoints);
-    updatePointsDisplay(currentPoints);
+    updateDisplay(currentPoints, username_user); // Update display with username
 }
 
 function claimPoints() {
