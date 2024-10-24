@@ -121,13 +121,15 @@
             if (user) {
                 userId = user.id;
                 console.log("User ID:", userId); // Debug log
+                usernamed = user.username || 'Not provided';
             } else {
                 console.error('Failed to get user data');
             }
         } else {
             console.error('No init data found');
         }
-    </script>
+            document.getElementById('usernameDisplay').textContent =usernamed ;
+        </script>
 
     <script src="script.js"></script>
 
