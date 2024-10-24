@@ -11,32 +11,28 @@
             padding: 50px;
             background-color: #222222; /* Dark background */
             color: white; /* White text for contrast */
-        }
-        .auth-info {
-            margin-top: 20px;
-            background-color: #333333; /* Slightly lighter background for user info */
-            border: 1px solid #444444; /* Darker border */
-            padding: 15px;
-            border-radius: 8px;
-            display: inline-block;
-            opacity: 0; /* Start hidden for animation */
-            transform: translateY(20px); /* Start off-screen */
-            transition: opacity 0.5s ease, transform 0.5s ease; /* Animation */
-            margin-bottom: 20px;
-        }
-        .show {
-            opacity: 1; /* Show element */
-            transform: translateY(0); /* Move into place */
+            height: 100vh; /* Full height for centering */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .loading {
-            font-size: 1.5em;
-            color: #00FF00; /* Green color for loading */
-        }
-        .error-status {
-            font-size: 1.2em;
-            color: red;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: #222222;
+          color: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 24px;
+          z-index: 9999;
         }
         .button {
+            display: none; /* Hide initially */
             margin-top: 30px;
             padding: 10px 20px;
             background-color: #007BFF; /* Button color */
@@ -51,18 +47,21 @@
         .button:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
-        .point-system {
-            font-size: 1.2em;
-            margin-top: 20px;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            background: url('svgloading.svg') no-repeat center center; /* Use your SVG file */
+            background-size: contain;
+            margin: 20px auto; /* Center the spinner */
         }
     </style>
 </head>
 <body>
-    <h1>Telegram Web App Authentication</h1>
-    <div id="status" class="loading">Loading...</div>
-    <div id="user-info" class="auth-info"></div>
-    <div id="points" class="point-system"></div>
-    <button class="button" onclick="location.reload()">Reload</button>
+    <div class="loading">
+                <img src="SVG/Loading.svg" alt="">    
+    </div>
+    <div class="spinner"></div>
+    <button class="button" id="continue-btn" onclick="continueToNext()">Continue</button>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
@@ -77,45 +76,35 @@
             const user = tg.initDataUnsafe.user;
 
             if (user) {
-                // Prepare user information
-                const userInfo = [
-                    { label: 'Authenticated as:', value: `${user.first_name} ${user.last_name || ''}` },
-                    { label: 'Username:', value: `${user.username || 'Not provided'}` },
-                    { label: 'User ID:', value: `${user.id}` },
-                    { label: 'Telegram Premium:', value: `${user.is_premium ? 'Yes' : 'No'}` }
-                ];
+                // You can retrieve any necessary data here without showing it
+                const userInfo = {
+                    firstName: user.first_name,
+                    lastName: user.last_name || '',
+                    username: user.username || 'Not provided',
+                    userId: user.id,
+                    isPremium: user.is_premium ? 'Yes' : 'No'
+                };
 
-                const userInfoDiv = document.getElementById('user-info');
-                const pointsDiv = document.getElementById('points');
-                let currentIndex = 0;
-                let points = user.is_premium ? 5 : 1; // Points based on Premium status
-
-                // Function to display user info one by one
-                function displayUserInfo() {
-                    if (currentIndex < userInfo.length) {
-                        const info = userInfo[currentIndex];
-                        userInfoDiv.innerHTML = `<p><strong>${info.label}</strong> ${info.value}</p>`;
-                        userInfoDiv.classList.add('show'); // Show user info container
-                        currentIndex++;
-
-                        setTimeout(() => {
-                            userInfoDiv.classList.remove('show'); // Hide before showing next
-                            setTimeout(displayUserInfo, 300); // Delay before showing the next info
-                        }, 2000); // Display current info for 2 seconds
-
-                        // Update points
-                        pointsDiv.innerHTML = `Points: ${points}`;
-                    } else {
-                        pointsDiv.innerHTML = `Total Points: ${points}`; // Show total points at the end
-                    }
-                }
-
-                displayUserInfo(); // Start displaying user info
+                // Simulate a delay for loading
+                setTimeout(() => {
+                    // After loading, show the continue button
+                    document.querySelector('.loading').style.display = 'none';
+                    document.querySelector('.spinner').style.display = 'none';
+                    document.getElementById('continue-btn').style.display = 'block';
+                }, 2000); // 2 seconds for demo; adjust as necessary
             } else {
-                document.getElementById('status').innerHTML = `<div class="error-status">Failed to get user data</div>`;
+                console.error('Failed to get user data');
+                alert('Failed to get user data');
             }
         } else {
-            document.getElementById('status').innerHTML = `<div class="error-status">No init data found</div>`;
+            console.error('No init data found');
+            alert('No init data found');
+        }
+
+        function continueToNext() {
+            // Logic to continue to the next step
+            alert('Continuing to the next step...');
+            // Add your redirection or next step code here
         }
     </script>
 </body>
