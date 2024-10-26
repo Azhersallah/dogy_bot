@@ -25,12 +25,14 @@ function changePage(){
     var page = document.getElementById(pageId);
     var pageSelector = document.getElementById(this.id);
     
+
     if(page.classList.contains("active")){
         return;
     }
 
     currentSelector.classList.remove("button-active");
     currentSelector.classList.add("button-inactive");
+
     currentPage.classList.remove("active");
     currentPage.classList.add("inactive");
 
@@ -45,4 +47,13 @@ function changePage(){
 
     currentSelectorId = this.id;
     currentPageId = pageId;
+}
+function mybagPage() {
+    window.location.href = 'mybag.html'; 
+}
+function marketPage() {
+    window.location.href = 'market.html'; 
+}
+function dailyPage() {
+    window.location.href = 'daily.html';
 }

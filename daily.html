@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Filling Progress Bar</title>
+  <style>
+    .progress-container {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      width: 0;
+      height: 25px;
+      background-color: #4caf50;
+      transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-container">
+  <div id="progress-bar" class="progress-bar"></div>
+</div>
+
+<script>
+  let progress = 0;
+  const progressBar = document.getElementById('progress-bar');
+
+  function fillProgress() {
+    if (progress < 100) {
+      progress += 1;
+      progressBar.style.width = progress + '%';
+      setTimeout(fillProgress, 50); // Adjust the speed by changing the delay here
+    }
+  }
+
+  fillProgress();
+</script>
+
+</body>
+</html>

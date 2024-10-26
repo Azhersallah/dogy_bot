@@ -13,13 +13,10 @@
    <link rel="stylesheet" href="css/main.css">
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
    <link rel="stylesheet" href="css/new.css">
-   <!-- Google Icons -->
 </head>
 
 <style>
-   .legsHome{
-      padding: 0px 10px 90px 10px;
-   }
+
 </style>
 
 <body>
@@ -30,30 +27,29 @@
       <!-- Home page -->
       <div id="page-home" class="active legsHome">
 
-         <div class="foxUpgrade">
+         <div class="foxUpgrade" id="foxUpgrade">
             <div class="upimg">
                <img src="svg/upgrade.svg" alt="" srcset="">
             </div>
             <h3>Upgrade</h3>
          </div>
 
-
          <div class="btns">
             <div class="game-item">
-               <div class="btn-item">
+               <button class="btn-item" onclick=mybagPage() id="mybag">
                   <img src="svg/legs-bag.svg" alt="" srcset="">
-               </div>
-               <div class="btn-item">
+               </button>
+               <button class="btn-item" onclick=marketPage() id="market">
                   <img src="svg/market.svg" alt="" srcset="">
-               </div>
+               </button>
             </div>
             <div class="game-item">
-               <div class="btn-item">
+               <button class="btn-item" disabled>
                   <img src="svg/spin.svg" alt="" srcset="">
-               </div>
-               <div class="btn-item">
+               </button>
+               <button class="btn-item" onclick=dailyPage() id="daily">
                   <img src="svg/checkin.svg" alt="" srcset="">
-               </div>
+               </button>
             </div>
          </div>
 
@@ -72,7 +68,7 @@
                      <div class="legpointtop">
                         <img src="svg/legs.svg" alt="">
                         &nbsp;
-                        <span class="points" id="points">100</span>
+                        <span class="points" id="points">10</span>
                      </div>
                   </div>
                </div>
@@ -87,6 +83,13 @@
 
             </div>
 
+            <style>
+               .energyfill span {
+                  font-weight: 700;
+               }
+            </style>
+
+
             <div class="energyfill">
                <div class="imgspoints">
                   <div class="svgs">
@@ -96,20 +99,19 @@
                      </svg>
                      <span>Energy</span>
                   </div>
-                  <span>0/5</span>
+
+                  <span><span id="current-energy">0</span>/<span id="max-energy">150</span></span>
+
                </div>
 
                <div class="backenergy">
-                  <div class="realEnergy">
+                  <div class="realEnergy" id="fillEnergy">
 
                   </div>
                </div>
             </div>
 
          </div>
-
-
-
 
          <div class="foxImage" style="width: 100%;">
             <img src="svg/fox.svg" alt="">
@@ -127,8 +129,10 @@
                      </svg>
                      <span>5</span>
                   </div>
-                  <img src="svg/Common.svg" alt="">
-                  <span>x0</span>
+                  <button class="chicken-btns" id="common-chicken">
+                     <img src="svg/Common.svg" alt="">
+                  </button>
+                  <span>x<span id="common_item">3</span></span>
                </div>
 
                <div class="chicken" id="rare">
@@ -139,8 +143,10 @@
                      </svg>
                      <span>20</span>
                   </div>
-                  <img src="svg/Rare.svg" alt="">
-                  <span>x0</span>
+                  <button class="chicken-btns" id="rare-chicken">
+                     <img src="svg/Rare.svg" alt="">
+                  </button>
+                  <span>x<span id="rare_item">4</span></span>
                </div>
 
 
@@ -152,8 +158,10 @@
                      </svg>
                      <span>60</span>
                   </div>
-                  <img src="svg/Epic.svg" alt="">
-                  <span>x0</span>
+                  <button class="chicken-btns" id="epic-chicken">
+                     <img src="svg/Epic.svg" alt="">
+                  </button>
+                  <span>x<span id="epic_item">2</span></span>
                </div>
 
 
@@ -166,9 +174,10 @@
                      </svg>
                      <span>120</span>
                   </div>
-
-                  <img src="svg/Epic.svg" alt="">
-                  <span>x0</span>
+                  <button class="chicken-btns" id="legendary-chicken">
+                     <img src="svg/Epic.svg" alt="">
+                  </button>
+                  <span>x<span id="legendary_item">1</span></span>
                </div>
 
 
@@ -176,10 +185,12 @@
 
             <div class="item">
                <span class="item-progress"><img src="svg/legs.svg" alt="" srcset=""> Legs</span>
-               <span class="item-progress">15/30</span>
+
+               <span class="item-progress"><span id="currentLeg">0</span>/<span id="maxleg">30</span></span>
+
             </div>
             <div class="progress-bar">
-               <div class="progress"></div>
+               <div class="progress" id="legProgress"></div>
             </div>
             <div class="growing-time">
                <span class="item-progress">Upgrade time:</span>
@@ -190,7 +201,7 @@
 
 
          <div class="startCatching">
-            <button id="start-catching">Start Cathing</button>
+            <button id="start-catching">Start Catching</button>
          </div>
 
 
@@ -225,6 +236,7 @@
    <!-- Bottom Nav Bar -->
    <footer class="footer">
       <div id="buttonGroup" class="btn-group selectors" role="group" aria-label="Basic example">
+
          <button id="home" type="button" class="btn btn-secondary button-active">
             <div class="selector-holder">
                <i class="bi bi-house-fill"></i>
@@ -238,18 +250,21 @@
                <span>Tasks</span>
             </div>
          </button>
+
          <button id="create" type="button" class="btn btn-secondary button-inactive">
             <div class="selector-holder">
                <i class="bi bi-person-lines-fill"></i>
                <span>Tops</span>
             </div>
          </button>
+
          <button id="account" type="button" class="btn btn-secondary button-inactive">
             <div class="selector-holder">
                <i class="bi bi-people-fill"></i>
                <span>Friends</span>
             </div>
          </button>
+
       </div>
    </footer>
    <!-- Bootstrap core JavaScript -->
@@ -264,6 +279,9 @@
       crossorigin="anonymous"></script>
    <!-- JS needed for this page -->
    <script src="js/main.js"></script>
+   <script src="js/game.js"></script>
+
+
 </body>
 
 </html>
