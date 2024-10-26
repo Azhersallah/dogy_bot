@@ -59,11 +59,16 @@ function updateProgress(maxEnergyForType) {
       const res = confirm("You waste " + excessEnergy + " energy");
       if (res) {
          feedEnergy(maxEnergyForType);
+         return true;
+      }else{
+         return false
       }
    } else if (currentEnergy < maxEnergy) {
       feedEnergy(maxEnergyForType);
+      return true;
    } else {
       alert('Energy is full');
+      return false;
    }
 }
 
@@ -72,9 +77,10 @@ commonBtn.addEventListener('click', () => {
 
    if (commonItemCount > 0) {
       let commonEnergy = 5;
-      updateProgress(commonEnergy);
+      if(updateProgress(commonEnergy)){
+         commonItemElement.textContent = commonItemCount - 1;
+      }
 
-      commonItemElement.textContent = commonItemCount - 1;
    } else {
       alert('You have no common chicken');
    }
@@ -85,9 +91,9 @@ rareBtn.addEventListener('click', () => {
 
    if (rareItemCount > 0) {
       let rareEnergy = 20;
-      updateProgress(rareEnergy);
-
-      rareItemElement.textContent = rareItemCount - 1;
+      if(updateProgress(rareEnergy)){
+         rareItemElement.textContent = rareItemCount - 1;
+      }
    } else {
       alert('You have no rare chicken');
    }
@@ -98,9 +104,9 @@ epicBtn.addEventListener('click', () => {
 
    if (epicItemCount > 0) {
       let epicEnergy = 60;
-      updateProgress(epicEnergy);
-
-      epicItemElement.textContent = epicItemCount - 1;
+      if(updateProgress(epicEnergy)){
+         epicItemElement.textContent = epicItemCount - 1;
+      }
    } else {
       alert('You have no epic chicken');
    }
@@ -111,9 +117,9 @@ legendaryBtn.addEventListener('click', () => {
 
    if (legendaryItemCount > 0) {
       let legendaryEnergy = 180;
-      updateProgress(legendaryEnergy);
-
-      legendaryItemElement.textContent = legendaryItemCount - 1;
+      if(updateProgress(legendaryEnergy)){
+         legendaryItemElement.textContent = legendaryItemCount - 1;
+      }
    } else {
       alert('You have no legendary chicken');
    }
@@ -126,9 +132,9 @@ mythicBtn.addEventListener('click', () => {
 
    if (mythicItemCount > 0) {
       let mythicEnergy = 420;
-      updateProgress(mythicEnergy);
-
-      mythicItemElement.textContent = myhicItemCount - 1;
+      if(updateProgress(mythicEnergy)){
+         mythicItemElement.textContent = mythicItemCount - 1;
+      }
    } else {
       alert('You have no mythic chicken');
    }
@@ -155,7 +161,7 @@ startCatchingbtn.addEventListener('click', () => {
       }, 1000);
    } else if (startCatchingbtn.innerText === 'Claim') {
       const energyValue = Number(currentEnergys_.textContent);
-      const pointsEarned = Math.floor(Math.random() * (energyValue / 2)) + 1.5; // Minimum of 1 point
+      const pointsEarned = Math.floor(Math.random() * (energyValue / 2)) + energyValue; // Minimum of 1 point
       let currentPoints = parseInt(pointElement.innerText, 10);
       pointElement.innerText = currentPoints + pointsEarned;
       currentLeg = Math.min(points + pointsEarned, maxLeg);
@@ -167,5 +173,7 @@ startCatchingbtn.addEventListener('click', () => {
       currentEnergys_.textContent = 0;
       progressBar.style.width = 0 + '%';
       currentEnergy = 0
+   }else{
+      alert("Please fill the energy")
    }
 });
