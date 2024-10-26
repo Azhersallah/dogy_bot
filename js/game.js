@@ -6,11 +6,13 @@ const commonItemElement = document.getElementById('common_item');
 const rareItemElement = document.getElementById('rare_item');
 const epicItemElement = document.getElementById('epic_item');
 const legendaryItemElement = document.getElementById('legendary_item');
+const mythicItemElement = document.getElementById('mythic_item');
 const progressBar = document.getElementById('fillEnergy');
 const commonBtn = document.getElementById('common-chicken');
 const rareBtn = document.getElementById('rare-chicken');
 const epicBtn = document.getElementById('epic-chicken');
 const legendaryBtn = document.getElementById('legendary-chicken');
+const mythicBtn = document.getElementById('mythic-chicken');
 const startCatchingbtn = document.getElementById('start-catching');
 const pointElement = document.getElementById('points');
 let isCatching = false;
@@ -108,12 +110,27 @@ legendaryBtn.addEventListener('click', () => {
    let legendaryItemCount = Number(legendaryItemElement.textContent);
 
    if (legendaryItemCount > 0) {
-      let legendaryEnergy = 120;
+      let legendaryEnergy = 180;
       updateProgress(legendaryEnergy);
 
       legendaryItemElement.textContent = legendaryItemCount - 1;
    } else {
       alert('You have no legendary chicken');
+   }
+});
+
+
+mythicBtn.addEventListener('click', () => {
+ 
+   let mythicItemCount = Number(mythicItemElement.textContent);
+
+   if (mythicItemCount > 0) {
+      let mythicEnergy = 420;
+      updateProgress(mythicEnergy);
+
+      mythicItemElement.textContent = myhicItemCount - 1;
+   } else {
+      alert('You have no mythic chicken');
    }
 });
 
@@ -138,7 +155,7 @@ startCatchingbtn.addEventListener('click', () => {
       }, 1000);
    } else if (startCatchingbtn.innerText === 'Claim') {
       const energyValue = Number(currentEnergys_.textContent);
-      const pointsEarned = Math.floor(Math.random() * energyValue) + energyValue / 2;
+      const pointsEarned = Math.floor(Math.random() * (energyValue / 2)) + 1.5; // Minimum of 1 point
       let currentPoints = parseInt(pointElement.innerText, 10);
       pointElement.innerText = currentPoints + pointsEarned;
       currentLeg = Math.min(points + pointsEarned, maxLeg);
