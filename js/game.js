@@ -18,7 +18,7 @@ const pointElement = document.getElementById('points');
 let isCatching = false;
 let maxEnergy = Number(document.getElementById('max-energy').textContent);
 let currentEnergys_ = document.getElementById('current-energy');
-currentEnergy = Number(currentEnergys_.textContent)
+let currentEnergy = Number(currentEnergys_.textContent)
 
 
 let currentLeg = Math.min(points, maxLeg);
