@@ -12,14 +12,21 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
    <link rel="stylesheet" href="css/main.css">
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-   <link rel="stylesheet" href="css/new.css">
+   <link rel="stylesheet" href="css/new.css"> 
+   <link rel="stylesheet" href="css/loadingscreen.css"> 
 </head>
 
-<style>
 
-</style>
 
 <body>
+
+
+
+   <!-- Loading Screen -->
+   <div id="loading">
+      <img src="img/foxload.gif" alt="">
+   </div>
+
 
    <!-- Begin page content -->
    <div class="fullContainer">
@@ -27,12 +34,6 @@
       <!-- Home page -->
       <div id="page-home" class="active legsHome">
 
-         <div class="foxUpgrade" id="foxUpgrade">
-            <div class="upimg">
-               <img src="svg/upgrade.svg" alt="" srcset="">
-            </div>
-            <h3>Upgrade</h3>
-         </div>
 
          <div class="btns">
             <div class="game-item">
@@ -57,7 +58,6 @@
          <div class="legPoint">
 
             <div class="infos">
-
                <div class="userInfo">
                   <div class="userPhoto">
                      <img src="img/profile.jpg" alt="" srcset="">
@@ -68,27 +68,16 @@
                      <div class="legpointtop">
                         <img src="svg/legs.svg" alt="">
                         &nbsp;
-                        <span class="points" id="points">0</span>
+                        <span class="points" id="points">1000</span>
                      </div>
                   </div>
                </div>
-
-
                <div class="forlevel">
 
                   <h4>Level</h4>
-                  <h3>1</h3>
+                  <h3 id="level-nubmer">3</h3>
                </div>
-
-
             </div>
-
-            <style>
-               .energyfill span {
-                  font-weight: 700;
-               }
-            </style>
-
 
             <div class="energyfill">
                <div class="imgspoints">
@@ -99,11 +88,8 @@
                      </svg>
                      <span>Energy</span>
                   </div>
-
-                  <span><span id="current-energy">0</span>/<span id="max-energy">150</span></span>
-
+                  <span><span id="current-energy">0</span>/<span id="max-energy">0</span></span>
                </div>
-
                <div class="backenergy">
                   <div class="realEnergy" id="fillEnergy">
 
@@ -111,10 +97,29 @@
                </div>
             </div>
 
+
+
+
+
          </div>
 
+
+
          <div class="foxImage" style="width: 100%;">
+
+            <div class="foxUpgrade" id="foxUpgrade">
+               <button class="upimg">
+                  <img src="svg/upgrade.svg" alt="" srcset=""> Upgrade
+               </button>
+            </div>
+
             <img src="svg/fox.svg" alt="">
+
+            <div class="next-chicken">
+               <span class="item-progress">Next in:</span>
+               <span id="time-value">03:10:03</span>
+            </div>
+
          </div>
 
          <div class="upgrade-card">
@@ -130,7 +135,7 @@
                      <span>5</span>
                   </div>
                   <button class="chicken-btns" id="common-chicken">
-                     <img src="svg/Common.svg" alt="">
+                     <img src="svg/common1.svg" alt="">
                   </button>
                   <span>x<span id="common_item">3</span></span>
                </div>
@@ -144,7 +149,7 @@
                      <span>20</span>
                   </div>
                   <button class="chicken-btns" id="rare-chicken">
-                     <img src="svg/Rare.svg" alt="">
+                     <img src="svg/rare1.svg" alt="">
                   </button>
                   <span>x<span id="rare_item">4</span></span>
                </div>
@@ -159,13 +164,13 @@
                      <span>60</span>
                   </div>
                   <button class="chicken-btns" id="epic-chicken">
-                     <img src="svg/Epic.svg" alt="">
+                     <img src="svg/epic1.svg" alt="">
                   </button>
                   <span>x<span id="epic_item">2</span></span>
                </div>
 
 
-               <div class="chicken" id="epic">
+               <div class="chicken" id="legendary">
 
                   <div class="energy">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-fire" viewBox="0 0 16 16">
@@ -175,19 +180,11 @@
                      <span>180</span>
                   </div>
                   <button class="chicken-btns" id="legendary-chicken">
-                     <img src="svg/legendary.svg" alt="">
+                     <img src="svg/legendary1.svg" alt="">
                   </button>
                   <span>x<span id="legendary_item">1</span></span>
                </div>
 
-               <style>
-                  #mythic-chicken{
-                     transform: scale(1.1);
-                  }
-                  #mythic-chicken:active{
-                     transform: scale(1.2) !important;
-                  }
-               </style>
 
                <div class="chicken" id="mythic">
 
@@ -199,7 +196,7 @@
                      <span>420</span>
                   </div>
                   <button class="chicken-btns" id="mythic-chicken">
-                     <img src="svg/mythic.svg" alt="">
+                     <img src="svg/mythic1.svg" alt="">
                   </button>
                   <span>x<span id="mythic_item">1</span></span>
                </div>
@@ -217,10 +214,17 @@
                <div class="progress" id="legProgress"></div>
             </div>
             <div class="growing-time">
-               <span class="item-progress">Upgrade time:</span>
-               <span class="time-value">64 hour</span>
+
+               <div class="upgrade">
+                  <span class="item-progress">Upgrade time:</span>
+                  <span id="upgradeTime">03:10:03</span>
+               </div>
+
+
+
             </div>
          </div>
+
 
 
 
@@ -304,6 +308,7 @@
    <!-- JS needed for this page -->
    <script src="js/main.js"></script>
    <script src="js/game.js"></script>
+   <script src="js/loadingscreen.js"></script>
 
 
 </body>
