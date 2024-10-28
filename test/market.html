@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="market-container">
+        <div class="market-header">
+            <h1>Market</h1>
+            <div class="currency-balance">809,590.65 LEGS</div>
+        </div>
+        
+        <!-- Sorting Controls -->
+        <div class="sorting-controls">
+            <select id="typeFilter" onchange="applyFilters()">
+                <option value="all">All Types</option>
+                <option value="Rare">Rare</option>
+                <option value="Common">Common</option>
+                <!-- Add more types if needed -->
+            </select>
+            <select id="priceSort" onchange="applyFilters()">
+                <option value="lowToHigh">Low to High</option>
+                <option value="highToLow">High to Low</option>
+            </select>
+        </div>
+        
+        <div class="item-grid" id="itemGrid"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

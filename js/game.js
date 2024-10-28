@@ -1,4 +1,5 @@
-const points = parseInt(document.getElementById('points').textContent);
+const pointElement = document.getElementById('points');
+let points = Number(pointElement.textContent);
 const legProgress = document.getElementById('legProgress');
 const currentLegElement = document.getElementById('currentLeg');
 const commonItemElement = document.getElementById('common_item');
@@ -13,7 +14,6 @@ const epicBtn = document.getElementById('epic-chicken');
 const legendaryBtn = document.getElementById('legendary-chicken');
 const mythicBtn = document.getElementById('mythic-chicken');
 const startCatchingbtn = document.getElementById('start-catching');
-const pointElement = document.getElementById('points');
 let isCatching = false;
 let currentEnergys_ = document.getElementById('current-energy');
 let currentEnergy = Number(currentEnergys_.textContent);
@@ -22,7 +22,7 @@ let g_level = Number(myLevel.textContent);
 let maxEnergy = g_level * 5;
 document.getElementById('max-energy').textContent = maxEnergy;
 
-const maxLeg = (g_level + 5) * 10;
+let maxLeg = (g_level + 5) * 10;
 document.getElementById('maxleg').textContent = maxLeg;
 
 let totalSeconds = g_level * 2.89 * 3600;
@@ -50,7 +50,7 @@ legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
 function foxUpgrade() {
    const currentLeg = Number(currentLegElement.textContent);
    const maxLeg = Number(document.getElementById('maxleg').textContent);
-   if (currentLeg === maxLeg) {
+   if (currentLeg >= maxLeg) {
       document.getElementById('foxUpgrade').style.display = 'flex';
    } else {
       setTimeout(foxUpgrade, 1000);
@@ -163,7 +163,7 @@ startCatchingbtn.addEventListener('click', () => {
             startCatchingbtn.innerText = `Catching(${Math.floor(countdown / 60)}:${(countdown % 60).toString().padStart(2, '0')})`;
             countdown--;
          }
-      }, 1000);
+      }, 1);
    } else if (startCatchingbtn.innerText === 'Claim') {
       const energyValue = Number(currentEnergys_.textContent);
       const pointsEarned = Math.floor(Math.random() * (energyValue / 2)) + energyValue * 2;
@@ -193,3 +193,38 @@ startCatchingbtn.addEventListener('click', () => {
       alert("Please fill the energy");
    }
 });
+
+const upgradefox_btn = document.getElementById('upgrade-btn');
+
+upgradefox_btn.addEventListener('click', () => {
+      console.log("in click = p :"+points+"/ c :"+currentLeg+'/ m :'+maxLeg)
+   if (currentLeg >= maxLeg) {
+      currentLeg = Math.min(points, maxLeg);
+      currentLegElement.textContent = currentLeg;
+      legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+      setTimeout(() => {
+         points = points - maxLeg;
+         pointElement.textContent = points; 
+
+         g_level += 1; 
+         myLevel.textContent = g_level; 
+
+         maxEnergy = g_level * 5;
+         document.getElementById('max-energy').textContent = maxEnergy;
+
+         maxLeg = (g_level + 5) * 10;
+         document.getElementById('maxleg').textContent = maxLeg;
+
+         currentLeg = Math.min(points, maxLeg);
+         currentLegElement.textContent = currentLeg;
+         legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+
+         console.log("after click = p :"+points+"/ c :"+currentLeg+'/ m :'+maxLeg)
+
+         alert("Upgrade successful! You are now at level " + g_level);
+      }, 0); // 5 seconds delay
+   } else {
+      alert("You need to reach the maximum leg to upgrade.");
+   }
+});
+

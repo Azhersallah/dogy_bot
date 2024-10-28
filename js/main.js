@@ -52,8 +52,9 @@ function mybagPage() {
     window.location.href = 'mybag.html'; 
 }
 function marketPage() {
-    window.location.href = 'market.html'; 
+    window.location.href = 'test/market.html'; 
 }
 function dailyPage() {
     window.location.href = 'daily.html';
 }
+

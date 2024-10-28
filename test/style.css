@@ -1,0 +1,137 @@
+/* Existing styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.market-container {
+  width: 90%;
+  margin: 20px auto;
+  max-width: 1200px;
+}
+
+.market-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #111;
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.market-header h1 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.currency-balance {
+  font-size: 0.9em;
+}
+
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.item-card {
+  background-color: #fff;
+  border-radius: 5px;
+  text-align: center;
+  padding: 2px 0px 5px 0px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.item_id{
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  height: 15px;
+  display: flex;
+  justify-content: center;
+  border-radius: 2px;
+  align-items: center;
+}
+
+.item-card img {
+  width: 50%;
+  margin-bottom: 1px;
+}
+
+.item-card .item-info {
+  font-size: 0.5em;
+  color: #333;
+}
+
+.item-card .price {
+  font-size: 0.5em;
+  margin: 0px 10px 0px 0px;
+  font-weight: bold;
+}
+.btnPrice{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 30px;
+}
+
+.item-card button {
+  padding: 4px 6px;
+  background-color: #111;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.item-card button:hover {
+  background-color: #333;
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 768px) {
+  .item-grid {
+      grid-template-columns: repeat(2, 1fr);
+  }
+
+  .item-card {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .item-card .price {
+      order: 1; /* Place the price above the button */
+  }
+
+  .item-card button {
+      order: 2;
+  }
+}
+/* Styling for Sorting Controls */
+.sorting-controls {
+  display: flex;
+  justify-content: flex-start;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.sorting-controls select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .sorting-controls {
+      flex-direction: column;
+  }
+}

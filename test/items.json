@@ -1,0 +1,12 @@
+[
+  { "id": "369376081224", "rarity": "Rare", "level": 20, "energy": 20, "price": 2000, "image": "rare1.jpeg" },
+  { "id": "346056982", "rarity": "Rare", "level": 20, "energy": 20, "price": 3000, "image": "rare1.jpeg" },
+  { "id": "397092595", "rarity": "Rare", "level": 20, "energy": 20, "price": 1000, "image": "rare1.jpeg" },
+  { "id": "304020385", "rarity": "Rare", "level": 20, "energy": 20, "price": 1699, "image": "rare1.jpeg" },
+  { "id": "123456789", "rarity": "Common", "level": 20, "energy": 5, "price": 350, "image": "common1.jpeg" },
+  { "id": "987654321", "rarity": "Common", "level": 20, "energy": 5, "price": 300, "image": "common1.jpeg" },
+  { "id": "135792468", "rarity": "Common", "level": 20, "energy": 5, "price": 699, "image": "common1.jpeg" },
+  { "id": "246813579", "rarity": "Common", "level": 20, "energy": 5, "price": 699, "image": "common1.jpeg" },
+  { "id": "112233445", "rarity": "Common", "level": 20, "energy": 5, "price": 99, "image": "common1.jpeg" },
+  { "id": "556677889", "rarity": "Common", "level": 20, "energy": 5, "price": 169, "image": "common1.jpeg" }
+]
