@@ -476,3 +476,44 @@ span {
 .chicken-btns:active{
   transform: scale(1.08);
 }
+.itemnum{
+  font-size: 0.7em !important;
+}
+
+
+
+/* Message Box Styles */
+.message-box {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  padding: 20px;
+  background-color: #f1f1f1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  text-align: center;
+  z-index: 1000;
+}
+
+.message-box p {
+  margin: 0 0 20px;
+  font-size: 16px;
+  color: #333;
+}
+
+.message-box button {
+  padding: 8px 16px;
+  margin: 5px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.message-box button:hover {
+  background-color: #0056b3;
+}

@@ -16,11 +16,75 @@
    <link rel="stylesheet" href="css/loadingscreen.css"> 
 </head>
 
+<style>
+/* Style for the toast container */
+#toastAlert {
+  width: 100%;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
 
+/* Background color and text color */
+#toastAlert.text-bg-primary {
+  background-color: #cdfbcb !important;
+  color: #017909 !important;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Toast body styling */
+#toastMessage {
+  font-weight: 500;
+  text-align: center;
+}
+.fixToast{
+   width: 100%;
+   display: flex;
+   align-items: center;
+
+}
+.Toasts{
+   width: 80% !important;
+}
+.toast-body i{
+   margin-bottom: 2px;
+}
+</style>
 
 <body>
 
 
+   <div class="position-fixed top-0 start-50 translate-middle-x pt-3 Toasts" style="z-index: 1080;">
+      <div id="toastAlert" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex fixToast">
+          <div class="toast-body"></div>
+          <i class="bi bi-dash-circle-fill"></i>
+          <div id="toastMessage" class="toast-body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+   <div id="messageBox" class="message-box">
+      <p id="messageText"></p>
+      <button id="yesButton" onclick="handleYes()">Yes</button>
+      <button id="noButton" onclick="handleNo()">No</button>
+  </div>
+  
 
    <div id="loading">
       <img src="img/foxload.gif" alt="">
@@ -136,7 +200,7 @@
                   <button class="chicken-btns" id="common-chicken">
                      <img src="svg/common1.svg" alt="">
                   </button>
-                  <span>x<span id="common_item">103</span></span>
+                  <span class="itemnum" >x<span id="common_item">103</span></span>
                </div>
 
                <div class="chicken" id="rare">
@@ -150,7 +214,7 @@
                   <button class="chicken-btns" id="rare-chicken">
                      <img src="svg/rare1.svg" alt="">
                   </button>
-                  <span>x<span id="rare_item">4</span></span>
+                  <span class="itemnum">x<span id="rare_item">4</span></span>
                </div>
 
 
@@ -165,7 +229,7 @@
                   <button class="chicken-btns" id="epic-chicken">
                      <img src="svg/epic1.svg" alt="">
                   </button>
-                  <span>x<span id="epic_item">2</span></span>
+                  <span class="itemnum">x<span id="epic_item">2</span></span>
                </div>
 
 
@@ -181,7 +245,7 @@
                   <button class="chicken-btns" id="legendary-chicken">
                      <img src="svg/legendary1.svg" alt="">
                   </button>
-                  <span>x<span id="legendary_item">1</span></span>
+                  <span class="itemnum">x<span id="legendary_item">1</span></span>
                </div>
 
 
@@ -197,7 +261,7 @@
                   <button class="chicken-btns" id="mythic-chicken">
                      <img src="svg/mythic1.svg" alt="">
                   </button>
-                  <span>x<span id="mythic_item">1</span></span>
+                  <span class="itemnum" >x<span id="mythic_item">1</span></span>
                </div>
 
 
