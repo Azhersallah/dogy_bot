@@ -47,16 +47,17 @@ function showMessageBox(message) {
       const messageBox = document.getElementById('messageBox');
       const messageText = document.getElementById('messageText');
 
-      messageText.innerText = message; 
-      messageBox.style.display = 'block';
+      messageText.innerText = message;
+      messageBox.style.display = 'flex';
+      document.body.classList.add('no-scroll');
 
       // Attach event listeners for Yes and No buttons
-      document.getElementById('yesButton').onclick = function() {
+      document.getElementById('yesButton').onclick = function () {
          resolve(true);
          closeMessageBox();
       };
 
-      document.getElementById('noButton').onclick = function() {
+      document.getElementById('noButton').onclick = function () {
          resolve(false);
          closeMessageBox();
       };
@@ -65,6 +66,8 @@ function showMessageBox(message) {
 
 function closeMessageBox() {
    document.getElementById('messageBox').style.display = 'none';
+   document.body.classList.remove('no-scroll');
+
 }
 
 // end of message box
@@ -95,7 +98,7 @@ function showToast(message, status = false) {
       toastColor.style.setProperty('color', '#9e0000', 'important'); // Change text color to dark red
       iconElement.className = 'bi bi-dash-circle-fill'; // Change icon to dash circle
    }
-    
+
    toastMessage.textContent = message; // Set the toast message
    toast.show(); // Show the toast
 }
@@ -114,7 +117,7 @@ legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
 function foxUpgrade() {
    const currentLeg = Number(currentLegElement.textContent);
    const maxLeg = Number(document.getElementById('maxleg').textContent);
-   
+
    if (currentLeg >= maxLeg) {
       document.getElementById('foxUpgrade').style.display = 'flex';
    } else {
@@ -137,20 +140,19 @@ function feedEnergy(maxEnergyForType) {
    currentEnergys_.textContent = `${currentEnergy}`;
 }
 
-function updateProgress(maxEnergyForType) {
+async function updateProgress(maxEnergyForType) {
    let sendEnergy = maxEnergyForType + currentEnergy;
    if (sendEnergy > maxEnergy && currentEnergy < maxEnergy) {
       let excessEnergy = sendEnergy - maxEnergy;
 
-      showMessageBox("You waste " + excessEnergy + " energy").then((response) => {
-         if (response) {
-               feedEnergy(maxEnergyForType);
-               return true;
-         } else {
-            return false;         }
-      });
-      
-      
+      const resultmsb = await showMessageBox("You waste " + excessEnergy + " energy");
+      if (resultmsb) {
+         feedEnergy(maxEnergyForType);
+         return true;
+      } else {
+         return false;
+      }
+
    } else if (currentEnergy < maxEnergy) {
       feedEnergy(maxEnergyForType);
       return true;
@@ -160,11 +162,13 @@ function updateProgress(maxEnergyForType) {
    }
 }
 
-commonBtn.addEventListener('click', () => {
+
+commonBtn.addEventListener('click', async () => {
    let commonItemCount = Number(commonItemElement.textContent);
    if (commonItemCount > 0) {
       let commonEnergy = 5;
-      if (updateProgress(commonEnergy)) {
+      const commonFeed = await updateProgress(commonEnergy);
+      if (commonFeed) {
          commonItemElement.textContent = commonItemCount - 1;
       }
    } else {
@@ -172,11 +176,12 @@ commonBtn.addEventListener('click', () => {
    }
 });
 
-rareBtn.addEventListener('click', () => {
+rareBtn.addEventListener('click', async () => {
    let rareItemCount = Number(rareItemElement.textContent);
    if (rareItemCount > 0) {
       let rareEnergy = 20;
-      if (updateProgress(rareEnergy)) {
+      const rareFeed = await updateProgress(rareEnergy);
+      if (rareFeed) {
          rareItemElement.textContent = rareItemCount - 1;
       }
    } else {
@@ -184,11 +189,12 @@ rareBtn.addEventListener('click', () => {
    }
 });
 
-epicBtn.addEventListener('click', () => {
+epicBtn.addEventListener('click', async () => {
    let epicItemCount = Number(epicItemElement.textContent);
    if (epicItemCount > 0) {
       let epicEnergy = 60;
-      if (updateProgress(epicEnergy)) {
+      const epicFeed = await updateProgress(epicEnergy);
+      if (epicFeed) {
          epicItemElement.textContent = epicItemCount - 1;
       }
    } else {
@@ -196,11 +202,12 @@ epicBtn.addEventListener('click', () => {
    }
 });
 
-legendaryBtn.addEventListener('click', () => {
+legendaryBtn.addEventListener('click', async () => {
    let legendaryItemCount = Number(legendaryItemElement.textContent);
    if (legendaryItemCount > 0) {
       let legendaryEnergy = 180;
-      if (updateProgress(legendaryEnergy)) {
+      const legendaryFeed = await updateProgress(legendaryEnergy);
+      if (legendaryFeed) {
          legendaryItemElement.textContent = legendaryItemCount - 1;
       }
    } else {
@@ -208,11 +215,12 @@ legendaryBtn.addEventListener('click', () => {
    }
 });
 
-mythicBtn.addEventListener('click', () => {
+mythicBtn.addEventListener('click', async () => {
    let mythicItemCount = Number(mythicItemElement.textContent);
    if (mythicItemCount > 0) {
       let mythicEnergy = 420;
-      if (updateProgress(mythicEnergy)) {
+      const mythicFeed = await updateProgress(mythicEnergy);
+      if (mythicFeed) {
          mythicItemElement.textContent = mythicItemCount - 1;
       }
    } else {
@@ -222,7 +230,7 @@ mythicBtn.addEventListener('click', () => {
 
 startCatchingbtn.addEventListener('click', () => {
    if (currentEnergy > 0 && !isCatching) {
-      showToast("Start catching successfuly!",true)
+      showToast("Start catching successfuly!", true)
       isCatching = true;
       startCatchingbtn.disabled = true;
       startCatchingbtn.style.backgroundColor = 'grey';
@@ -244,8 +252,8 @@ startCatchingbtn.addEventListener('click', () => {
       points = points + pointsEarned;
       pointElement.textContent = points
       console.log(points);
-   
-      currentLeg = Math.min(points , maxLeg)
+
+      currentLeg = Math.min(points, maxLeg)
       currentLegElement.textContent = currentLeg;
       legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
 
@@ -255,10 +263,10 @@ startCatchingbtn.addEventListener('click', () => {
       currentEnergys_.textContent = 0;
       progressBar.style.width = 0 + '%';
       currentEnergy = 0;
-      showToast("You claimed "+pointsEarned+" Legs",true)
+      showToast("You claimed " + pointsEarned + " Legs", true)
 
    } else {
-      
+
       showToast(" Please fill the energy first!");
    }
 });
@@ -268,7 +276,7 @@ upgradefox_btn.addEventListener('click', () => {
    console.log("Before upgrade - Points: " + points + " / CurrentLeg: " + currentLeg + " / MaxLeg: " + maxLeg);
 
    if (currentLeg >= maxLeg) {
-      points = Math.max(points - maxLeg);  
+      points = Math.max(points - maxLeg);
       pointElement.textContent = points;
 
       g_level += 1;
