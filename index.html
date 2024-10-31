@@ -12,127 +12,179 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
    <link rel="stylesheet" href="css/main.css">
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-   <link rel="stylesheet" href="css/new.css"> 
-   <link rel="stylesheet" href="css/loadingscreen.css"> 
+   <link rel="stylesheet" href="css/new.css">
+   <link rel="stylesheet" href="css/loadingscreen.css">
 </head>
 
 <style>
-/* Style for the toast container */
-#toastAlert {
-  width: 100%;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  font-size: 1rem;
-  animation: fadeIn 0.3s ease-out;
-}
+   /* Style for the toast container */
+   #toastAlert {
+      width: 100%;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      font-size: 1rem;
+      animation: fadeIn 0.3s ease-out;
+   }
 
-/* Background color and text color */
-#toastAlert.text-bg-primary {
-  background-color: #cdfbcb !important;
-  color: #017909 !important;
-}
+   /* Background color and text color */
+   #toastAlert.text-bg-primary {
+      background-color: #cdfbcb !important;
+      color: #017909 !important;
+   }
 
-/* Fade-in animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+   /* Fade-in animation */
+   @keyframes fadeIn {
+      from {
+         opacity: 0;
+         transform: translateY(-20px);
+      }
 
-/* Toast body styling */
-#toastMessage {
-  font-weight: 500;
-  text-align: center;
-}
-.fixToast{
-   width: 100%;
-   display: flex;
-   align-items: center;
+      to {
+         opacity: 1;
+         transform: translateY(0);
+      }
+   }
 
-}
-.Toasts{
-   width: 80% !important;
-}
-.toast-body i{
-   margin-bottom: 2px;
-}
+   /* Toast body styling */
+   #toastMessage {
+      font-weight: 500;
+      text-align: center;
+   }
+
+   .fixToast {
+      width: 100%;
+      display: flex;
+      align-items: center;
+
+   }
+
+   .Toasts {
+      width: 80% !important;
+   }
+
+   .toast-body i {
+      margin-bottom: 2px;
+   }
 </style>
 
 <body>
 
 
    <div class="position-fixed top-0 start-50 translate-middle-x pt-3 Toasts" style="z-index: 1080;">
-      <div id="toastAlert" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex fixToast">
-          <div class="toast-body"></div>
-          <i class="bi bi-dash-circle-fill"></i>
-          <div id="toastMessage" class="toast-body"></div>
-          </div>
-        </div>
+      <div id="toastAlert" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
+         aria-atomic="true">
+         <div class="d-flex fixToast">
+            <div class="toast-body"></div>
+            <i class="bi bi-dash-circle-fill"></i>
+            <div id="toastMessage" class="toast-body"></div>
+         </div>
       </div>
-    </div>
+   </div>
+   </div>
 
 
-    <style>
+   <style>
       .no-scroll {
          overflow: hidden;
          height: 100%;
       }
-      .message-box{
+
+      .message-box {
          position: fixed;
          top: 0;
          left: 0;
          width: 100%;
-         height: 100%;
+         height: 100vh;
          background: #00000079;
          display: none;
          justify-content: center;
          align-items: center;
+         padding: 35px !important;
          z-index: 1000;
-         
+
       }
-      .messagecontent{
+
+      .messagecontent {
          background-color: #fff;
          display: flex;
          justify-content: center;
          align-items: center;
          flex-direction: column;
-         border-radius: 10px;
+         border-radius: 15px;
          box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.558);
-         width: 250px;
-         height: 160px;
+         width: 100%;
+         height: fit-content;
+         padding: 2px 0px 10px 0px;
       }
-      #noButton{
+
+      #noButton {
          background-color: white !important;
          color: #222222 !important;
          border: solid 1px #222222 !important;
       }
-      #noButton:active{
+
+      #noButton:active {
          transform: scale(0.95);
          transition: transform 0.1s;
       }
-      #yesButton:active{
+
+      #yesButton:active {
          transform: scale(0.95);
          transition: transform 0.1s;
       }
-    </style>
-   
+
+      #yesButton,
+      #noButton {
+         width: 100%;
+      }
+
+      .msg-btns {
+         width: 100%;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         padding: 0px 20px 0px 20px !important;
+      }
+
+      .messagecontent img {
+         max-width: 150px;
+         /* Optional: Set a max width to prevent it from getting too large */
+         /* Maintains aspect ratio */
+      }
+
+      #chikenType {
+         text-transform: capitalize;
+         font-size: 18px;
+         font-weight: 700;
+         margin-top: 15px;
+         margin-bottom: 3px;
+      }
+
+      #messageText {
+         text-align: center !important;
+         padding: 0px 20px 0px 20px !important;
+         margin: 10px;
+         width: 100% !important;
+         font-weight: 700 !important;
+
+      }
+   </style>
+
    <div id="messageBox" class="message-box">
+
       <div class="messagecontent">
 
-         <p id="messageText"></p>
+         <p id="chikenType"></p>
+         <img id="chicken-msg-img" class="chickenimgs" src="" alt="no">
+         <p id="messageText">
+         </p>
          <div class="msg-btns">
             <button id="noButton" onclick="handleNo()">Cancel</button>
-            <button id="yesButton" onclick="handleYes()">Confirm</button>
+            <button id="yesButton" onclick="handleYes()">Feed</button>
          </div>
       </div>
-  </div>
-  
+   </div>
+
 
    <div id="loading">
       <img src="img/foxload.gif" alt="">
@@ -246,9 +298,9 @@
                      <span>5</span>
                   </div>
                   <button class="chicken-btns" id="common-chicken">
-                     <img src="svg/common1.svg" alt="">
+                     <img src="svg/common.svg" alt="">
                   </button>
-                  <span class="itemnum" >x<span id="common_item">103</span></span>
+                  <span class="itemnum">x<span id="common_item">103</span></span>
                </div>
 
                <div class="chicken" id="rare">
@@ -260,7 +312,7 @@
                      <span>20</span>
                   </div>
                   <button class="chicken-btns" id="rare-chicken">
-                     <img src="svg/rare1.svg" alt="">
+                     <img src="svg/rare.svg" alt="">
                   </button>
                   <span class="itemnum">x<span id="rare_item">4</span></span>
                </div>
@@ -275,7 +327,7 @@
                      <span>60</span>
                   </div>
                   <button class="chicken-btns" id="epic-chicken">
-                     <img src="svg/epic1.svg" alt="">
+                     <img src="svg/epic.svg" alt="">
                   </button>
                   <span class="itemnum">x<span id="epic_item">2</span></span>
                </div>
@@ -291,7 +343,7 @@
                      <span>180</span>
                   </div>
                   <button class="chicken-btns" id="legendary-chicken">
-                     <img src="svg/legendary1.svg" alt="">
+                     <img src="svg/legendary.svg" alt="">
                   </button>
                   <span class="itemnum">x<span id="legendary_item">1</span></span>
                </div>
@@ -307,9 +359,9 @@
                      <span>420</span>
                   </div>
                   <button class="chicken-btns" id="mythic-chicken">
-                     <img src="svg/mythic1.svg" alt="">
+                     <img src="svg/mythic.svg" alt="">
                   </button>
-                  <span class="itemnum" >x<span id="mythic_item">1</span></span>
+                  <span class="itemnum">x<span id="mythic_item">1</span></span>
                </div>
 
 
@@ -413,16 +465,16 @@
    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
       integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
       crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
       integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
       crossorigin="anonymous"></script>
-      <!-- JS needed for this page -->
-      <script src="js/main.js"></script>
-      <script src="js/game.js"></script>
-      
+   <!-- JS needed for this page -->
+   <script src="js/main.js"></script>
+   <script src="js/game.js"></script>
 
-      
-      <script src="js/loadingscreen.js"></script>
+
+
+   <script src="js/loadingscreen.js"></script>
 </body>
 
 </html>

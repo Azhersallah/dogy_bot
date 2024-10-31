@@ -42,8 +42,10 @@ upgrade_time.textContent = upgradeTimeFormatted;
 
 // message box
 
-function showMessageBox(message) {
+async function showMessageBox(message, chicken_type, energyAmount) {
    return new Promise((resolve) => {
+      const  chikenTypes = document.getElementById('chikenType').textContent = chicken_type+" / "+energyAmount+" Energy";
+      const chickenmsg = document.getElementById('chicken-msg-img').src = "svg/"+chicken_type+".svg";
       const messageBox = document.getElementById('messageBox');
       const messageText = document.getElementById('messageText');
 
@@ -140,12 +142,12 @@ function feedEnergy(maxEnergyForType) {
    currentEnergys_.textContent = `${currentEnergy}`;
 }
 
-async function updateProgress(maxEnergyForType) {
+async function updateProgress(maxEnergyForType, chicken_type) {
    let sendEnergy = maxEnergyForType + currentEnergy;
    if (sendEnergy > maxEnergy && currentEnergy < maxEnergy) {
       let excessEnergy = sendEnergy - maxEnergy;
 
-      const resultmsb = await showMessageBox("You waste " + excessEnergy + " energy");
+      const resultmsb = await showMessageBox("If you feed it this Chicken\nyou'll waste " + excessEnergy +" energy.\nAre you sure?",chicken_type,maxEnergyForType);
       if (resultmsb) {
          feedEnergy(maxEnergyForType);
          return true;
@@ -154,8 +156,13 @@ async function updateProgress(maxEnergyForType) {
       }
 
    } else if (currentEnergy < maxEnergy) {
-      feedEnergy(maxEnergyForType);
-      return true;
+      const resultmsb = await showMessageBox("Do you want to use Chicken\nto feed Fox?",chicken_type,maxEnergyForType);
+      if (resultmsb) {
+         feedEnergy(maxEnergyForType);
+         return true;
+      } else {
+         return false;
+      }
    } else {
       showToast('Energy is full');
       return false;
@@ -167,7 +174,7 @@ commonBtn.addEventListener('click', async () => {
    let commonItemCount = Number(commonItemElement.textContent);
    if (commonItemCount > 0) {
       let commonEnergy = 5;
-      const commonFeed = await updateProgress(commonEnergy);
+      const commonFeed = await updateProgress(commonEnergy,'common');
       if (commonFeed) {
          commonItemElement.textContent = commonItemCount - 1;
       }
@@ -180,7 +187,7 @@ rareBtn.addEventListener('click', async () => {
    let rareItemCount = Number(rareItemElement.textContent);
    if (rareItemCount > 0) {
       let rareEnergy = 20;
-      const rareFeed = await updateProgress(rareEnergy);
+      const rareFeed = await updateProgress(rareEnergy,'rare');
       if (rareFeed) {
          rareItemElement.textContent = rareItemCount - 1;
       }
@@ -193,7 +200,7 @@ epicBtn.addEventListener('click', async () => {
    let epicItemCount = Number(epicItemElement.textContent);
    if (epicItemCount > 0) {
       let epicEnergy = 60;
-      const epicFeed = await updateProgress(epicEnergy);
+      const epicFeed = await updateProgress(epicEnergy,'epic');
       if (epicFeed) {
          epicItemElement.textContent = epicItemCount - 1;
       }
@@ -206,7 +213,7 @@ legendaryBtn.addEventListener('click', async () => {
    let legendaryItemCount = Number(legendaryItemElement.textContent);
    if (legendaryItemCount > 0) {
       let legendaryEnergy = 180;
-      const legendaryFeed = await updateProgress(legendaryEnergy);
+      const legendaryFeed = await updateProgress(legendaryEnergy,'legendary');
       if (legendaryFeed) {
          legendaryItemElement.textContent = legendaryItemCount - 1;
       }
@@ -219,7 +226,7 @@ mythicBtn.addEventListener('click', async () => {
    let mythicItemCount = Number(mythicItemElement.textContent);
    if (mythicItemCount > 0) {
       let mythicEnergy = 420;
-      const mythicFeed = await updateProgress(mythicEnergy);
+      const mythicFeed = await updateProgress(mythicEnergy,'mythic');
       if (mythicFeed) {
          mythicItemElement.textContent = mythicItemCount - 1;
       }
