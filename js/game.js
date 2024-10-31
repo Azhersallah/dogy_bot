@@ -44,8 +44,8 @@ upgrade_time.textContent = upgradeTimeFormatted;
 
 async function showMessageBox(message, chicken_type, energyAmount) {
    return new Promise((resolve) => {
-      const  chikenTypes = document.getElementById('chikenType').textContent = chicken_type+" / "+energyAmount+" Energy";
-      const chickenmsg = document.getElementById('chicken-msg-img').src = "svg/"+chicken_type+".svg";
+      const chickenTypes = document.getElementById('chickenType').textContent = chicken_type + " / " + energyAmount + " Energy";
+      const chickenmsg = document.getElementById('chicken-msg-img').src = "svg/" + chicken_type + ".svg";
       const messageBox = document.getElementById('messageBox');
       const messageText = document.getElementById('messageText');
 
@@ -74,6 +74,35 @@ function closeMessageBox() {
 
 // end of message box
 
+// message box 2
+
+function showMessageBox2(message) {
+   const messageText1 = document.getElementById('messageText1');
+   const messageBox1 = document.getElementById('messageBox1');
+
+   messageText1.innerText = message;
+   messageBox1.style.display = 'flex';
+   document.body.classList.add('no-scroll');
+
+   // Attach event listeners for Yes and No buttons
+   document.getElementById('yesButton1').onclick = function () {
+      foxnextlevel()
+      closeMessageBox1();
+   };
+
+   document.getElementById('noButton1').onclick = function () {
+
+      closeMessageBox1();
+   };
+}
+
+function closeMessageBox1() {
+   document.getElementById('messageBox1').style.display = 'none';
+   document.body.classList.remove('no-scroll');
+}
+
+
+// end of messageBox 2
 
 
 
@@ -147,7 +176,7 @@ async function updateProgress(maxEnergyForType, chicken_type) {
    if (sendEnergy > maxEnergy && currentEnergy < maxEnergy) {
       let excessEnergy = sendEnergy - maxEnergy;
 
-      const resultmsb = await showMessageBox("If you feed it this Chicken\nyou'll waste " + excessEnergy +" energy.\nAre you sure?",chicken_type,maxEnergyForType);
+      const resultmsb = await showMessageBox("If you feed it this Chicken\nyou'll waste " + excessEnergy + " energy.\nAre you sure?", chicken_type, maxEnergyForType);
       if (resultmsb) {
          feedEnergy(maxEnergyForType);
          return true;
@@ -156,7 +185,7 @@ async function updateProgress(maxEnergyForType, chicken_type) {
       }
 
    } else if (currentEnergy < maxEnergy) {
-      const resultmsb = await showMessageBox("Do you want to use Chicken\nto feed Fox?",chicken_type,maxEnergyForType);
+      const resultmsb = await showMessageBox("Do you want to use Chicken\nto feed Fox?", chicken_type, maxEnergyForType);
       if (resultmsb) {
          feedEnergy(maxEnergyForType);
          return true;
@@ -174,9 +203,10 @@ commonBtn.addEventListener('click', async () => {
    let commonItemCount = Number(commonItemElement.textContent);
    if (commonItemCount > 0) {
       let commonEnergy = 5;
-      const commonFeed = await updateProgress(commonEnergy,'common');
+      const commonFeed = await updateProgress(commonEnergy, 'common');
       if (commonFeed) {
          commonItemElement.textContent = commonItemCount - 1;
+         showToast('Feed fox successfuly!', true)
       }
    } else {
       showToast('You have no common chicken');
@@ -187,9 +217,10 @@ rareBtn.addEventListener('click', async () => {
    let rareItemCount = Number(rareItemElement.textContent);
    if (rareItemCount > 0) {
       let rareEnergy = 20;
-      const rareFeed = await updateProgress(rareEnergy,'rare');
+      const rareFeed = await updateProgress(rareEnergy, 'rare');
       if (rareFeed) {
          rareItemElement.textContent = rareItemCount - 1;
+         showToast('Feed fox successfuly!', true)
       }
    } else {
       showToast('You have no rare chicken');
@@ -200,9 +231,10 @@ epicBtn.addEventListener('click', async () => {
    let epicItemCount = Number(epicItemElement.textContent);
    if (epicItemCount > 0) {
       let epicEnergy = 60;
-      const epicFeed = await updateProgress(epicEnergy,'epic');
+      const epicFeed = await updateProgress(epicEnergy, 'epic');
       if (epicFeed) {
          epicItemElement.textContent = epicItemCount - 1;
+         showToast('Feed fox successfuly!', true)
       }
    } else {
       showToast('You have no epic chicken');
@@ -213,9 +245,10 @@ legendaryBtn.addEventListener('click', async () => {
    let legendaryItemCount = Number(legendaryItemElement.textContent);
    if (legendaryItemCount > 0) {
       let legendaryEnergy = 180;
-      const legendaryFeed = await updateProgress(legendaryEnergy,'legendary');
+      const legendaryFeed = await updateProgress(legendaryEnergy, 'legendary');
       if (legendaryFeed) {
          legendaryItemElement.textContent = legendaryItemCount - 1;
+         showToast('Feed fox successfuly!', true)
       }
    } else {
       showToast('You have no legendary chicken');
@@ -226,9 +259,10 @@ mythicBtn.addEventListener('click', async () => {
    let mythicItemCount = Number(mythicItemElement.textContent);
    if (mythicItemCount > 0) {
       let mythicEnergy = 420;
-      const mythicFeed = await updateProgress(mythicEnergy,'mythic');
+      const mythicFeed = await updateProgress(mythicEnergy, 'mythic');
       if (mythicFeed) {
          mythicItemElement.textContent = mythicItemCount - 1;
+         showToast('Feed fox successfuly!', true)
       }
    } else {
       showToast('You have no mythic chicken');
@@ -237,11 +271,11 @@ mythicBtn.addEventListener('click', async () => {
 
 startCatchingbtn.addEventListener('click', () => {
    if (currentEnergy > 0 && !isCatching) {
-      showToast("Start catching successfuly!", true)
+      showToast("Start catching successfully!", true);
       isCatching = true;
       startCatchingbtn.disabled = true;
       startCatchingbtn.style.backgroundColor = 'grey';
-      let countdown = 60;
+      let countdown = 1;
       const interval = setInterval(() => {
          if (countdown <= 0) {
             clearInterval(interval);
@@ -249,10 +283,13 @@ startCatchingbtn.addEventListener('click', () => {
             startCatchingbtn.style.backgroundColor = 'green';
             startCatchingbtn.innerText = 'Claim';
          } else {
-            startCatchingbtn.innerText = `Catching(${Math.floor(countdown / 60)}:${(countdown % 60).toString().padStart(2, '0')})`;
+            const hours = Math.floor(countdown / 3600);
+            const minutes = Math.floor((countdown % 3600) / 60);
+            const seconds = countdown % 60;
+            startCatchingbtn.innerText = `Catching(${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')})`;
             countdown--;
          }
-      }, 1);
+      }, 1000);
    } else if (startCatchingbtn.innerText === 'Claim') {
       const energyValue = Number(currentEnergys_.textContent);
       const pointsEarned = Math.floor(Math.random() * (energyValue / 2)) + energyValue * 2;
@@ -280,7 +317,12 @@ startCatchingbtn.addEventListener('click', () => {
 const upgradefox_btn = document.getElementById('upgrade-btn');
 
 upgradefox_btn.addEventListener('click', () => {
-   console.log("Before upgrade - Points: " + points + " / CurrentLeg: " + currentLeg + " / MaxLeg: " + maxLeg);
+   let upgrade_fee = maxLeg;
+   showMessageBox2("It requires "+upgrade_fee+" Legs")
+
+});
+
+function foxnextlevel() {
 
    if (currentLeg >= maxLeg) {
       points = Math.max(points - maxLeg);
@@ -299,10 +341,9 @@ upgradefox_btn.addEventListener('click', () => {
       currentLegElement.textContent = currentLeg;
       legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
 
-      console.log("After upgrade - Points: " + points + " / CurrentLeg: " + currentLeg + " / MaxLeg: " + maxLeg);
-
-      alert("Upgrade successful! You are now at level " + g_level);
+      showToast("Upgrade successful to level " + g_level, true);
    } else {
-      alert("You need to reach the maximum leg to upgrade.");
+      showToast("You need to reach the maximum leg to upgrade.");
    }
-});
+
+}

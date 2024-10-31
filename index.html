@@ -24,8 +24,14 @@
       border-radius: 8px;
       font-size: 1rem;
       animation: fadeIn 0.3s ease-out;
+      height: 45px;
    }
-
+   .toast-body{
+      height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+   }
    /* Background color and text color */
    #toastAlert.text-bg-primary {
       background-color: #cdfbcb !important;
@@ -117,6 +123,9 @@
          padding: 2px 0px 10px 0px;
       }
 
+
+
+
       #noButton {
          background-color: white !important;
          color: #222222 !important;
@@ -138,6 +147,32 @@
          width: 100%;
       }
 
+
+
+      #noButton1 {
+         background-color: white !important;
+         color: #222222 !important;
+         border: solid 1px #222222 !important;
+      }
+
+      #noButton1:active {
+         transform: scale(0.95);
+         transition: transform 0.1s;
+      }
+
+      #yesButton1:active {
+         transform: scale(0.95);
+         transition: transform 0.1s;
+      }
+
+      #yesButton1,
+      #noButton1 {
+         width: 100%;
+      }
+
+
+
+
       .msg-btns {
          width: 100%;
          display: flex;
@@ -152,7 +187,7 @@
          /* Maintains aspect ratio */
       }
 
-      #chikenType {
+      #chickenType {
          text-transform: capitalize;
          font-size: 18px;
          font-weight: 700;
@@ -165,15 +200,22 @@
          padding: 0px 20px 0px 20px !important;
          margin: 10px;
          width: 100% !important;
+         font-weight: 700 !important;
+
+      }
+      .title{
+         margin: 10px !important;
       }
    </style>
 
+
+<!-- first message-box -->
    <div id="messageBox" class="message-box">
 
       <div class="messagecontent">
 
-         <p id="chikenType"></p>
-         <img id="chicken-msg-img" class="chickenimgs" src="" alt="no">
+         <p id="chickenType"></p>
+         <img id="chicken-msg-img" class="chickenimgs" src="">
          <p id="messageText">
          </p>
          <div class="msg-btns">
@@ -182,6 +224,38 @@
          </div>
       </div>
    </div>
+
+
+<!-- secondary message-box-->
+
+
+<div id="messageBox1" class="message-box">
+   <div class="messagecontent">
+      <p class="title">Do you want to level up?</p>
+      <p id="messageText1">
+         
+      </p>
+      <div class="msg-btns">
+         <button id="noButton1" onclick="handleNo()">Cancel</button>
+         <button id="yesButton1" onclick="handleYes()">Confirm</button>
+      </div>
+   </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    <div id="loading">
@@ -229,7 +303,7 @@
                      <div class="legpointtop">
                         <img src="svg/legs.svg" alt="">
                         &nbsp;
-                        <span class="points" id="points">0</span>
+                        <span class="points" id="points">1000</span>
                      </div>
                   </div>
                </div>
@@ -368,7 +442,7 @@
             <div class="item">
                <span class="item-progress"><img src="svg/legs.svg" alt="" srcset=""> Legs</span>
 
-               <span class="item-progress"><span id="currentLeg">0</span>/<span id="maxleg">30</span></span>
+               <span class="item-progress"><span id="currentLeg"></span>/<span id="maxleg">30</span></span>
 
             </div>
             <div class="progress-bar">
