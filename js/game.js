@@ -40,12 +40,10 @@ const upgrade_time = document.getElementById('upgradeTime');
 upgrade_time.textContent = upgradeTimeFormatted;
 
 
-// message box
-
 async function showMessageBox(message, chicken_type, energyAmount) {
    return new Promise((resolve) => {
-      const chickenTypes = document.getElementById('chickenType').textContent = chicken_type + " / " + energyAmount + " Energy";
-      const chickenmsg = document.getElementById('chicken-msg-img').src = "svg/" + chicken_type + ".svg";
+      document.getElementById('chickenType').textContent = `${chicken_type} / ${energyAmount} Energy`;
+      document.getElementById('chicken-msg-img').src = `svg/${chicken_type}.svg`;
       const messageBox = document.getElementById('messageBox');
       const messageText = document.getElementById('messageText');
 
@@ -53,12 +51,28 @@ async function showMessageBox(message, chicken_type, energyAmount) {
       messageBox.style.display = 'flex';
       document.body.classList.add('no-scroll');
 
-      // Attach event listeners for Yes and No buttons
-      document.getElementById('yesButton').onclick = function () {
+      const yesButton = document.getElementById('yesButton');
+
+      yesButton.onclick = async function () {
+         const spinner = document.createElement('div');
+         spinner.classList.add('button-spinner');
+         yesButton.appendChild(spinner);
+      
+         yesButton.disabled = true;
+         yesButton.style.opacity = '0.5';
+         yesButton.style.pointerEvents = 'none';
+      
+         await new Promise(r => setTimeout(r, 2000));
+      
+         yesButton.removeChild(spinner);
+         yesButton.disabled = false;
+         yesButton.style.opacity = '1';
+         yesButton.style.pointerEvents = 'auto';
+      
          resolve(true);
          closeMessageBox();
       };
-
+      
       document.getElementById('noButton').onclick = function () {
          resolve(false);
          closeMessageBox();
@@ -69,13 +83,11 @@ async function showMessageBox(message, chicken_type, energyAmount) {
 function closeMessageBox() {
    document.getElementById('messageBox').style.display = 'none';
    document.body.classList.remove('no-scroll');
-
 }
 
 // end of message box
 
 // message box 2
-
 function showMessageBox2(message) {
    const messageText1 = document.getElementById('messageText1');
    const messageBox1 = document.getElementById('messageBox1');
@@ -84,14 +96,28 @@ function showMessageBox2(message) {
    messageBox1.style.display = 'flex';
    document.body.classList.add('no-scroll');
 
-   // Attach event listeners for Yes and No buttons
-   document.getElementById('yesButton1').onclick = function () {
-      foxnextlevel()
+   const yesButton1 = document.getElementById('yesButton1');
+   yesButton1.onclick = async function () {
+      const spinner = document.createElement('div');
+      spinner.classList.add('button-spinner');
+      yesButton1.appendChild(spinner); 
+
+      yesButton1.disabled = true;
+      yesButton1.style.opacity = '0.5';
+      yesButton1.style.pointerEvents = 'none';
+
+      await new Promise((r) => setTimeout(r, 2000));
+      
+      foxnextlevel();
       closeMessageBox1();
+
+      yesButton1.removeChild(spinner);
+      yesButton1.disabled = false;
+      yesButton1.style.opacity = '1';
+      yesButton1.style.pointerEvents = 'auto';
    };
 
    document.getElementById('noButton1').onclick = function () {
-
       closeMessageBox1();
    };
 }
@@ -101,7 +127,6 @@ function closeMessageBox1() {
    document.body.classList.remove('no-scroll');
 }
 
-
 // end of messageBox 2
 
 
@@ -110,34 +135,26 @@ function closeMessageBox1() {
 const toastColor = document.getElementById('toastAlert');
 const toastElement = document.getElementById('toastAlert');
 const toastMessage = document.getElementById('toastMessage');
-const toast = new bootstrap.Toast(toastElement, { delay: 2000 }); // 2-second delay
+const toast = new bootstrap.Toast(toastElement, { delay: 2000 }); 
 
-// Function to show toast with custom message
 function showToast(message, status = false) {
    const toastColor = document.getElementById('toastAlert');
-   const toastMessage = document.getElementById('toastMessage'); // Get the toast message element
-   const iconElement = toastColor.querySelector('.d-flex i'); // Select the icon element within the toast
+   const toastMessage = document.getElementById('toastMessage'); 
+   const iconElement = toastColor.querySelector('.d-flex i'); 
 
    if (status) {
-      // If status is true, set the success styles
-      toastColor.style.setProperty('background-color', '#cdfbcb', 'important'); // Change background to light green
-      toastColor.style.setProperty('color', '#017909', 'important'); // Change text color to dark green
-      iconElement.className = 'bi bi-check-circle-fill'; // Change icon to check circle
+      toastColor.style.setProperty('background-color', '#cdfbcb', 'important'); 
+      toastColor.style.setProperty('color', '#017909', 'important');
+      iconElement.className = 'bi bi-check-circle-fill'; 
    } else {
-      // If status is false, set the error styles
-      toastColor.style.setProperty('background-color', '#fbcbcb', 'important'); // Change background to light red
-      toastColor.style.setProperty('color', '#9e0000', 'important'); // Change text color to dark red
-      iconElement.className = 'bi bi-dash-circle-fill'; // Change icon to dash circle
+      toastColor.style.setProperty('background-color', '#fbcbcb', 'important'); 
+      toastColor.style.setProperty('color', '#9e0000', 'important'); 
+      iconElement.className = 'bi bi-dash-circle-fill';
    }
 
-   toastMessage.textContent = message; // Set the toast message
-   toast.show(); // Show the toast
+   toastMessage.textContent = message; 
+   toast.show();
 }
-
-// Example usage:
-// showToast("This is a custom alert message!");
-
-
 
 
 

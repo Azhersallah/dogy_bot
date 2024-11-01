@@ -142,9 +142,20 @@
          transition: transform 0.1s;
       }
 
+      /* Disable styles for yesButton */
+      #yesButton:disabled {
+         pointer-events: none; /* Makes it unclickable */
+         opacity: 0.5; /* Lower opacity */
+         cursor: not-allowed; /* Change cursor to indicate it's disabled */
+         transition: opacity 0.3s; /* Smooth opacity transition */
+      }
+
       #yesButton,
       #noButton {
          width: 100%;
+         display: flex;
+         justify-content: center;
+         align-items: center;
       }
 
 
@@ -205,6 +216,29 @@
       .title{
          margin: 10px !important;
       }
+      #yesButton1{
+         display: flex;
+         justify-content: center;
+         align-items: center;
+      }
+
+/* Spinner styles */
+.button-spinner {
+   border: 2px solid transparent;
+   border-top-color: #ffffff;
+   border-radius: 50%;
+   width: 16px;
+   height: 16px;
+   margin-left: 8px; /* Space between text and spinner */
+   display: inline-block;
+   animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+   from { transform: rotate(0deg); }
+   to { transform: rotate(360deg); }
+}
+
    </style>
 
 
@@ -236,26 +270,13 @@
       </p>
       <div class="msg-btns">
          <button id="noButton1" onclick="handleNo()">Cancel</button>
-         <button id="yesButton1" onclick="handleYes()">Confirm</button>
+         <button id="yesButton1" onclick="handleYes()">Upgrade</button>
       </div>
    </div>
 </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\
 
    <div id="loading">
       <img src="img/foxload.gif" alt="">
