@@ -14,6 +14,8 @@ const epicBtn = document.getElementById('epic-chicken');
 const legendaryBtn = document.getElementById('legendary-chicken');
 const mythicBtn = document.getElementById('mythic-chicken');
 const startCatchingbtn = document.getElementById('start-catching');
+const newChicken = document.getElementById('time-value');
+const Chicken_Arrive = document.getElementById('chickenArrive');
 let isCatching = false;
 let currentEnergys_ = document.getElementById('current-energy');
 let currentEnergy = Number(currentEnergys_.textContent);
@@ -39,6 +41,7 @@ const upgradeTimeFormatted = `${hours}:${minutes}:${seconds}`;
 const upgrade_time = document.getElementById('upgradeTime');
 upgrade_time.textContent = upgradeTimeFormatted;
 
+const fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
 
 async function showMessageBox(message, chicken_type, energyAmount) {
    return new Promise((resolve) => {
@@ -161,12 +164,13 @@ function showToast(message, status = false) {
 let currentLeg = Math.min(points, maxLeg);
 currentLegElement.textContent = currentLeg;
 legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+let isUpgrading = false; // State variable to track if an upgrade is in progress
 
 function foxUpgrade() {
    const currentLeg = Number(currentLegElement.textContent);
    const maxLeg = Number(document.getElementById('maxleg').textContent);
 
-   if (currentLeg >= maxLeg) {
+   if (currentLeg >= maxLeg && !isUpgrading) {
       document.getElementById('foxUpgrade').style.display = 'flex';
    } else {
       document.getElementById('foxUpgrade').style.display = 'none';
@@ -334,33 +338,113 @@ const upgradefox_btn = document.getElementById('upgrade-btn');
 
 upgradefox_btn.addEventListener('click', () => {
    let upgrade_fee = maxLeg;
-   showMessageBox2("It requires "+upgrade_fee+" Legs")
+   let fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
+
+   showMessageBox2("It requires "+upgrade_fee+" Legs\nUpgrade time: "+fox_time_level_up)
 
 });
 
 function foxnextlevel() {
 
    if (currentLeg >= maxLeg) {
+      showToast('Fox upgrading has started!',true)
       points = Math.max(points - maxLeg);
       pointElement.textContent = points;
+      let fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
+      let countdownTime = parseTimeToSeconds(fox_time_level_up); // Convert to seconds
+    
+      isUpgrading = true; // Set upgrading status to true
 
-      g_level += 1;
-      myLevel.textContent = g_level;
-
-      maxEnergy = g_level * 5;
-      document.getElementById('max-energy').textContent = maxEnergy;
-
-      maxLeg = (g_level + 5) * 10;
-      document.getElementById('maxleg').textContent = maxLeg;
-
-      currentLeg = Math.min(points, maxLeg);
-      currentLegElement.textContent = currentLeg;
-      legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
-      progress = (currentEnergy / maxEnergy) * 100;
-      progressBar.style.width = progress + '%';
-      showToast("Upgrade successful to level " + g_level, true);
-   } else {
+      // Start the countdown timer
+      startCountdown(countdownTime);
+  } else {
       showToast("You need to reach the maximum leg to upgrade.");
-   }
+  }
+  
+  // Function to parse the "HH:MM:SS" format to seconds
+  function parseTimeToSeconds(timeString) {
+      const [hours, minutes, seconds] = timeString.split(':').map(Number);
+      return hours * 3600 + minutes * 60 + seconds;
+  }
+  
+  // Countdown timer function
+  function startCountdown(duration) {
+      let timeLeft = duration;
+  
+      const countdownInterval = setInterval(() => {
+          timeLeft--;
+  
+          // Update the `upgrade_time` element's text content with the new time
+          const hours = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
+          const minutes = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
+          const seconds = (timeLeft % 60).toString().padStart(2, '0');
+          upgrade_time.textContent = `${hours}:${minutes}:${seconds}`;
+  
+          // When countdown ends, clear interval and trigger the next action
+          if (timeLeft <= 0) {
+              clearInterval(countdownInterval);
+              upgrade_time.textContent = "00:00:00"; // Optional: reset to zero
+              performNextAction(); // Call the function for the next action
+          }
+      }, 1000);
+  }
+  
+  // Function for the next action after countdown ends
+  function performNextAction() {
+  isUpgrading = false; // Reset upgrading status to false
+
+
+   g_level += 1;
+   myLevel.textContent = g_level;
+
+   maxEnergy = g_level * 5;
+   document.getElementById('max-energy').textContent = maxEnergy;
+
+   maxLeg = (g_level + 5) * 10;
+   document.getElementById('maxleg').textContent = maxLeg;
+
+   currentLeg = Math.min(points, maxLeg);
+   currentLegElement.textContent = currentLeg;
+   legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+   progress = (currentEnergy / maxEnergy) * 100;
+   progressBar.style.width = progress + '%';
+
+   showToast("Upgrade successful to level " + g_level, true);
+
+
+  }
 
 }
+
+// new Chicken arrived
+function startChickenCountdown() {
+   // Get the initial time value in the format "HH:MM:SS"
+   let timeValue = newChicken.textContent; // e.g., "03:00:00"
+   let countdownTime = parseTimeToSeconds(timeValue); // Convert to seconds
+
+   // Start the countdown
+   const countdownInterval = setInterval(() => {
+       if (countdownTime <= 0) {
+           clearInterval(countdownInterval);
+           newChicken.textContent = "00:00:00"; // Reset to zero
+           showToast("New chicken is arrived!", true); // Show toast message when complete
+           Chicken_Arrive.style.display="flex";
+       } else {
+           countdownTime--;
+
+           // Update the `newChicken` element's text content with the new time
+           const hours = Math.floor(countdownTime / 3600).toString().padStart(2, '0');
+           const minutes = Math.floor((countdownTime % 3600) / 60).toString().padStart(2, '0');
+           const seconds = (countdownTime % 60).toString().padStart(2, '0');
+           newChicken.textContent = `${hours}:${minutes}:${seconds}`;
+       }
+   }, 1000);
+}
+
+// Function to parse the "HH:MM:SS" format to seconds
+function parseTimeToSeconds(timeString) {
+   const [hours, minutes, seconds] = timeString.split(':').map(Number);
+   return hours * 3600 + minutes * 60 + seconds;
+}
+
+startChickenCountdown();

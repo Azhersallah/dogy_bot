@@ -502,3 +502,211 @@ span {
 .message-box button:hover {
   background-color: #0056b3;
 }
+
+/* Style for the toast container */
+#toastAlert {
+  width: 100%;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  animation: fadeIn 0.3s ease-out;
+  height: 45px;
+}
+.toast-body{
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* Background color and text color */
+#toastAlert.text-bg-primary {
+  background-color: #cdfbcb !important;
+  color: #017909 !important;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+     opacity: 0;
+     transform: translateY(-20px);
+  }
+
+  to {
+     opacity: 1;
+     transform: translateY(0);
+  }
+}
+
+/* Toast body styling */
+#toastMessage {
+  font-weight: 500;
+  text-align: center;
+}
+
+.fixToast {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+}
+
+.Toasts {
+  width: 80% !important;
+}
+
+.toast-body i {
+  margin-bottom: 2px;
+}
+
+.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
+
+.message-box {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #00000079;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 35px !important;
+  z-index: 1000;
+
+}
+
+.messagecontent {
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 15px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.558);
+  width: 100%;
+  height: fit-content;
+  padding: 2px 0px 10px 0px;
+}
+
+
+
+
+#noButton {
+  background-color: white !important;
+  color: #222222 !important;
+  border: solid 1px #222222 !important;
+}
+
+#noButton:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+#yesButton:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+/* Disable styles for yesButton */
+#yesButton:disabled {
+  pointer-events: none; /* Makes it unclickable */
+  opacity: 0.5; /* Lower opacity */
+  cursor: not-allowed; /* Change cursor to indicate it's disabled */
+  transition: opacity 0.3s; /* Smooth opacity transition */
+}
+
+#yesButton,
+#noButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+#noButton1 {
+  background-color: white !important;
+  color: #222222 !important;
+  border: solid 1px #222222 !important;
+}
+
+#noButton1:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+#yesButton1:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+#yesButton1,
+#noButton1 {
+  width: 100%;
+}
+
+
+
+
+.msg-btns {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 20px 0px 20px !important;
+}
+
+.messagecontent img {
+  max-width: 150px;
+  /* Optional: Set a max width to prevent it from getting too large */
+  /* Maintains aspect ratio */
+}
+
+#chickenType {
+  text-transform: capitalize;
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 15px;
+  margin-bottom: 3px;
+}
+
+#messageText {
+  text-align: center !important;
+  padding: 0px 20px 0px 20px !important;
+  margin: 10px;
+  width: 100% !important;
+
+}
+.title{
+  margin: 10px !important;
+}
+#yesButton1{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Spinner styles */
+.button-spinner {
+border: 2px solid transparent;
+border-top-color: #ffffff;
+border-radius: 50%;
+width: 16px;
+height: 16px;
+margin-left: 8px; /* Space between text and spinner */
+display: inline-block;
+animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+
+#messageText1{
+text-align: center !important;
+}
