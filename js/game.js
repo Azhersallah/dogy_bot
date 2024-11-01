@@ -181,7 +181,6 @@ foxUpgrade();
 
 
 function feedEnergy(maxEnergyForType) {
-   let progressIncrement = (maxEnergyForType / maxEnergy) * 100;
    currentEnergy = Math.min(currentEnergy + maxEnergyForType, maxEnergy);
    let progress = (currentEnergy / maxEnergy) * 100;
    progressBar.style.width = progress + '%';
@@ -357,7 +356,8 @@ function foxnextlevel() {
       currentLeg = Math.min(points, maxLeg);
       currentLegElement.textContent = currentLeg;
       legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
-
+      progress = (currentEnergy / maxEnergy) * 100;
+      progressBar.style.width = progress + '%';
       showToast("Upgrade successful to level " + g_level, true);
    } else {
       showToast("You need to reach the maximum leg to upgrade.");
