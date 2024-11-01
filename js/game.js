@@ -60,22 +60,22 @@ async function showMessageBox(message, chicken_type, energyAmount) {
          const spinner = document.createElement('div');
          spinner.classList.add('button-spinner');
          yesButton.appendChild(spinner);
-      
+
          yesButton.disabled = true;
          yesButton.style.opacity = '0.5';
          yesButton.style.pointerEvents = 'none';
-      
+
          await new Promise(r => setTimeout(r, 2000));
-      
+
          yesButton.removeChild(spinner);
          yesButton.disabled = false;
          yesButton.style.opacity = '1';
          yesButton.style.pointerEvents = 'auto';
-      
+
          resolve(true);
          closeMessageBox();
       };
-      
+
       document.getElementById('noButton').onclick = function () {
          resolve(false);
          closeMessageBox();
@@ -103,14 +103,14 @@ function showMessageBox2(message) {
    yesButton1.onclick = async function () {
       const spinner = document.createElement('div');
       spinner.classList.add('button-spinner');
-      yesButton1.appendChild(spinner); 
+      yesButton1.appendChild(spinner);
 
       yesButton1.disabled = true;
       yesButton1.style.opacity = '0.5';
       yesButton1.style.pointerEvents = 'none';
 
       await new Promise((r) => setTimeout(r, 2000));
-      
+
       foxnextlevel();
       closeMessageBox1();
 
@@ -138,24 +138,24 @@ function closeMessageBox1() {
 const toastColor = document.getElementById('toastAlert');
 const toastElement = document.getElementById('toastAlert');
 const toastMessage = document.getElementById('toastMessage');
-const toast = new bootstrap.Toast(toastElement, { delay: 2000 }); 
+const toast = new bootstrap.Toast(toastElement, { delay: 2000 });
 
 function showToast(message, status = false) {
    const toastColor = document.getElementById('toastAlert');
-   const toastMessage = document.getElementById('toastMessage'); 
-   const iconElement = toastColor.querySelector('.d-flex i'); 
+   const toastMessage = document.getElementById('toastMessage');
+   const iconElement = toastColor.querySelector('.d-flex i');
 
    if (status) {
-      toastColor.style.setProperty('background-color', '#cdfbcb', 'important'); 
+      toastColor.style.setProperty('background-color', '#cdfbcb', 'important');
       toastColor.style.setProperty('color', '#017909', 'important');
-      iconElement.className = 'bi bi-check-circle-fill'; 
+      iconElement.className = 'bi bi-check-circle-fill';
    } else {
-      toastColor.style.setProperty('background-color', '#fbcbcb', 'important'); 
-      toastColor.style.setProperty('color', '#9e0000', 'important'); 
+      toastColor.style.setProperty('background-color', '#fbcbcb', 'important');
+      toastColor.style.setProperty('color', '#9e0000', 'important');
       iconElement.className = 'bi bi-dash-circle-fill';
    }
 
-   toastMessage.textContent = message; 
+   toastMessage.textContent = message;
    toast.show();
 }
 
@@ -295,7 +295,7 @@ startCatchingbtn.addEventListener('click', () => {
       isCatching = true;
       startCatchingbtn.disabled = true;
       startCatchingbtn.style.backgroundColor = 'grey';
-      let countdown = 1;
+      let countdown = 10;
       const interval = setInterval(() => {
          if (countdown <= 0) {
             clearInterval(interval);
@@ -340,104 +340,139 @@ upgradefox_btn.addEventListener('click', () => {
    let upgrade_fee = maxLeg;
    let fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
 
-   showMessageBox2("It requires "+upgrade_fee+" Legs\nUpgrade time: "+fox_time_level_up)
+   showMessageBox2("It requires " + upgrade_fee + " Legs\nUpgrade time: " + fox_time_level_up)
 
 });
 
 function foxnextlevel() {
 
    if (currentLeg >= maxLeg) {
-      showToast('Fox upgrading has started!',true)
+      showToast('Fox upgrading has started!', true)
       points = Math.max(points - maxLeg);
       pointElement.textContent = points;
       let fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
       let countdownTime = parseTimeToSeconds(fox_time_level_up); // Convert to seconds
-    
+
       isUpgrading = true; // Set upgrading status to true
 
       // Start the countdown timer
       startCountdown(countdownTime);
-  } else {
+   } else {
       showToast("You need to reach the maximum leg to upgrade.");
-  }
-  
-  // Function to parse the "HH:MM:SS" format to seconds
-  function parseTimeToSeconds(timeString) {
+   }
+
+   // Function to parse the "HH:MM:SS" format to seconds
+   function parseTimeToSeconds(timeString) {
       const [hours, minutes, seconds] = timeString.split(':').map(Number);
       return hours * 3600 + minutes * 60 + seconds;
-  }
-  
-  // Countdown timer function
-  function startCountdown(duration) {
+   }
+
+   // Countdown timer function
+   function startCountdown(duration) {
       let timeLeft = duration;
-  
+
       const countdownInterval = setInterval(() => {
-          timeLeft--;
-  
-          // Update the `upgrade_time` element's text content with the new time
-          const hours = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
-          const minutes = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
-          const seconds = (timeLeft % 60).toString().padStart(2, '0');
-          upgrade_time.textContent = `${hours}:${minutes}:${seconds}`;
-  
-          // When countdown ends, clear interval and trigger the next action
-          if (timeLeft <= 0) {
-              clearInterval(countdownInterval);
-              upgrade_time.textContent = "00:00:00"; // Optional: reset to zero
-              performNextAction(); // Call the function for the next action
-          }
+         timeLeft--;
+
+         // Update the `upgrade_time` element's text content with the new time
+         const hours = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
+         const minutes = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
+         const seconds = (timeLeft % 60).toString().padStart(2, '0');
+         upgrade_time.textContent = `${hours}:${minutes}:${seconds}`;
+
+         // When countdown ends, clear interval and trigger the next action
+         if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            upgrade_time.textContent = "00:00:00"; // Optional: reset to zero
+            performNextAction(); // Call the function for the next action
+         }
       }, 1000);
-  }
-  
-  // Function for the next action after countdown ends
-  function performNextAction() {
-  isUpgrading = false; // Reset upgrading status to false
+   }
+
+   // Function for the next action after countdown ends
+   function performNextAction() {
+      isUpgrading = false; // Reset upgrading status to false
 
 
-   g_level += 1;
-   myLevel.textContent = g_level;
+      g_level += 1;
+      myLevel.textContent = g_level;
 
-   maxEnergy = g_level * 5;
-   document.getElementById('max-energy').textContent = maxEnergy;
+      maxEnergy = g_level * 5;
+      document.getElementById('max-energy').textContent = maxEnergy;
 
-   maxLeg = (g_level + 5) * 10;
-   document.getElementById('maxleg').textContent = maxLeg;
+      maxLeg = (g_level + 5) * 10;
+      document.getElementById('maxleg').textContent = maxLeg;
 
-   currentLeg = Math.min(points, maxLeg);
-   currentLegElement.textContent = currentLeg;
-   legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
-   progress = (currentEnergy / maxEnergy) * 100;
-   progressBar.style.width = progress + '%';
+      currentLeg = Math.min(points, maxLeg);
+      currentLegElement.textContent = currentLeg;
+      legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+      progress = (currentEnergy / maxEnergy) * 100;
+      progressBar.style.width = progress + '%';
 
-   showToast("Upgrade successful to level " + g_level, true);
+      showToast("Upgrade successful to level " + g_level, true);
 
 
-  }
+   }
 
 }
 
-// new Chicken arrived
+// Define the chicken types with their images and probabilities
+const chickens = [
+   { type: "common", image: "common", probability: 0.5 },
+   { type: "rare", image: "rare", probability: 0.2 },
+   { type: "epic", image: "epic", probability: 0.15 },
+   { type: "legendary", image: "legendary", probability: 0.1 },
+   { type: "mythic", image: "mythic", probability: 0.05 },
+];
+
+// Function to randomly select a chicken image based on defined probabilities
+function getRandomChicken() {
+   const random = Math.random(); // Generate a random number between 0 and 1
+   let cumulativeProbability = 0;
+
+   for (const chicken of chickens) {
+      cumulativeProbability += chicken.probability; // Accumulate the probability
+      if (random < cumulativeProbability) {
+         return chicken.image; // Return the image of the selected chicken type
+      }
+   }
+}
+
+// New chicken arrived function
 function startChickenCountdown() {
+   const imgElement = document.getElementById("claim-chicken");
+   imgElement.style.pointerEvents = "auto";
    // Get the initial time value in the format "HH:MM:SS"
-   let timeValue = newChicken.textContent; // e.g., "03:00:00"
+   let timeValue = "00:01:00";
    let countdownTime = parseTimeToSeconds(timeValue); // Convert to seconds
 
    // Start the countdown
    const countdownInterval = setInterval(() => {
-       if (countdownTime <= 0) {
-           clearInterval(countdownInterval);
-           newChicken.textContent = "00:00:00"; // Reset to zero
-           showToast("New chicken is arrived!", true); // Show toast message when complete
-           Chicken_Arrive.style.display="flex";
-       } else {
-           countdownTime--;
+      if (countdownTime <= 0) {
+         clearInterval(countdownInterval);
+         newChicken.textContent = "00:00:00"; // Reset to zero
 
-           // Update the `newChicken` element's text content with the new time
-           const hours = Math.floor(countdownTime / 3600).toString().padStart(2, '0');
-           const minutes = Math.floor((countdownTime % 3600) / 60).toString().padStart(2, '0');
-           const seconds = (countdownTime % 60).toString().padStart(2, '0');
-           newChicken.textContent = `${hours}:${minutes}:${seconds}`;
-       }
+         // Show toast message when complete
+         showToast("New chicken is arrived!", true);
+         Chicken_Arrive.style.display = "flex";
+
+
+         // Set the new chicken image
+         const newChickenImage = getRandomChicken(); // Get a random chicken image
+         const chickenImageElement = document.getElementById('claim-chicken'); // Select your image element
+         chickenImageElement.src = "svg/" + newChickenImage + ".svg"; // Update the image source
+
+
+
+      } else {
+         countdownTime--;
+
+         // Update the `newChicken` element's text content with the new time
+         const hours = Math.floor(countdownTime / 3600).toString().padStart(2, '0');
+         const minutes = Math.floor((countdownTime % 3600) / 60).toString().padStart(2, '0');
+         const seconds = (countdownTime % 60).toString().padStart(2, '0');
+         newChicken.textContent = `${hours}:${minutes}:${seconds}`;
+      }
    }, 1000);
 }
 
@@ -447,4 +482,42 @@ function parseTimeToSeconds(timeString) {
    return hours * 3600 + minutes * 60 + seconds;
 }
 
+const claimChicken = document.getElementById('claim-chicken');
+const spinnerTest = document.querySelector('.spinnerTest'); // Select the spinnerTest element
+
+claimChicken.addEventListener('click', () => {
+   // Add the spinner class to the spinnerTest element
+   spinnerTest.classList.add('spinner'); // Ensure you have the appropriate CSS for the spinner
+   const imgElement = document.getElementById("claim-chicken");
+   imgElement.style.pointerEvents = "none";
+
+
+   // Use setTimeout to delay the chicken claiming logic
+   setTimeout(() => {
+      startChickenCountdown();
+      showToast("Chicken is Claimed", true); 
+      Chicken_Arrive.style.display = "none";
+      const imgSrc = imgElement.src;
+      const imgName = imgSrc.substring(imgSrc.lastIndexOf("/") + 1);
+      spinnerTest.classList.remove('spinner');
+
+     if (imgName === "common.svg") {
+        let commonItemCounts = Number(commonItemElement.textContent);
+        commonItemElement.textContent = commonItemCounts+ 1;
+    } else if (imgName === "rare.svg") {
+      let rareItemCounts = Number(rareItemElement.textContent);
+        rareItemElement.textContent = rareItemCounts + 1;
+    } else if (imgName === "epic.svg") {
+      let epicItemCounts = Number(epicItemElement.textContent);
+        epicItemElement.textContent = epicItemCounts + 1;
+    } else if (imgName === "legendary.svg") {
+      let legendaryItemCounts = Number(legendaryItemElement.textContent);
+        legendaryItemElement.textContent = legendaryItemCounts + 1;
+    } else if (imgName === "mythic.svg") {
+      let mythicItemCounts = Number(mythicItemElement.textContent);
+        mythicItemElement.textContent = mythicItemCounts + 1;
+    }
+
+   }, 2000); // Delay for 2 seconds
+});
 startChickenCountdown();
