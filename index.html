@@ -15,13 +15,10 @@
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
    <link rel="stylesheet" href="css/new.css">
    <link rel="stylesheet" href="css/loadingscreen.css">
+   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
-
-
 <body>
-
-
    <div class="position-fixed top-0 start-50 translate-middle-x pt-3 Toasts" style="z-index: 1080;">
       <div id="toastAlert" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
          aria-atomic="true">
@@ -32,15 +29,10 @@
          </div>
       </div>
    </div>
-   </div>
-
-
 
    <!-- first message-box -->
    <div id="messageBox" class="message-box">
-
       <div class="messagecontent">
-
          <p id="chickenType"></p>
          <img id="chicken-msg-img" class="chickenimgs" src="">
          <p id="messageText">
@@ -52,15 +44,11 @@
       </div>
    </div>
 
-
    <!-- secondary message-box-->
-
-
    <div id="messageBox1" class="message-box">
       <div class="messagecontent">
          <p class="title">Do you want to level up?</p>
          <p id="messageText1">
-
          </p>
          <div class="msg-btns">
             <button id="noButton1" onclick="handleNo()">Cancel</button>
@@ -69,24 +57,15 @@
       </div>
    </div>
 
-
-
-
    <div id="loading">
       <img src="img/foxload.gif" alt="">
    </div>
-
 
    <!-- Begin page content -->
    <div class="fullContainer">
 
       <!-- Home page -->
       <div id="page-home" class="active legsHome">
-
-
-
-
-
          <div class="btns">
             <div class="game-item">
                <button class="btn-item" onclick=mybagPage() id="mybag">
@@ -106,17 +85,14 @@
             </div>
          </div>
 
-
          <div class="legPoint">
-
             <div class="infos">
                <div class="userInfo">
                   <div class="userPhoto">
-                     <img src="img/profile.jpg" alt="" srcset="">
+                     <img id="user-photo" src="img/profile.jpg" alt="" srcset="">
                   </div>
-
                   <div>
-                     <span class="name">Your Name</span>
+                     <span class="name" id="user-name">Your Name</span>
                      <div class="legpointtop">
                         <img src="svg/legs.svg" alt="">
                         &nbsp;
@@ -125,7 +101,6 @@
                   </div>
                </div>
                <div class="forlevel">
-
                   <h4>Level</h4>
                   <h3 id="level-nubmer">1</h3>
                </div>
@@ -144,18 +119,12 @@
                </div>
                <div class="backenergy">
                   <div class="realEnergy" id="fillEnergy">
-
                   </div>
                </div>
             </div>
-
-
          </div>
 
-
-
          <div class="foxImage" style="width: 100%;">
-
             <div class="foxUpgrade" id="foxUpgrade">
                <button class="upimg" id="upgrade-btn">
                   <img src="svg/upgrade.svg" alt="" srcset=""> Upgrade
@@ -175,57 +144,37 @@
                }
 
                #chickenArrive img {
-
                   padding-top: 30px;
                   width: 100px;
                   animation: pulse 1s ease-in-out infinite;
-                  /* Continuous animation */
                }
 
-               /* Spinner styles */
                .spinner {
                   position: absolute;
                   z-index: 10;
                   margin-top: 40px;
                   width: 20px;
-                  /* Adjust as needed */
                   height: 20px;
-                  /* Adjust as needed */
                   border: 2px solid rgba(29, 29, 29, 0.3);
-                  /* Light color for the spinner */
                   border-top: 2px solid rgba(255, 255, 255, 1);
-                  /* Solid color for the top */
                   border-radius: 50%;
                   animation: spin 1s linear infinite;
-                  /* Continuous spinning animation */
                }
 
-               /* Define the keyframes for the pulsing effect */
                @keyframes pulse {
-
-                  0%,
-                  100% {
+                  0%, 100% {
                      opacity: 0.8;
                      transform: scale(1);
                   }
-
                   50% {
                      opacity: 1;
                      transform: scale(1.01);
                   }
                }
 
-               /* Define the keyframes for the spinning effect */
                @keyframes spin {
-                  0% {
-                     transform: rotate(0deg);
-                     /* Start at 0 degrees */
-                  }
-
-                  100% {
-                     transform: rotate(360deg);
-                     /* Rotate to 360 degrees */
-                  }
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
                }
             </style>
 
@@ -234,20 +183,16 @@
                <img id="claim-chicken" src="" alt="">
             </div>
 
-
             <img src="svg/fox.svg" alt="">
 
             <div class="next-chicken">
                <span class="item-progress">Next in:</span>
                <span id="time-value">00:00:30</span>
             </div>
-
          </div>
 
          <div class="upgrade-card">
-
             <div class="listofchicken">
-
                <div class="chicken" id="Common">
                   <div class="energy">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-fire" viewBox="0 0 16 16">
@@ -276,7 +221,6 @@
                   <span class="itemnum">x<span id="rare_item">1</span></span>
                </div>
 
-
                <div class="chicken" id="epic">
                   <div class="energy">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-fire" viewBox="0 0 16 16">
@@ -291,9 +235,7 @@
                   <span class="itemnum">x<span id="epic_item">1</span></span>
                </div>
 
-
                <div class="chicken" id="legendary">
-
                   <div class="energy">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-fire" viewBox="0 0 16 16">
                         <path
@@ -307,9 +249,7 @@
                   <span class="itemnum">x<span id="legendary_item">1</span></span>
                </div>
 
-
                <div class="chicken" id="mythic">
-
                   <div class="energy">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-fire" viewBox="0 0 16 16">
                         <path
@@ -322,53 +262,33 @@
                   </button>
                   <span class="itemnum">x<span id="mythic_item">0</span></span>
                </div>
-
-
             </div>
 
             <div class="item">
                <span class="item-progress"><img src="svg/legs.svg" alt="" srcset=""> Legs</span>
-
                <span class="item-progress"><span id="currentLeg"></span>/<span id="maxleg">30</span></span>
-
             </div>
             <div class="progress-bar">
                <div class="progress" id="legProgress"></div>
             </div>
             <div class="growing-time">
-
                <div class="upgrade">
                   <span class="item-progress">Upgrade time:</span>
                   <span id="upgradeTime">03:10:03</span>
                </div>
-
-
-
             </div>
          </div>
-
-
-
 
          <div class="startCatching">
             <button id="start-catching">Start Catching</button>
          </div>
-
-
-
       </div>
       <!-- end of home -->
 
-
-
       <!-- task page -->
       <div id="page-feed" class="inactive legsTask">
-
          <h1>Tasks</h1>
-
-
       </div>
-
 
       <!-- leaderboard page -->
       <div id="page-create" class="inactive legsLeaderboard">
@@ -379,44 +299,38 @@
       <div id="page-account" class="inactive legsFriends">
          <h1>Friends</h1>
       </div>
-
-
    </div>
 
    <!-- Bottom Nav Bar -->
    <footer class="footer">
       <div id="buttonGroup" class="btn-group selectors" role="group" aria-label="Basic example">
-
          <button id="home" type="button" class="btn btn-secondary button-active">
             <div class="selector-holder">
                <i class="bi bi-house-fill"></i>
                <span>Home</span>
             </div>
          </button>
-
          <button id="feed" type="button" class="btn btn-secondary button-inactive">
             <div class="selector-holder">
                <i class="bi bi-list-task"></i>
                <span>Tasks</span>
             </div>
          </button>
-
          <button id="create" type="button" class="btn btn-secondary button-inactive">
             <div class="selector-holder">
                <i class="bi bi-person-lines-fill"></i>
                <span>Tops</span>
             </div>
          </button>
-
          <button id="account" type="button" class="btn btn-secondary button-inactive">
             <div class="selector-holder">
                <i class="bi bi-people-fill"></i>
                <span>Friends</span>
             </div>
          </button>
-
       </div>
    </footer>
+
    <!-- Bootstrap core JavaScript -->
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -430,11 +344,6 @@
    <!-- JS needed for this page -->
    <script src="js/main.js"></script>
    <script src="js/game.js"></script>
-
-
-
    <script src="js/loadingscreen.js"></script>
-
 </body>
-
 </html>
