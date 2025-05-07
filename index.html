@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Social Game</title>
+    <style>
+        :root {
+            --primary-color: #2AABEE;
+            --secondary-color: #229ED9;
+            --background: #ffffff;
+            --text-color: #17212B;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-color);
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-area {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .coin {
+            width: 100px;
+            height: 100px;
+            background: #FFD700;
+            border-radius: 50%;
+            margin: 20px auto;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+
+        .coin:active {
+            transform: scale(0.95);
+        }
+
+        .leaderboard {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .invite-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 Coin Collector</h1>
+        <div id="userInfo"></div>
+    </div>
+
+    <div class="game-area">
+        <div class="coin" id="mainCoin">CLICK</div>
+        <div id="scoreDisplay">Score: 0</div>
+    </div>
+
+    <div class="leaderboard">
+        <h2>🏆 Leaderboard</h2>
+        <div id="leaderboardList"></div>
+    </div>
+
+    <div class="invite-section">
+        <button onclick="copyInviteLink()">Invite Friends</button>
+        <p id="inviteMessage"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, push, child, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6-AK8Xf6Wpf3fAIgEzP9htfb38RpmfZQ",
+            authDomain: "test33-f1333.firebaseapp.com",
+            projectId: "test33-f1333",
+            storageBucket: "test33-f1333.firebasestorage.app",
+            messagingSenderId: "1063398052714",
+            appId: "1:1063398052714:web:df7f29879f24f459670b13",
+            measurementId: "G-ZQM7V8XS88"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Telegram Web App initialization
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        let user = null;
+
+        // Get Telegram user data from initData
+        function getTelegramUserData() {
+            const initData = new URLSearchParams(window.location.hash.substr(1));
+            return {
+                id: initData.get('user.id'),
+                username: initData.get('user.username'),
+                first_name: initData.get('user.first_name')
+            };
+        }
+
+        // Initialize user
+        user = getTelegramUserData();
+        document.getElementById('userInfo').innerHTML = `
+            ${user.first_name} (@${user.username})
+        `;
+
+        // User database setup
+        const userRef = ref(db, 'users/' + user.id);
+        const leaderboardRef = ref(db, 'leaderboard');
+
+        // Initialize user data
+        get(userRef).then((snapshot) => {
+            if (!snapshot.exists()) {
+                set(userRef, {
+                    username: user.username,
+                    firstName: user.first_name,
+                    score: 0,
+                    invitedFriends: [],
+                    lastActive: Date.now()
+                });
+            }
+        });
+
+        // Real-time score updates
+        onValue(userRef, (snapshot) => {
+            const userData = snapshot.val();
+            document.getElementById('scoreDisplay').textContent = `Score: ${userData.score}`;
+        });
+
+        // Leaderboard updates
+        onValue(leaderboardRef, (snapshot) => {
+            const leaderboard = snapshot.val() || {};
+            const sorted = Object.values(leaderboard).sort((a, b) => b.score - a.score);
+            const leaderboardHTML = sorted.slice(0, 100).map((user, index) => `
+                <div class="user-item">
+                    <span>${index + 1}. ${user.firstName} (@${user.username})</span>
+                    <span>${user.score} 🪙</span>
+                </div>
+            `).join('');
+            document.getElementById('leaderboardList').innerHTML = leaderboardHTML;
+        });
+
+        // Game logic
+        let clickPower = 1;
+        document.getElementById('mainCoin').addEventListener('click', async () => {
+            const updates = {};
+            updates['score'] = (await get(child(userRef, 'score'))).val() + clickPower;
+            update(userRef, updates);
+            updateLeaderboard();
+        });
+
+        // Leaderboard update
+        function updateLeaderboard() {
+            get(userRef).then((snapshot) => {
+                const userData = snapshot.val();
+                update(ref(db, `leaderboard/${user.id}`), {
+                    username: userData.username,
+                    firstName: userData.first_name,
+                    score: userData.score
+                });
+            });
+        }
+
+        // Invite system
+        function copyInviteLink() {
+            const inviteLink = `https://t.me/YOUR_BOT_USERNAME?start=${user.id}`;
+            navigator.clipboard.writeText(inviteLink);
+            document.getElementById('inviteMessage').textContent = "Invite link copied!";
+            
+            // Track invited users
+            const invitedBy = new URLSearchParams(window.location.search).get('start');
+            if (invitedBy && invitedBy !== user.id) {
+                update(ref(db, `users/${invitedBy}/invitedFriends`), {
+                    [user.id]: true
+                });
+                // Give bonus to inviter
+                update(ref(db, `users/${invitedBy}`), {
+                    score: (await get(child(ref(db, `users/${invitedBy}`), 'score'))).val() + 100
+                });
+            }
+        }
+
+        // Multiplayer challenge system
+        async function challengeUser(friendId) {
+            const challengeRef = push(ref(db, 'challenges'));
+            set(challengeRef, {
+                from: user.id,
+                to: friendId,
+                timestamp: Date.now(),
+                status: 'pending'
+            });
+        }
+
+        // Real-time challenge listener
+        onValue(ref(db, 'challenges'), (snapshot) => {
+            const challenges = snapshot.val() || {};
+            Object.entries(challenges).forEach(([key, challenge]) => {
+                if (challenge.to === user.id && challenge.status === 'pending') {
+                    if (confirm(`@${challenge.fromUsername} challenged you! Accept?`)) {
+                        update(ref(db, `challenges/${key}`), { status: 'accepted' });
+                        startChallenge(challenge.from);
+                    }
+                }
+            });
+        });
+
+        function startChallenge(opponentId) {
+            // Implement real-time challenge logic
+        }
+
+        // Update last active time every minute
+        setInterval(() => {
+            update(userRef, { lastActive: Date.now() });
+        }, 60000);
+    </script>
+</body>
+</html>
