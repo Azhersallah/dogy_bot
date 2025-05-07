@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pet Party - Telegram Social Pet Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --primary: #2AABEE;
@@ -285,6 +286,40 @@
             opacity: 1;
         }
 
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--background);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--text);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
@@ -306,7 +341,12 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading your pet...</div>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
         <div class="header">
             <img id="userPhoto" class="user-photo" src="" alt="User Photo">
             <div class="user-info">
@@ -392,14 +432,14 @@
 
     <div class="notification" id="notification"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, push, child, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC6-AK8Xf6Wpf3fAIgEzP9htfb38RpmfZQ",
             authDomain: "test33-f1333.firebaseapp.com",
+            databaseURL: "https://test33-f1333-default-rtdb.firebaseio.com",
             projectId: "test33-f1333",
             storageBucket: "test33-f1333.appspot.com",
             messagingSenderId: "1063398052714",
@@ -408,34 +448,85 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
+        // Show loading screen initially
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainContent = document.getElementById('mainContent');
+        
         // Telegram WebApp initialization
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Expand the WebApp to full screen
-
-        // Get Telegram user data
-        const user = tg.initDataUnsafe.user || {
-            id: 'default_user',
-            first_name: 'Guest',
-            username: 'guest',
-            photo_url: ''
-        };
-
-        // Display user info
-        document.getElementById('username').textContent = user.first_name;
-        document.getElementById('userPhoto').src = user.photo_url || 'https://via.placeholder.com/60';
+        document.addEventListener("DOMContentLoaded", () => {
+            // Check if Telegram WebApp is available
+            if (window.Telegram && Telegram.WebApp) {
+                // Expand the WebApp to full screen
+                Telegram.WebApp.expand();
+                
+                // Get user data
+                const tg = Telegram.WebApp;
+                const user = tg.initDataUnsafe.user;
+                
+                if (user) {
+                    // Initialize the game with Telegram user data
+                    const game = new VirtualPet(user);
+                    
+                    // After initialization, hide loading screen
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        loadingScreen.addEventListener('transitionend', () => {
+                            loadingScreen.style.display = 'none';
+                            mainContent.style.display = 'block';
+                        }, { once: true });
+                    }, 1500);
+                } else {
+                    // Fallback for non-Telegram users (testing)
+                    const testUser = {
+                        id: 'test_' + Math.random().toString(36).substring(7),
+                        first_name: 'Guest',
+                        username: 'guest',
+                        photo_url: 'https://via.placeholder.com/60'
+                    };
+                    const game = new VirtualPet(testUser);
+                    
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        loadingScreen.addEventListener('transitionend', () => {
+                            loadingScreen.style.display = 'none';
+                            mainContent.style.display = 'block';
+                        }, { once: true });
+                    }, 1500);
+                }
+            } else {
+                // Fallback for non-Telegram environment (testing)
+                console.log("Not running in Telegram WebApp");
+                const testUser = {
+                    id: 'test_' + Math.random().toString(36).substring(7),
+                    first_name: 'Guest',
+                    username: 'guest',
+                    photo_url: 'https://via.placeholder.com/60'
+                };
+                const game = new VirtualPet(testUser);
+                
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    loadingScreen.addEventListener('transitionend', () => {
+                        loadingScreen.style.display = 'none';
+                        mainContent.style.display = 'block';
+                    }, { once: true });
+                }, 1500);
+            }
+        });
 
         // Pet game class
         class VirtualPet {
-            constructor(userId) {
-                this.userId = userId;
-                this.userRef = ref(db, `users/${userId}`);
-                this.petRef = ref(db, `pets/${userId}`);
-                this.leaderboardRef = ref(db, 'leaderboard');
-                this.friendsRef = ref(db, `friends/${userId}`);
-                this.challengesRef = ref(db, 'challenges');
+            constructor(user) {
+                this.user = user;
+                this.userId = user.id;
+                this.userRef = db.ref(`users/${this.userId}`);
+                this.petRef = db.ref(`pets/${this.userId}`);
+                this.leaderboardRef = db.ref('leaderboard');
+                this.friendsRef = db.ref(`friends/${this.userId}`);
+                this.challengesRef = db.ref('challenges');
                 
                 this.state = {
                     name: "Petty",
@@ -450,29 +541,66 @@
                     score: 0
                 };
 
+                // Initialize UI with user data
+                this.initUI();
+                // Initialize game
                 this.init();
+            }
+
+            initUI() {
+                // Display user info
+                document.getElementById('username').textContent = this.user.first_name || this.user.username || 'Player';
+                document.getElementById('userPhoto').src = this.user.photo_url || 'https://via.placeholder.com/60';
+                
+                // Set up button event listeners
+                document.getElementById('feedBtn').addEventListener('click', () => this.performAction('feed'));
+                document.getElementById('playBtn').addEventListener('click', () => this.performAction('play'));
+                document.getElementById('sleepBtn').addEventListener('click', () => this.performAction('sleep'));
+                document.getElementById('cleanBtn').addEventListener('click', () => this.performAction('clean'));
+                document.getElementById('trainBtn').addEventListener('click', () => this.performAction('train'));
+                document.getElementById('challengeBtn').addEventListener('click', () => this.challengeRandomFriend());
+                
+                // Pet click interaction
+                document.getElementById('pet').addEventListener('click', () => {
+                    this.performAction('pet');
+                });
+
+                // Invite friend button
+                document.getElementById('inviteBtn').addEventListener('click', () => {
+                    const inviteLink = `https://t.me/YOUR_BOT_USERNAME?startapp=petgame_${this.userId}`;
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(inviteLink)
+                            .then(() => this.showNotification("Invite link copied! Share with friends!"))
+                            .catch(() => prompt("Copy this invite link to share:", inviteLink));
+                    } else {
+                        prompt("Copy this invite link to share:", inviteLink);
+                    }
+                });
             }
 
             async init() {
                 // Load or create user data
-                const snapshot = await get(this.userRef);
-                if (!snapshot.exists()) {
-                    await set(this.userRef, {
-                        username: user.username,
-                        firstName: user.first_name,
-                        photoUrl: user.photo_url,
+                const userSnapshot = await this.userRef.once('value');
+                if (!userSnapshot.exists()) {
+                    await this.userRef.set({
+                        id: this.user.id,
+                        username: this.user.username,
+                        firstName: this.user.first_name,
+                        lastName: this.user.last_name || '',
+                        photoUrl: this.user.photo_url || '',
                         score: 0,
-                        invitedFriends: [],
-                        lastActive: Date.now()
+                        invitedFriends: {},
+                        lastActive: Date.now(),
+                        joinDate: new Date().toISOString()
                     });
                 }
 
                 // Load or create pet data
-                const petSnapshot = await get(this.petRef);
+                const petSnapshot = await this.petRef.once('value');
                 if (petSnapshot.exists()) {
                     this.state = petSnapshot.val();
                 } else {
-                    await set(this.petRef, this.state);
+                    await this.petRef.set(this.state);
                 }
 
                 // Check for referral
@@ -482,23 +610,30 @@
                 this.setupListeners();
             }
 
-            checkReferral() {
+            async checkReferral() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const referrerId = urlParams.get('ref');
                 
                 if (referrerId && referrerId !== this.userId) {
                     // Add to referrer's invited friends
-                    update(ref(db, `users/${referrerId}/invitedFriends`), {
+                    await db.ref(`users/${referrerId}/invitedFriends`).update({
                         [this.userId]: true
                     });
                     
-                    // Give bonus to both users
-                    update(ref(db, `users/${referrerId}`), {
-                        score: (await get(child(ref(db, `users/${referrerId}`), 'score'))).val() + 100
+                    // Add to current user's friends list
+                    await this.friendsRef.update({
+                        [referrerId]: true
                     });
                     
-                    update(this.userRef, {
-                        score: (await get(child(this.userRef, 'score'))).val() + 50
+                    // Give bonus to both users
+                    const referrerScore = (await db.ref(`users/${referrerId}/score`).once('value')).val() || 0;
+                    await db.ref(`users/${referrerId}`).update({
+                        score: referrerScore + 100
+                    });
+                    
+                    const userScore = (await this.userRef.child('score').once('value')).val() || 0;
+                    await this.userRef.update({
+                        score: userScore + 50
                     });
                     
                     this.showNotification("You got 50 coins for joining through a friend!");
@@ -507,7 +642,7 @@
 
             setupListeners() {
                 // Pet state listener
-                onValue(this.petRef, (snapshot) => {
+                this.petRef.on('value', (snapshot) => {
                     if (snapshot.exists()) {
                         this.state = snapshot.val();
                         this.updateUI();
@@ -515,26 +650,26 @@
                 });
 
                 // User score listener
-                onValue(this.userRef, (snapshot) => {
+                this.userRef.on('value', (snapshot) => {
                     if (snapshot.exists()) {
-                        document.getElementById('userScore').textContent = snapshot.val().score;
+                        document.getElementById('userScore').textContent = snapshot.val().score || 0;
                     }
                 });
 
                 // Friends listener
-                onValue(this.friendsRef, (snapshot) => {
+                this.friendsRef.on('value', (snapshot) => {
                     const friends = snapshot.val() || {};
                     this.displayFriends(friends);
                 });
 
                 // Leaderboard listener
-                onValue(query(this.leaderboardRef, orderByChild('score'), (snapshot) => {
+                this.leaderboardRef.orderByChild('score').limitToLast(100).on('value', (snapshot) => {
                     const leaderboard = snapshot.val() || {};
                     this.displayLeaderboard(leaderboard);
                 });
 
                 // Challenges listener
-                onValue(this.challengesRef, (snapshot) => {
+                this.challengesRef.on('value', (snapshot) => {
                     const challenges = snapshot.val() || {};
                     this.checkChallenges(challenges);
                 });
@@ -553,18 +688,19 @@
                         lastActive: Date.now()
                     };
                     
-                    await update(this.petRef, updates);
+                    await this.petRef.update(updates);
                     
                     // Update leaderboard
-                    await update(ref(db, `leaderboard/${this.userId}`), {
-                        username: user.username,
-                        firstName: user.first_name,
-                        photoUrl: user.photo_url,
-                        score: (await get(child(this.userRef, 'score'))).val()
+                    const userScore = (await this.userRef.child('score').once('value')).val() || 0;
+                    await this.leaderboardRef.child(this.userId).update({
+                        username: this.user.username,
+                        firstName: this.user.first_name,
+                        photoUrl: this.user.photo_url,
+                        score: userScore
                     });
                 } else {
                     // Recover energy while sleeping
-                    await update(this.petRef, {
+                    await this.petRef.update({
                         energy: Math.min(100, this.state.energy + 3),
                         lastActive: Date.now()
                     });
@@ -641,10 +777,15 @@
                         xpGain = 15;
                         scoreGain = 20;
                         break;
+                    case 'pet':
+                        updates.happiness = Math.min(100, this.state.happiness + 5);
+                        xpGain = 2;
+                        scoreGain = 3;
+                        break;
                 }
                 
                 // Update pet state
-                await update(this.petRef, updates);
+                await this.petRef.update(updates);
                 
                 // Add XP and check for level up
                 if (xpGain > 0) {
@@ -659,13 +800,14 @@
                         updates.xp = newXP;
                     }
                     
-                    await update(this.petRef, updates);
+                    await this.petRef.update(updates);
                 }
                 
                 // Add score
                 if (scoreGain > 0) {
-                    await update(this.userRef, {
-                        score: (await get(child(this.userRef, 'score'))).val() + scoreGain
+                    const currentScore = (await this.userRef.child('score').once('value')).val() || 0;
+                    await this.userRef.update({
+                        score: currentScore + scoreGain
                     });
                 }
                 
@@ -680,13 +822,22 @@
                 const friendsList = document.getElementById('friendsList');
                 friendsList.innerHTML = '';
                 
-                if (Object.keys(friends).length === 0) {
-                    friendsList.innerHTML = '<p>No friends yet. Invite some!</p>';
+                if (!friends || Object.keys(friends).length === 0) {
+                    friendsList.innerHTML = '<p style="grid-column: span 2;">No friends yet. Invite some!</p>';
                     return;
                 }
                 
-                for (const friendId in friends) {
-                    const friendData = (await get(ref(db, `users/${friendId}`))).val();
+                const friendIds = Object.keys(friends).filter(id => friends[id] === true);
+                
+                // Fetch friend data in parallel
+                const friendPromises = friendIds.map(friendId => 
+                    db.ref(`users/${friendId}`).once('value')
+                );
+                
+                const friendSnapshots = await Promise.all(friendPromises);
+                
+                friendSnapshots.forEach((snapshot, index) => {
+                    const friendData = snapshot.val();
                     if (friendData) {
                         const friendElement = document.createElement('div');
                         friendElement.className = 'friend-card';
@@ -697,10 +848,10 @@
                                 <p class="friend-score">${friendData.score || 0} 🪙</p>
                             </div>
                         `;
-                        friendElement.addEventListener('click', () => this.challengeFriend(friendId));
+                        friendElement.addEventListener('click', () => this.challengeFriend(friendIds[index]));
                         friendsList.appendChild(friendElement);
                     }
-                }
+                });
             }
 
             async displayLeaderboard(leaderboard) {
@@ -709,7 +860,7 @@
                 
                 const sorted = Object.entries(leaderboard)
                     .map(([id, data]) => ({ id, ...data }))
-                    .sort((a, b) => b.score - a.score)
+                    .sort((a, b) => (b.score || 0) - (a.score || 0))
                     .slice(0, 100);
                 
                 if (sorted.length === 0) {
@@ -729,7 +880,7 @@
                         <img class="friend-photo" src="${player.photoUrl || 'https://via.placeholder.com/40'}" alt="${player.firstName}">
                         <div style="flex: 1;">
                             <p class="friend-name">${player.firstName}</p>
-                            <p class="friend-score">${player.score} 🪙</p>
+                            <p class="friend-score">${player.score || 0} 🪙</p>
                         </div>
                     `;
                     leaderboardElement.appendChild(playerElement);
@@ -737,17 +888,32 @@
             }
 
             async challengeFriend(friendId) {
-                const challengeId = push(this.challengesRef).key;
-                await set(ref(db, `challenges/${challengeId}`), {
+                const challengeRef = this.challengesRef.push();
+                await challengeRef.set({
                     from: this.userId,
                     to: friendId,
                     timestamp: Date.now(),
                     status: 'pending',
-                    fromName: user.first_name,
-                    fromPhoto: user.photo_url
+                    fromName: this.user.first_name,
+                    fromPhoto: this.user.photo_url
                 });
                 
-                this.showNotification(`Challenge sent to ${(await get(ref(db, `users/${friendId}/firstName`))).val()}!`);
+                const friendName = (await db.ref(`users/${friendId}/firstName`).once('value')).val();
+                this.showNotification(`Challenge sent to ${friendName}!`);
+            }
+
+            async challengeRandomFriend() {
+                const friendsSnapshot = await this.friendsRef.once('value');
+                const friends = friendsSnapshot.val() || {};
+                const friendIds = Object.keys(friends).filter(id => friends[id] === true);
+                
+                if (friendIds.length === 0) {
+                    this.showNotification("You need friends to challenge!");
+                    return;
+                }
+                
+                const randomFriendId = friendIds[Math.floor(Math.random() * friendIds.length)];
+                this.challengeFriend(randomFriendId);
             }
 
             async checkChallenges(challenges) {
@@ -757,10 +923,10 @@
                     if (challenge.to === this.userId && challenge.status === 'pending') {
                         if (confirm(`${challenge.fromName} challenged you! Accept?`)) {
                             // Start challenge
-                            await update(ref(db, `challenges/${challengeId}`), { status: 'accepted' });
+                            await db.ref(`challenges/${challengeId}`).update({ status: 'accepted' });
                             this.startChallenge(challenge.from);
                         } else {
-                            await update(ref(db, `challenges/${challengeId}`), { status: 'declined' });
+                            await db.ref(`challenges/${challengeId}`).update({ status: 'declined' });
                         }
                     }
                 }
@@ -769,8 +935,80 @@
             async startChallenge(opponentId) {
                 this.showNotification("Challenge started! First to 10 interactions wins!");
                 
-                // Implement challenge logic here
-                // Could be a real-time minigame where both players compete
+                let playerScore = 0;
+                let opponentScore = 0;
+                
+                // Create a challenge game in Firebase
+                const challengeGameRef = db.ref(`challengeGames/${this.userId}_${opponentId}`);
+                await challengeGameRef.set({
+                    player1: this.userId,
+                    player2: opponentId,
+                    player1Score: 0,
+                    player2Score: 0,
+                    status: 'active',
+                    winner: null,
+                    startTime: Date.now()
+                });
+                
+                // Listen for score updates
+                challengeGameRef.on('value', (snapshot) => {
+                    const gameData = snapshot.val();
+                    if (gameData) {
+                        playerScore = gameData.player1Score;
+                        opponentScore = gameData.player2Score;
+                        
+                        if (gameData.status === 'completed') {
+                            if (gameData.winner === this.userId) {
+                                this.showNotification("You won the challenge! +50 coins");
+                                this.userRef.child('score').transaction(score => (score || 0) + 50);
+                            } else {
+                                this.showNotification("You lost the challenge. Better luck next time!");
+                            }
+                            challengeGameRef.off();
+                        }
+                    }
+                });
+                
+                // Set up challenge interaction
+                const challengeInteraction = () => {
+                    if (playerScore < 10 && opponentScore < 10) {
+                        challengeGameRef.child('player1Score').transaction(score => (score || 0) + 1);
+                        this.showNotification(`Score: ${playerScore + 1}-${opponentScore}`);
+                        
+                        // Check for win
+                        if (playerScore + 1 >= 10) {
+                            challengeGameRef.update({
+                                status: 'completed',
+                                winner: this.userId,
+                                endTime: Date.now()
+                            });
+                        }
+                    }
+                };
+                
+                // Add challenge interaction to all buttons
+                const buttons = ['feedBtn', 'playBtn', 'cleanBtn', 'trainBtn'];
+                buttons.forEach(btnId => {
+                    const btn = document.getElementById(btnId);
+                    const originalClick = btn.onclick;
+                    btn.onclick = () => {
+                        if (originalClick) originalClick();
+                        challengeInteraction();
+                    };
+                });
+                
+                // Set timeout for challenge (5 minutes)
+                setTimeout(async () => {
+                    const gameData = (await challengeGameRef.once('value')).val();
+                    if (gameData && gameData.status === 'active') {
+                        await challengeGameRef.update({
+                            status: 'completed',
+                            winner: playerScore > opponentScore ? this.userId : 
+                                   opponentScore > playerScore ? opponentId : 'draw',
+                            endTime: Date.now()
+                        });
+                    }
+                }, 5 * 60 * 1000);
             }
 
             showNotification(message) {
@@ -783,29 +1021,6 @@
                 }, 3000);
             }
         }
-
-        // Initialize the game
-        const game = new VirtualPet(user.id);
-
-        // Set up button event listeners
-        document.getElementById('feedBtn').addEventListener('click', () => game.performAction('feed'));
-        document.getElementById('playBtn').addEventListener('click', () => game.performAction('play'));
-        document.getElementById('sleepBtn').addEventListener('click', () => game.performAction('sleep'));
-        document.getElementById('cleanBtn').addEventListener('click', () => game.performAction('clean'));
-        document.getElementById('trainBtn').addEventListener('click', () => game.performAction('train'));
-        
-        // Pet click interaction
-        document.getElementById('pet').addEventListener('click', () => {
-            game.performAction('pet');
-        });
-
-        // Invite friend button
-        document.getElementById('inviteBtn').addEventListener('click', () => {
-            const inviteLink = `https://t.me/YOUR_BOT_USERNAME?startapp=petgame_${user.id}`;
-            navigator.clipboard.writeText(inviteLink)
-                .then(() => game.showNotification("Invite link copied! Share with friends!"))
-                .catch(() => prompt("Copy this invite link to share:", inviteLink));
-        });
     </script>
 </body>
 </html>
