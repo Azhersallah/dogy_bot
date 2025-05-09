@@ -1,26 +1,5 @@
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyC6-AK8Xf6Wpf3fAIgEzP9htfb38RpmfZQ",
-    authDomain: "test33-f1333.firebaseapp.com",
-    projectId: "test33-f1333",
-    storageBucket: "test33-f1333.appspot.com",
-    messagingSenderId: "1063398052714",
-    appId: "1:1063398052714:web:df7f29879f24f459670b13",
-    measurementId: "G-ZQM7V8XS88"
-};
-
-// Initialize Firebase
-let db;
-try {
-    const app = firebase.initializeApp(firebaseConfig);
-    db = firebase.getDatabase(app);
-    console.log("Firebase initialized successfully");
-} catch (error) {
-    console.error("Firebase initialization error:", error);
-}
-
-// Game elements
 const pointElement = document.getElementById('points');
+let points = Number(pointElement.textContent);
 const legProgress = document.getElementById('legProgress');
 const currentLegElement = document.getElementById('currentLeg');
 const commonItemElement = document.getElementById('common_item');
@@ -37,505 +16,508 @@ const mythicBtn = document.getElementById('mythic-chicken');
 const startCatchingbtn = document.getElementById('start-catching');
 const newChicken = document.getElementById('time-value');
 const Chicken_Arrive = document.getElementById('chickenArrive');
-const currentEnergys_ = document.getElementById('current-energy');
-const myLevel = document.getElementById('level-nubmer');
-const upgrade_time = document.getElementById('upgradeTime');
-const upgradefox_btn = document.getElementById('upgrade-btn');
-const claimChicken = document.getElementById('claim-chicken');
-const spinnerTest = document.querySelector('.spinnerTest');
-
-// Default game state for new users
-const DEFAULT_GAME_STATE = {
-    points: 0,
-    level: 1,
-    currentEnergy: 0,
-    maxEnergy: 5,
-    currentLeg: 0,
-    maxLeg: 60,
-    items: {
-        common: 1,
-        rare: 1,
-        epic: 1,
-        legendary: 1,
-        mythic: 0
-    },
-    chickenArrivalTime: 0,
-    catchingEndTime: 0,
-    upgradeEndTime: 0
-};
-
-let userId;
-let userData = {...DEFAULT_GAME_STATE};
 let isCatching = false;
-let isUpgrading = false;
-let chickenInterval;
-let catchingInterval;
-let upgradeInterval;
+let currentEnergys_ = document.getElementById('current-energy');
+let currentEnergy = Number(currentEnergys_.textContent);
+const myLevel = document.getElementById('level-nubmer');
+let g_level = Number(myLevel.textContent);
+let maxEnergy = g_level * 5;
+document.getElementById('max-energy').textContent = maxEnergy;
 
-// Initialize the game when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initGame, 500);
-});
+let maxLeg = (g_level + 5) * 10;
+document.getElementById('maxleg').textContent = maxLeg;
 
-function initGame() {
-    // Get user ID from Telegram or use test ID
-    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
-        userId = Telegram.WebApp.initDataUnsafe.user.id.toString();
-        Telegram.WebApp.expand();
-        console.log("Telegram user ID:", userId);
-    } else {
-        userId = "test_user_" + Math.floor(Math.random() * 10000);
-        console.log("Using test user ID:", userId);
-    }
+let totalSeconds = g_level * 2.89 * 3600;
+let hours = Math.floor(totalSeconds / 3600);
+let minutes = Math.floor((totalSeconds % 3600) / 60);
+let seconds = totalSeconds % 60;
 
-    // Load game data (will create new user if doesn't exist)
-    loadGameData();
+hours = String(hours).padStart(2, '0');
+minutes = String(minutes).padStart(2, '0');
+seconds = String(seconds).padStart(2, '0');
+
+const upgradeTimeFormatted = `${hours}:${minutes}:${seconds}`;
+
+const upgrade_time = document.getElementById('upgradeTime');
+upgrade_time.textContent = upgradeTimeFormatted;
+
+const fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
+
+async function showMessageBox(message, chicken_type, energyAmount) {
+   return new Promise((resolve) => {
+      document.getElementById('chickenType').textContent = `${chicken_type} / ${energyAmount} Energy`;
+      document.getElementById('chicken-msg-img').src = `svg/${chicken_type}.svg`;
+      const messageBox = document.getElementById('messageBox');
+      const messageText = document.getElementById('messageText');
+
+      messageText.innerText = message;
+      messageBox.style.display = 'flex';
+      document.body.classList.add('no-scroll');
+
+      const yesButton = document.getElementById('yesButton');
+
+      yesButton.onclick = async function () {
+         const spinner = document.createElement('div');
+         spinner.classList.add('button-spinner');
+         yesButton.appendChild(spinner);
+
+         yesButton.disabled = true;
+         yesButton.style.opacity = '0.5';
+         yesButton.style.pointerEvents = 'none';
+
+         await new Promise(r => setTimeout(r, 2000));
+
+         yesButton.removeChild(spinner);
+         yesButton.disabled = false;
+         yesButton.style.opacity = '1';
+         yesButton.style.pointerEvents = 'auto';
+
+         resolve(true);
+         closeMessageBox();
+      };
+
+      document.getElementById('noButton').onclick = function () {
+         resolve(false);
+         closeMessageBox();
+      };
+   });
 }
 
-async function loadGameData() {
-    try {
-        if (!db) {
-            throw new Error("Firebase not initialized");
-        }
-
-        const userRef = firebase.ref(db, 'users/' + userId);
-        const snapshot = await firebase.get(userRef);
-
-        if (snapshot.exists()) {
-            console.log("Loaded existing user data");
-            userData = snapshot.val();
-            showToast("Game loaded successfully", true);
-        } else {
-            console.log("Creating new user data");
-            // Initialize with current timestamps
-            const now = Math.floor(Date.now() / 1000);
-            userData = {
-                ...DEFAULT_GAME_STATE,
-                chickenArrivalTime: now + 43200 // 12 hours from now
-            };
-            await firebase.set(userRef, userData);
-            showToast("New game started!", true);
-        }
-
-        updateUI();
-        startTimers();
-    } catch (error) {
-        console.error("Error loading game data:", error);
-        showToast("Failed to connect to server. Using offline mode.", false);
-        
-        // Fallback to localStorage
-        const savedData = localStorage.getItem('foxGameData');
-        if (savedData) {
-            try {
-                userData = JSON.parse(savedData);
-                showToast("Loaded from local storage", true);
-            } catch (parseError) {
-                console.error("Error parsing local storage data:", parseError);
-                // Initialize with default data
-                const now = Math.floor(Date.now() / 1000);
-                userData = {
-                    ...DEFAULT_GAME_STATE,
-                    chickenArrivalTime: now + 43200
-                };
-                showToast("Starting new game offline", true);
-            }
-        } else {
-            // Initialize with default data
-            const now = Math.floor(Date.now() / 1000);
-            userData = {
-                ...DEFAULT_GAME_STATE,
-                chickenArrivalTime: now + 43200
-            };
-            showToast("Starting new game offline", true);
-        }
-        
-        updateUI();
-        startTimers();
-    }
+function closeMessageBox() {
+   document.getElementById('messageBox').style.display = 'none';
+   document.body.classList.remove('no-scroll');
 }
 
-async function saveGameData() {
-    try {
-        if (db) {
-            const userRef = firebase.ref(db, 'users/' + userId);
-            await firebase.update(userRef, userData);
-            console.log("Game data saved to Firebase");
-        } else {
-            throw new Error("Firebase not available");
-        }
-    } catch (error) {
-        console.error("Error saving to Firebase:", error);
-        // Fallback to localStorage
-        localStorage.setItem('foxGameData', JSON.stringify(userData));
-        console.log("Game data saved to local storage");
-    }
-}
+// end of message box
 
-function updateUI() {
-    // Update points and level
-    pointElement.textContent = userData.points;
-    myLevel.textContent = userData.level;
-    
-    // Update energy display
-    currentEnergys_.textContent = userData.currentEnergy;
-    document.getElementById('max-energy').textContent = userData.maxEnergy;
-    progressBar.style.width = (userData.currentEnergy / userData.maxEnergy) * 100 + '%';
-    
-    // Update legs progress
-    currentLegElement.textContent = Math.min(userData.points, userData.maxLeg);
-    document.getElementById('maxleg').textContent = userData.maxLeg;
-    legProgress.style.width = (Math.min(userData.points, userData.maxLeg) / userData.maxLeg) * 100 + '%';
-    
-    // Update item counts
-    commonItemElement.textContent = userData.items.common;
-    rareItemElement.textContent = userData.items.rare;
-    epicItemElement.textContent = userData.items.epic;
-    legendaryItemElement.textContent = userData.items.legendary;
-    mythicItemElement.textContent = userData.items.mythic;
-    
-    // Calculate and display upgrade time
-    const totalSeconds = userData.level * 2.89 * 3600;
-    const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-    const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-    const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, '0');
-    upgrade_time.textContent = `${hours}:${minutes}:${seconds}`;
-    
-    // Show upgrade button if ready
-    if (userData.points >= userData.maxLeg && !isUpgrading) {
-        document.getElementById('foxUpgrade').style.display = 'flex';
-    } else {
-        document.getElementById('foxUpgrade').style.display = 'none';
-    }
-}
+// message box 2
+function showMessageBox2(message) {
+   const messageText1 = document.getElementById('messageText1');
+   const messageBox1 = document.getElementById('messageBox1');
 
-function showToast(message, isSuccess) {
-    const toastElement = document.getElementById('toastAlert');
-    const toastMessage = document.getElementById('toastMessage');
-    const iconElement = toastElement.querySelector('.d-flex i');
-    
-    // Set color and icon based on success/failure
-    if (isSuccess) {
-        toastElement.style.setProperty('background-color', '#cdfbcb', 'important');
-        toastElement.style.setProperty('color', '#017909', 'important');
-        iconElement.className = 'bi bi-check-circle-fill';
-    } else {
-        toastElement.style.setProperty('background-color', '#fbcbcb', 'important');
-        toastElement.style.setProperty('color', '#9e0000', 'important');
-        iconElement.className = 'bi bi-exclamation-triangle-fill';
-    }
-    
-    toastMessage.textContent = message;
-    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
-    toast.show();
-}
+   messageText1.innerText = message;
+   messageBox1.style.display = 'flex';
+   document.body.classList.add('no-scroll');
 
-function startTimers() {
-    // Clear any existing intervals
-    if (chickenInterval) clearInterval(chickenInterval);
-    if (catchingInterval) clearInterval(catchingInterval);
-    if (upgradeInterval) clearInterval(upgradeInterval);
+   const yesButton1 = document.getElementById('yesButton1');
+   yesButton1.onclick = async function () {
+      const spinner = document.createElement('div');
+      spinner.classList.add('button-spinner');
+      yesButton1.appendChild(spinner);
 
-    // Chicken arrival timer
-    if (userData.chickenArrivalTime) {
-        startChickenCountdown();
-    }
-    
-    // Catching timer
-    if (userData.catchingEndTime && userData.catchingEndTime > Math.floor(Date.now() / 1000)) {
-        startCatchingTimer();
-    }
-    
-    // Upgrade timer
-    if (userData.upgradeEndTime && userData.upgradeEndTime > Math.floor(Date.now() / 1000)) {
-        startUpgradeTimer();
-    }
-}
+      yesButton1.disabled = true;
+      yesButton1.style.opacity = '0.5';
+      yesButton1.style.pointerEvents = 'none';
 
-function startChickenCountdown() {
-    const now = Math.floor(Date.now() / 1000);
-    let remainingTime = userData.chickenArrivalTime - now;
-    
-    if (remainingTime <= 0) {
-        Chicken_Arrive.style.display = "flex";
-        newChicken.textContent = "00:00:00";
-        return;
-    }
-    
-    updateChickenTimer(remainingTime);
-    
-    chickenInterval = setInterval(() => {
-        remainingTime--;
-        
-        if (remainingTime <= 0) {
-            clearInterval(chickenInterval);
-            Chicken_Arrive.style.display = "flex";
-            newChicken.textContent = "00:00:00";
-            return;
-        }
-        
-        updateChickenTimer(remainingTime);
-    }, 1000);
-}
+      await new Promise((r) => setTimeout(r, 2000));
 
-function updateChickenTimer(seconds) {
-    const hours = Math.floor(seconds / 3600).toString().padStart(2, '0');
-    const minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
-    newChicken.textContent = `${hours}:${minutes}:${secs}`;
-}
+      foxnextlevel();
+      closeMessageBox1();
 
-function startCatchingTimer() {
-    const now = Math.floor(Date.now() / 1000);
-    let remainingTime = userData.catchingEndTime - now;
-    
-    if (remainingTime <= 0) {
-        completeCatching();
-        return;
-    }
-    
-    isCatching = true;
-    startCatchingbtn.disabled = true;
-    startCatchingbtn.style.backgroundColor = 'grey';
-    updateCatchingTimer(remainingTime);
-    
-    catchingInterval = setInterval(() => {
-        remainingTime--;
-        
-        if (remainingTime <= 0) {
-            clearInterval(catchingInterval);
-            completeCatching();
-            return;
-        }
-        
-        updateCatchingTimer(remainingTime);
-    }, 1000);
-}
+      yesButton1.removeChild(spinner);
+      yesButton1.disabled = false;
+      yesButton1.style.opacity = '1';
+      yesButton1.style.pointerEvents = 'auto';
+   };
 
-function updateCatchingTimer(seconds) {
-    const hours = Math.floor(seconds / 3600).toString().padStart(2, '0');
-    const minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
-    startCatchingbtn.innerText = `Catching(${hours}:${minutes}:${secs})`;
-}
-
-function completeCatching() {
-    isCatching = false;
-    startCatchingbtn.innerText = 'Claim';
-    startCatchingbtn.disabled = false;
-    startCatchingbtn.style.backgroundColor = 'green';
-}
-
-function startUpgradeTimer() {
-    const now = Math.floor(Date.now() / 1000);
-    let remainingTime = userData.upgradeEndTime - now;
-    
-    if (remainingTime <= 0) {
-        completeUpgrade();
-        return;
-    }
-    
-    isUpgrading = true;
-    document.getElementById('foxUpgrade').style.display = 'none';
-    updateUpgradeTimer(remainingTime);
-    
-    upgradeInterval = setInterval(() => {
-        remainingTime--;
-        
-        if (remainingTime <= 0) {
-            clearInterval(upgradeInterval);
-            completeUpgrade();
-            return;
-        }
-        
-        updateUpgradeTimer(remainingTime);
-    }, 1000);
-}
-
-function updateUpgradeTimer(seconds) {
-    const hours = Math.floor(seconds / 3600).toString().padStart(2, '0');
-    const minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
-    upgrade_time.textContent = `${hours}:${minutes}:${secs}`;
-}
-
-function completeUpgrade() {
-    isUpgrading = false;
-    userData.level += 1;
-    userData.maxEnergy = userData.level * 5;
-    userData.maxLeg = (userData.level + 5) * 10;
-    userData.upgradeEndTime = 0;
-    
-    updateUI();
-    saveGameData();
-    showToast("Upgrade successful to level " + userData.level, true);
-}
-
-// Chicken types with probabilities
-const CHICKEN_TYPES = [
-    { type: "common", image: "common", probability: 0.5, energy: 5 },
-    { type: "rare", image: "rare", probability: 0.3, energy: 20 },
-    { type: "epic", image: "epic", probability: 0.12, energy: 60 },
-    { type: "legendary", image: "legendary", probability: 0.06, energy: 180 },
-    { type: "mythic", image: "mythic", probability: 0.02, energy: 420 }
-];
-
-function getRandomChicken() {
-    const random = Math.random();
-    let cumulativeProbability = 0;
-
-    for (const chicken of CHICKEN_TYPES) {
-        cumulativeProbability += chicken.probability;
-        if (random < cumulativeProbability) {
-            return chicken;
-        }
-    }
-    return CHICKEN_TYPES[0]; // fallback to common
-}
-
-// Chicken feeding functionality
-commonBtn.addEventListener('click', () => feedChicken('common'));
-rareBtn.addEventListener('click', () => feedChicken('rare'));
-epicBtn.addEventListener('click', () => feedChicken('epic'));
-legendaryBtn.addEventListener('click', () => feedChicken('legendary'));
-mythicBtn.addEventListener('click', () => feedChicken('mythic'));
-
-async function feedChicken(type) {
-    const chicken = CHICKEN_TYPES.find(c => c.type === type);
-    if (!chicken) return;
-
-    if (userData.items[type] <= 0) {
-        showToast(`No ${type} chickens available`, false);
-        return;
-    }
-
-    if (userData.currentEnergy >= userData.maxEnergy) {
-        showToast("Energy is already full!", false);
-        return;
-    }
-
-    userData.items[type]--;
-    userData.currentEnergy = Math.min(userData.currentEnergy + chicken.energy, userData.maxEnergy);
-    
-    updateUI();
-    await saveGameData();
-    showToast(`Fed ${type} chicken! +${chicken.energy} energy`, true);
-}
-
-// Start catching functionality
-startCatchingbtn.addEventListener('click', async () => {
-    if (isCatching) return;
-
-    if (startCatchingbtn.innerText === 'Claim') {
-        await claimCatching();
-        return;
-    }
-
-    if (userData.currentEnergy <= 0) {
-        showToast("Fill energy first!", false);
-        return;
-    }
-
-    startCatching();
-});
-
-function startCatching() {
-    userData.catchingEndTime = Math.floor(Date.now() / 1000) + 43200; // 12 hours
-    isCatching = true;
-    startCatchingbtn.disabled = true;
-    startCatchingbtn.style.backgroundColor = 'grey';
-    
-    saveGameData();
-    startCatchingTimer();
-    showToast("Started catching! Come back in 12 hours", true);
-}
-
-async function claimCatching() {
-    const pointsEarned = Math.floor(Math.random() * (userData.currentEnergy / 2)) + userData.currentEnergy * 2;
-    userData.points += pointsEarned;
-    userData.currentEnergy = 0;
-    userData.catchingEndTime = 0;
-    isCatching = false;
-    
-    startCatchingbtn.innerText = 'Start Catching';
-    startCatchingbtn.style.backgroundColor = '';
-    
-    updateUI();
-    await saveGameData();
-    showToast(`Caught ${pointsEarned} legs!`, true);
-}
-
-// Upgrade functionality
-upgradefox_btn.addEventListener('click', () => {
-    if (isUpgrading) return;
-    
-    if (userData.points < userData.maxLeg) {
-        showToast(`Need ${userData.maxLeg} legs to upgrade`, false);
-        return;
-    }
-
-    showUpgradeConfirmation();
-});
-
-function showUpgradeConfirmation() {
-    const totalSeconds = userData.level * 2.89 * 3600;
-    const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-    const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-    const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, '0');
-    
-    const messageBox = document.getElementById('messageBox1');
-    document.getElementById('messageText1').textContent = 
-        `Upgrade for ${userData.maxLeg} legs?\nUpgrade time: ${hours}:${minutes}:${seconds}`;
-    messageBox.style.display = 'flex';
-    document.body.classList.add('no-scroll');
-
-    document.getElementById('yesButton1').onclick = () => {
-        closeMessageBox1();
-        startUpgrade();
-    };
-    document.getElementById('noButton1').onclick = closeMessageBox1;
+   document.getElementById('noButton1').onclick = function () {
+      closeMessageBox1();
+   };
 }
 
 function closeMessageBox1() {
-    document.getElementById('messageBox1').style.display = 'none';
-    document.body.classList.remove('no-scroll');
+   document.getElementById('messageBox1').style.display = 'none';
+   document.body.classList.remove('no-scroll');
 }
 
-function startUpgrade() {
-    userData.points -= userData.maxLeg;
-    const totalSeconds = userData.level * 2.89 * 3600;
-    userData.upgradeEndTime = Math.floor(Date.now() / 1000) + totalSeconds;
-    isUpgrading = true;
-    
-    updateUI();
-    saveGameData();
-    startUpgradeTimer();
-    showToast("Upgrade started!", true);
+// end of messageBox 2
+
+
+
+// Initialize the toast element
+const toastColor = document.getElementById('toastAlert');
+const toastElement = document.getElementById('toastAlert');
+const toastMessage = document.getElementById('toastMessage');
+const toast = new bootstrap.Toast(toastElement, { delay: 2000 });
+
+function showToast(message, status = false) {
+   const toastColor = document.getElementById('toastAlert');
+   const toastMessage = document.getElementById('toastMessage');
+   const iconElement = toastColor.querySelector('.d-flex i');
+
+   if (status) {
+      toastColor.style.setProperty('background-color', '#cdfbcb', 'important');
+      toastColor.style.setProperty('color', '#017909', 'important');
+      iconElement.className = 'bi bi-check-circle-fill';
+   } else {
+      toastColor.style.setProperty('background-color', '#fbcbcb', 'important');
+      toastColor.style.setProperty('color', '#9e0000', 'important');
+      iconElement.className = 'bi bi-dash-circle-fill';
+   }
+
+   toastMessage.textContent = message;
+   toast.show();
 }
 
-// Claim chicken functionality
-claimChicken.addEventListener('click', async () => {
-    if (Chicken_Arrive.style.display !== "flex") return;
-    
-    spinnerTest.classList.add('spinner');
-    claimChicken.style.pointerEvents = "none";
 
-    setTimeout(async () => {
-        const chicken = getRandomChicken();
-        userData.items[chicken.type]++;
-        userData.chickenArrivalTime = Math.floor(Date.now() / 1000) + 43200; // 12 hours
-        
-        const imgElement = document.getElementById("claim-chicken");
-        imgElement.src = `svg/${chicken.image}.svg`;
-        
-        Chicken_Arrive.style.display = "none";
-        spinnerTest.classList.remove('spinner');
-        
-        updateUI();
-        await saveGameData();
-        startChickenCountdown();
-        showToast(`Got ${chicken.type} chicken!`, true);
-    }, 2000);
+
+let currentLeg = Math.min(points, maxLeg);
+currentLegElement.textContent = currentLeg;
+legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+let isUpgrading = false; // State variable to track if an upgrade is in progress
+
+function foxUpgrade() {
+   const currentLeg = Number(currentLegElement.textContent);
+   const maxLeg = Number(document.getElementById('maxleg').textContent);
+
+   if (currentLeg >= maxLeg && !isUpgrading) {
+      document.getElementById('foxUpgrade').style.display = 'flex';
+   } else {
+      document.getElementById('foxUpgrade').style.display = 'none';
+   }
+   setTimeout(foxUpgrade, 1000); // Keep checking every second
+
+}
+
+// Run the function initially
+foxUpgrade();
+
+
+
+function feedEnergy(maxEnergyForType) {
+   currentEnergy = Math.min(currentEnergy + maxEnergyForType, maxEnergy);
+   let progress = (currentEnergy / maxEnergy) * 100;
+   progressBar.style.width = progress + '%';
+   currentEnergys_.textContent = `${currentEnergy}`;
+}
+
+async function updateProgress(maxEnergyForType, chicken_type) {
+   let sendEnergy = maxEnergyForType + currentEnergy;
+   if (sendEnergy > maxEnergy && currentEnergy < maxEnergy) {
+      let excessEnergy = sendEnergy - maxEnergy;
+
+      const resultmsb = await showMessageBox("If you feed it this Chicken\nyou'll waste " + excessEnergy + " energy.\nAre you sure?", chicken_type, maxEnergyForType);
+      if (resultmsb) {
+         feedEnergy(maxEnergyForType);
+         return true;
+      } else {
+         return false;
+      }
+
+   } else if (currentEnergy < maxEnergy) {
+      const resultmsb = await showMessageBox("Do you want to use Chicken\nto feed Fox?", chicken_type, maxEnergyForType);
+      if (resultmsb) {
+         feedEnergy(maxEnergyForType);
+         return true;
+      } else {
+         return false;
+      }
+   } else {
+      showToast('Energy is full');
+      return false;
+   }
+}
+
+
+commonBtn.addEventListener('click', async () => {
+   let commonItemCount = Number(commonItemElement.textContent);
+   if (commonItemCount > 0) {
+      let commonEnergy = 5;
+      const commonFeed = await updateProgress(commonEnergy, 'common');
+      if (commonFeed) {
+         commonItemElement.textContent = commonItemCount - 1;
+         showToast('Feed fox successfuly!', true)
+      }
+   } else {
+      showToast('You have no common chicken');
+   }
 });
 
-// Initialize the game
-initGame();
+rareBtn.addEventListener('click', async () => {
+   let rareItemCount = Number(rareItemElement.textContent);
+   if (rareItemCount > 0) {
+      let rareEnergy = 20;
+      const rareFeed = await updateProgress(rareEnergy, 'rare');
+      if (rareFeed) {
+         rareItemElement.textContent = rareItemCount - 1;
+         showToast('Feed fox successfuly!', true)
+      }
+   } else {
+      showToast('You have no rare chicken');
+   }
+});
+
+epicBtn.addEventListener('click', async () => {
+   let epicItemCount = Number(epicItemElement.textContent);
+   if (epicItemCount > 0) {
+      let epicEnergy = 60;
+      const epicFeed = await updateProgress(epicEnergy, 'epic');
+      if (epicFeed) {
+         epicItemElement.textContent = epicItemCount - 1;
+         showToast('Feed fox successfuly!', true)
+      }
+   } else {
+      showToast('You have no epic chicken');
+   }
+});
+
+legendaryBtn.addEventListener('click', async () => {
+   let legendaryItemCount = Number(legendaryItemElement.textContent);
+   if (legendaryItemCount > 0) {
+      let legendaryEnergy = 180;
+      const legendaryFeed = await updateProgress(legendaryEnergy, 'legendary');
+      if (legendaryFeed) {
+         legendaryItemElement.textContent = legendaryItemCount - 1;
+         showToast('Feed fox successfuly!', true)
+      }
+   } else {
+      showToast('You have no legendary chicken');
+   }
+});
+
+mythicBtn.addEventListener('click', async () => {
+   let mythicItemCount = Number(mythicItemElement.textContent);
+   if (mythicItemCount > 0) {
+      let mythicEnergy = 420;
+      const mythicFeed = await updateProgress(mythicEnergy, 'mythic');
+      if (mythicFeed) {
+         mythicItemElement.textContent = mythicItemCount - 1;
+         showToast('Feed fox successfuly!', true)
+      }
+   } else {
+      showToast('You have no mythic chicken');
+   }
+});
+
+startCatchingbtn.addEventListener('click', () => {
+   if (currentEnergy > 0 && !isCatching) {
+      showToast("Start catching successfully!", true);
+      isCatching = true;
+      startCatchingbtn.disabled = true;
+      startCatchingbtn.style.backgroundColor = 'grey';
+      let countdown = 10;
+      const interval = setInterval(() => {
+         if (countdown <= 0) {
+            clearInterval(interval);
+            startCatchingbtn.disabled = false;
+            startCatchingbtn.style.backgroundColor = 'green';
+            startCatchingbtn.innerText = 'Claim';
+         } else {
+            const hours = Math.floor(countdown / 3600);
+            const minutes = Math.floor((countdown % 3600) / 60);
+            const seconds = countdown % 60;
+            startCatchingbtn.innerText = `Catching(${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')})`;
+            countdown--;
+         }
+      }, 1000);
+   } else if (startCatchingbtn.innerText === 'Claim') {
+      const energyValue = Number(currentEnergys_.textContent);
+      const pointsEarned = Math.floor(Math.random() * (energyValue / 2)) + energyValue * 2;
+      points = points + pointsEarned;
+      pointElement.textContent = points
+      console.log(points);
+
+      currentLeg = Math.min(points, maxLeg)
+      currentLegElement.textContent = currentLeg;
+      legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+
+      startCatchingbtn.innerText = 'Start Catching';
+      startCatchingbtn.style.backgroundColor = '';
+      isCatching = false;
+      currentEnergys_.textContent = 0;
+      progressBar.style.width = 0 + '%';
+      currentEnergy = 0;
+      showToast("You claimed " + pointsEarned + " Legs", true)
+
+   } else {
+
+      showToast(" Please fill the energy first!");
+   }
+});
+const upgradefox_btn = document.getElementById('upgrade-btn');
+
+upgradefox_btn.addEventListener('click', () => {
+   let upgrade_fee = maxLeg;
+   let fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
+
+   showMessageBox2("It requires " + upgrade_fee + " Legs\nUpgrade time: " + fox_time_level_up)
+
+});
+
+function foxnextlevel() {
+
+   if (currentLeg >= maxLeg) {
+      showToast('Fox upgrading has started!', true)
+      points = Math.max(points - maxLeg);
+      pointElement.textContent = points;
+      let fox_time_level_up = upgrade_time.textContent; // Get the time in the format "02:53:24"
+      let countdownTime = parseTimeToSeconds(fox_time_level_up); // Convert to seconds
+
+      isUpgrading = true; // Set upgrading status to true
+
+      // Start the countdown timer
+      startCountdown(countdownTime);
+   } else {
+      showToast("You need to reach the maximum leg to upgrade.");
+   }
+
+   // Function to parse the "HH:MM:SS" format to seconds
+   function parseTimeToSeconds(timeString) {
+      const [hours, minutes, seconds] = timeString.split(':').map(Number);
+      return hours * 3600 + minutes * 60 + seconds;
+   }
+
+   // Countdown timer function
+   function startCountdown(duration) {
+      let timeLeft = duration;
+
+      const countdownInterval = setInterval(() => {
+         timeLeft--;
+
+         // Update the `upgrade_time` element's text content with the new time
+         const hours = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
+         const minutes = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
+         const seconds = (timeLeft % 60).toString().padStart(2, '0');
+         upgrade_time.textContent = `${hours}:${minutes}:${seconds}`;
+
+         // When countdown ends, clear interval and trigger the next action
+         if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            upgrade_time.textContent = "00:00:00"; // Optional: reset to zero
+            performNextAction(); // Call the function for the next action
+         }
+      }, 1000);
+   }
+
+   // Function for the next action after countdown ends
+   function performNextAction() {
+      isUpgrading = false; // Reset upgrading status to false
+
+
+      g_level += 1;
+      myLevel.textContent = g_level;
+
+      maxEnergy = g_level * 5;
+      document.getElementById('max-energy').textContent = maxEnergy;
+
+      maxLeg = (g_level + 5) * 10;
+      document.getElementById('maxleg').textContent = maxLeg;
+
+      currentLeg = Math.min(points, maxLeg);
+      currentLegElement.textContent = currentLeg;
+      legProgress.style.width = (currentLeg / maxLeg) * 100 + '%';
+      progress = (currentEnergy / maxEnergy) * 100;
+      progressBar.style.width = progress + '%';
+
+      showToast("Upgrade successful to level " + g_level, true);
+
+
+   }
+
+}
+
+// Define the chicken types with their images and probabilities
+const chickens = [
+   { type: "common", image: "common", probability: 0.5 },
+   { type: "rare", image: "rare", probability: 0.2 },
+   { type: "epic", image: "epic", probability: 0.15 },
+   { type: "legendary", image: "legendary", probability: 0.1 },
+   { type: "mythic", image: "mythic", probability: 0.05 },
+];
+
+// Function to randomly select a chicken image based on defined probabilities
+function getRandomChicken() {
+   const random = Math.random(); // Generate a random number between 0 and 1
+   let cumulativeProbability = 0;
+
+   for (const chicken of chickens) {
+      cumulativeProbability += chicken.probability; // Accumulate the probability
+      if (random < cumulativeProbability) {
+         return chicken.image; // Return the image of the selected chicken type
+      }
+   }
+}
+
+// New chicken arrived function
+function startChickenCountdown() {
+   const imgElement = document.getElementById("claim-chicken");
+   imgElement.style.pointerEvents = "auto";
+   // Get the initial time value in the format "HH:MM:SS"
+   let timeValue = "00:01:00";
+   let countdownTime = parseTimeToSeconds(timeValue); // Convert to seconds
+
+   // Start the countdown
+   const countdownInterval = setInterval(() => {
+      if (countdownTime <= 0) {
+         clearInterval(countdownInterval);
+         newChicken.textContent = "00:00:00"; // Reset to zero
+
+         // Show toast message when complete
+         showToast("New chicken is arrived!", true);
+         Chicken_Arrive.style.display = "flex";
+
+
+         // Set the new chicken image
+         const newChickenImage = getRandomChicken(); // Get a random chicken image
+         const chickenImageElement = document.getElementById('claim-chicken'); // Select your image element
+         chickenImageElement.src = "svg/" + newChickenImage + ".svg"; // Update the image source
+
+
+
+      } else {
+         countdownTime--;
+
+         // Update the `newChicken` element's text content with the new time
+         const hours = Math.floor(countdownTime / 3600).toString().padStart(2, '0');
+         const minutes = Math.floor((countdownTime % 3600) / 60).toString().padStart(2, '0');
+         const seconds = (countdownTime % 60).toString().padStart(2, '0');
+         newChicken.textContent = `${hours}:${minutes}:${seconds}`;
+      }
+   }, 1000);
+}
+
+// Function to parse the "HH:MM:SS" format to seconds
+function parseTimeToSeconds(timeString) {
+   const [hours, minutes, seconds] = timeString.split(':').map(Number);
+   return hours * 3600 + minutes * 60 + seconds;
+}
+
+const claimChicken = document.getElementById('claim-chicken');
+const spinnerTest = document.querySelector('.spinnerTest'); // Select the spinnerTest element
+
+claimChicken.addEventListener('click', () => {
+   // Add the spinner class to the spinnerTest element
+   spinnerTest.classList.add('spinner'); // Ensure you have the appropriate CSS for the spinner
+   const imgElement = document.getElementById("claim-chicken");
+   imgElement.style.pointerEvents = "none";
+
+
+   // Use setTimeout to delay the chicken claiming logic
+   setTimeout(() => {
+      startChickenCountdown();
+      showToast("Chicken is Claimed", true); 
+      Chicken_Arrive.style.display = "none";
+      const imgSrc = imgElement.src;
+      const imgName = imgSrc.substring(imgSrc.lastIndexOf("/") + 1);
+      spinnerTest.classList.remove('spinner');
+
+     if (imgName === "common.svg") {
+        let commonItemCounts = Number(commonItemElement.textContent);
+        commonItemElement.textContent = commonItemCounts+ 1;
+    } else if (imgName === "rare.svg") {
+      let rareItemCounts = Number(rareItemElement.textContent);
+        rareItemElement.textContent = rareItemCounts + 1;
+    } else if (imgName === "epic.svg") {
+      let epicItemCounts = Number(epicItemElement.textContent);
+        epicItemElement.textContent = epicItemCounts + 1;
+    } else if (imgName === "legendary.svg") {
+      let legendaryItemCounts = Number(legendaryItemElement.textContent);
+        legendaryItemElement.textContent = legendaryItemCounts + 1;
+    } else if (imgName === "mythic.svg") {
+      let mythicItemCounts = Number(mythicItemElement.textContent);
+        mythicItemElement.textContent = mythicItemCounts + 1;
+    }
+
+   }, 2000); // Delay for 2 seconds
+});
+startChickenCountdown();
