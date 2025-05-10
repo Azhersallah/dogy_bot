@@ -1,12 +1,11 @@
-F
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fox's Leg Coin Game</title>
   <link rel="stylesheet" href="css/loadingscreen.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * {
       margin: 0;
@@ -122,7 +121,6 @@ F
       from {
         opacity: 0;
       }
-
       to {
         opacity: 1;
       }
@@ -133,7 +131,6 @@ F
         opacity: 0;
         transform: translateY(20px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -143,12 +140,9 @@ F
 </head>
 
 <body>
-
-
   <div id="loading">
     <img src="img/foxload.gif" alt="">
   </div>
-
 
   <div class="container">
     <div class="header">
@@ -167,13 +161,120 @@ F
 
     <button class="continue-button" onclick="indexPage()">Start Feeding the Fox</button>
   </div>
-  <script src="js/loadingscreen.js"></script>
-  <script>
-    function indexPage() {
-      window.location.href = 'home.html';
+
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCv234_o3nSE2ljP5tgVP-c1MLrRA1witQ",
+      authDomain: "dogybot-d985c.firebaseapp.com",
+      databaseURL: "https://dogybot-d985c-default-rtdb.firebaseio.com",
+      projectId: "dogybot-d985c",
+      storageBucket: "dogybot-d985c.firebasestorage.app",
+      messagingSenderId: "459874143073",
+      appId: "1:459874143073:web:c1cfa551ef4c89e2105320",
+      measurementId: "G-4YK9GNN7XS"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const database = getDatabase(app);
+
+    // Telegram WebApp initialization
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // Get user data from Telegram
+    const user = tg.initDataUnsafe.user;
+    const userId = user?.id;
+    const username = user?.username || `user_${userId}`;
+    const firstName = user?.first_name || 'Anonymous';
+    const lastName = user?.last_name || '';
+    const photoUrl = user?.photo_url || '';
+
+    // Check if user exists in database
+    async function checkUserExists(userId) {
+      const dbRef = ref(database);
+      try {
+        const snapshot = await get(child(dbRef, `users/${userId}`));
+        return snapshot.exists();
+      } catch (error) {
+        console.error("Error checking user:", error);
+        return false;
+      }
     }
 
+    // Create new user in database
+    async function createNewUser(userId, userData) {
+      try {
+        await set(ref(database, `users/${userId}`), userData);
+        console.log("New user created successfully");
+      } catch (error) {
+        console.error("Error creating user:", error);
+      }
+    }
+
+    // Initialize user session
+    async function initUser() {
+      if (!userId) {
+        console.error("No user ID from Telegram");
+        return;
+      }
+
+      const userExists = await checkUserExists(userId);
+      
+      if (!userExists) {
+        // New user - show welcome screen
+        document.getElementById('loading').style.display = 'none';
+        
+        // Prepare user data
+        const userData = {
+          username: username,
+          firstName: firstName,
+          lastName: lastName,
+          photoUrl: photoUrl,
+          points: 0,
+          level: 1,
+          commonItems: 1,
+          rareItems: 1,
+          epicItems: 1,
+          legendaryItems: 1,
+          mythicItems: 0,
+          createdAt: new Date().toISOString()
+        };
+        
+        // Store user data in localStorage temporarily
+        localStorage.setItem('newUserData', JSON.stringify(userData));
+      } else {
+        // Existing user - redirect to home
+        window.location.href = 'home.html';
+      }
+    }
+
+    // Start the initialization
+    initUser();
+
+    // Continue button function
+    function indexPage() {
+      const newUserData = JSON.parse(localStorage.getItem('newUserData'));
+      if (newUserData) {
+        createNewUser(userId, newUserData)
+          .then(() => {
+            localStorage.removeItem('newUserData');
+            window.location.href = 'home.html';
+          });
+      } else {
+        window.location.href = 'home.html';
+      }
+    }
+
+    // Make function available globally
+    window.indexPage = indexPage;
   </script>
 </body>
-
 </html>
