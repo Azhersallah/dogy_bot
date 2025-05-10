@@ -441,6 +441,73 @@
 
 
    <script src="js/loadingscreen.js"></script>
+   <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+  import { getDatabase, ref, get, child, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCv234_o3nSE2ljP5tgVP-c1MLrRA1witQ",
+    authDomain: "dogybot-d985c.firebaseapp.com",
+    databaseURL: "https://dogybot-d985c-default-rtdb.firebaseio.com",
+    projectId: "dogybot-d985c",
+    storageBucket: "dogybot-d985c.firebasestorage.app",
+    messagingSenderId: "459874143073",
+    appId: "1:459874143073:web:c1cfa551ef4c89e2105320",
+    measurementId: "G-4YK9GNN7XS"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  // Telegram WebApp initialization
+  const tg = window.Telegram.WebApp;
+  const user = tg.initDataUnsafe.user;
+  const userId = user?.id;
+
+  // Load user data from Firebase
+  async function loadUserData() {
+    if (!userId) {
+      console.error("No user ID from Telegram");
+      return;
+    }
+
+    const dbRef = ref(database);
+    try {
+      const snapshot = await get(child(dbRef, `users/${userId}`));
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        
+        // Update UI with user data
+        document.getElementById('points').textContent = userData.points || 0;
+        document.getElementById('level-nubmer').textContent = userData.level || 1;
+        document.getElementById('common_item').textContent = userData.commonItems || 1;
+        document.getElementById('rare_item').textContent = userData.rareItems || 1;
+        document.getElementById('epic_item').textContent = userData.epicItems || 1;
+        document.getElementById('legendary_item').textContent = userData.legendaryItems || 1;
+        document.getElementById('mythic_item').textContent = userData.mythicItems || 0;
+        
+        // Update user profile
+        const userPhoto = document.querySelector('.userPhoto img');
+        if (userData.photoUrl) {
+          userPhoto.src = userData.photoUrl;
+        }
+        
+        const userName = document.querySelector('.name');
+        if (userData.firstName) {
+          userName.textContent = `${userData.firstName} ${userData.lastName || ''}`.trim();
+        }
+      }
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    }
+  }
+
+  // Call the function when the page loads
+  document.addEventListener('DOMContentLoaded', loadUserData);
+</script>
 
 </body>
 
