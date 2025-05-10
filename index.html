@@ -1,0 +1,179 @@
+F
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fox's Leg Coin Game</title>
+  <link rel="stylesheet" href="css/loadingscreen.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body,
+    html {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      background-image: url(img/firstPage.jpeg);
+      background-position: top;
+      background-size: cover;
+      background-repeat: no-repeat;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Verdana', sans-serif;
+      overflow: hidden;
+      color: #fff;
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, #ff9a2826, rgba(0, 0, 0, 0.785));
+      position: absolute;
+      z-index: -1;
+    }
+
+    .container {
+      position: relative;
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.677);
+      border-radius: 20px;
+      padding: 40px 30px;
+      text-align: center;
+      backdrop-filter: blur(3px);
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      margin-bottom: 20px;
+      animation: fadeIn 1s ease forwards;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .header img {
+      width: 50px;
+    }
+
+    .header h1 {
+      font-size: 30px;
+      color: #000000;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      font-size: 16px;
+      color: #000000;
+    }
+
+    .content {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #000000;
+      line-height: 1.6;
+      text-align: justify;
+      animation: fadeInUp 1s ease forwards;
+      opacity: 0;
+    }
+
+    .imgback {
+      background-color: #222222;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 1000px;
+      margin-bottom: 10px;
+    }
+
+    .continue-button {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+      background: #222222;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      box-shadow: 0px 0px 8px 0px rgba(228, 228, 228, 0.163);
+    }
+
+    .continue-button:active {
+      background: #313131;
+      transform: scale(0.96);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <div id="loading">
+    <img src="img/foxload.gif" alt="">
+  </div>
+
+
+  <div class="container">
+    <div class="header">
+      <div class="imgback">
+        <img src="svg/legs.svg" alt="Fox Icon">
+      </div>
+      <h1>Leg's Coin Game</h1>
+      <p>Feed the fox, collect legs, and earn coins!</p>
+    </div>
+
+    <div class="content">
+      <p>Welcome to the Leg's Coin Game! Your mission is simple yet thrilling: help our fox feast on chickens and gather
+        as many legs as possible. Each leg you collect is worth coins. The fox is counting on you to bring it a
+        feast—how many coins will you gather?</p>
+    </div>
+
+    <button class="continue-button" onclick="indexPage()">Start Feeding the Fox</button>
+  </div>
+  <script src="js/loadingscreen.js"></script>
+  <script>
+    function indexPage() {
+      window.location.href = 'home.html';
+    }
+
+  </script>
+</body>
+
+</html>
